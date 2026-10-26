@@ -146,6 +146,16 @@ public abstract class GameScreen {
   }
 
   /**
+   * Start of a logic step: let every sprite remember its position (for
+   * smooth motion) and advance its per-step animation.
+   */
+  protected final void tickSprites() {
+    for (int i = 0; i < sprites.size(); i++) {
+      ((Sprite)sprites.elementAt(i)).onTick();
+    }
+  }
+
+  /**
    * Paint all sprites except the given ones (which the caller has
    * already painted, e.g. underneath another layer).
    */

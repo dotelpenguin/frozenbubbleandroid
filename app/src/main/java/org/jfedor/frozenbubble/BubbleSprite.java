@@ -80,6 +80,9 @@ public class BubbleSprite extends Sprite {
   private SoundManager  soundManager;
   private double        moveX, moveY;
   private double        realX, realY;
+  /* Exact position at the start of the last logic step, for smooth motion. */
+  private double        prevRealX, prevRealY;
+  private boolean       hasPrevReal = false;
   private Point         lastOpenPosition;
 
   private boolean blink;
@@ -550,32 +553,71 @@ public class BubbleSprite extends Sprite {
     super.absoluteMove(new Point((int)realX, (int)realY));
   }
 
+  /**
+   * Start of a logic step.  The check flags, the blink and the "stuck"
+   * flash used to be advanced while drawing, which assumed exactly one
+   * frame per step; they now advance once per step here, so they behave
+   * the same at any frame rate.
+   */
+  @Override
+  public void onTick() {
+    super.onTick();
+    prevRealX   = realX;
+    prevRealY   = realY;
+    hasPrevReal = true;
+    checkJump   = false;
+    checkFall   = false;
+    blink       = false;
+    if (fixedAnim != -1) {
+      fixedAnim++;
+      if (fixedAnim >= 6) {
+        fixedAnim = -1;
+      }
+    }
+  }
+
+  /*
+   * Draw from the exact (fractional) position for sub-pixel motion,
+   * keeping any offset the sprite area has from it (frozen bubbles are
+   * shifted by a pixel).
+   */
+  @Override
+  public float getDrawX() {
+    int left = getSpriteArea().left;
+    if (hasPrevReal && smoothMove(realX - prevRealX, realY - prevRealY)) {
+      return (float) (lerp(prevRealX, realX) + (left - (int) realX));
+    }
+    return left;
+  }
+
+  @Override
+  public float getDrawY() {
+    int top = getSpriteArea().top;
+    if (hasPrevReal && smoothMove(realX - prevRealX, realY - prevRealY)) {
+      return (float) (lerp(prevRealY, realY) + (top - (int) realY));
+    }
+    return top;
+  }
+
   public final void paint(Canvas c, double scale, int dx, int dy) {
-    checkJump = false;
-    checkFall = false;
-    Point p = getSpritePosition();
+    float x = getDrawX();
+    float y = getDrawY();
 
     if (blink && bubbleFace != frozenFace) {
-      blink = false;
-      drawImage(bubbleBlink, p.x, p.y, c, scale, dx, dy);
+      drawImage(bubbleBlink, x, y, c, scale, dx, dy);
     }
     else {
       if (FrozenBubble.getColorMode() == FrozenBubble.GAME_NORMAL ||
           bubbleFace == frozenFace) {
-        drawImage(bubbleFace, p.x, p.y, c, scale, dx, dy);
+        drawImage(bubbleFace, x, y, c, scale, dx, dy);
       }
       else {
-        drawImage(bubbleBlindFace, p.x, p.y, c, scale, dx, dy);
+        drawImage(bubbleBlindFace, x, y, c, scale, dx, dy);
       }
     }
 
     if (fixedAnim != -1) {
-      drawImage(bubbleFixed[fixedAnim], p.x, p.y, c, scale, dx, dy);
-      fixedAnim++;
-
-      if (fixedAnim == 6) {
-        fixedAnim = -1;
-      }
+      drawImage(bubbleFixed[fixedAnim], x, y, c, scale, dx, dy);
     }
   }
 

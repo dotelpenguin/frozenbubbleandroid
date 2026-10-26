@@ -611,6 +611,14 @@ public class GameView extends SurfaceView
     private boolean mPreferHardware = true;
     private boolean mHardwareUsed   = false;
     private boolean mHardwareFailed = false;
+    /*
+     * GPU path extras: bitmaps stay at their original size and are
+     * scaled while drawing (sharper, sub-pixel positioning, less
+     * memory), and frames are drawn at the screen's refresh rate.
+     */
+    private boolean mDrawScaled = false;
+    private volatile long mFrameNs = 1000000000L / 60;
+    private static final int MAX_TICKS_PER_FRAME = 4;
     private int    mPlayer1DX;
     private int    mPlayer2DX;
 
@@ -2261,6 +2269,7 @@ public class GameView extends SurfaceView
 
     private void resizeBitmaps() {
       //Log.i("frozen-bubble", "resizeBitmaps()");
+      Sprite.setBitmapScale(mDrawScaled ? mDisplayScale : 1.0);
       scaleFrom(mBackButton, mBackButtonOrig);
       scaleFrom(mNextSongButton, mNextSongButtonOrig);
       scaleFrom(mBackground, mBackgroundOrig);
@@ -2354,16 +2363,33 @@ public class GameView extends SurfaceView
 
     @Override
     public void run() {
-      final long frameNs   = FRAME_DELAY * 1000000L;
+      final long tickNs    = FRAME_DELAY * 1000000L;
       long       nextFrame = System.nanoTime();
+      long       nextTick  = nextFrame;
+      long       nextRefreshCheck = nextFrame;
       while (mRun) {
         /*
-         * Steady frame pacing: every frame is scheduled exactly one
-         * period after the previous one on a monotonic clock, so frame
-         * intervals stay even no matter how long drawing takes.  If the
-         * game falls more than a frame behind (a stall, or the app was
-         * in the background), resync instead of rushing to catch up.
+         * The game logic always runs in fixed 40 ms steps ("ticks"), so
+         * gameplay is identical either way.
+         *
+         * CPU path: one tick and one frame every 40 ms.
+         *
+         * GPU path: frames are drawn at the screen's refresh rate, and
+         * each frame runs however many ticks are due, then draws every
+         * sprite part of the way between its previous and current
+         * position.  This shows motion one tick late (40 ms), in
+         * exchange for smooth movement on 60-120 Hz screens.
+         *
+         * Either way, frames are scheduled on a monotonic clock exactly
+         * one period apart; after a stall (or the app being in the
+         * background) the schedule resyncs instead of rushing.
          */
+        boolean smooth = mDrawScaled;
+        if (smooth && ((System.nanoTime() - nextRefreshCheck) >= 0)) {
+          updateFramePeriod();
+          nextRefreshCheck = System.nanoTime() + 1000000000L;
+        }
+        long frameNs = smooth ? mFrameNs : tickNs;
         long wait = nextFrame - System.nanoTime();
         if (wait > 0) try {
           sleep(wait / 1000000L, (int)(wait % 1000000L));
@@ -2373,6 +2399,25 @@ public class GameView extends SurfaceView
         if ((now - nextFrame) > frameNs) {
           nextFrame = now;
         }
+        int   ticks;
+        float alpha;
+        if (smooth) {
+          ticks = 0;
+          while (((now - nextTick) >= 0) && (ticks < MAX_TICKS_PER_FRAME)) {
+            ticks++;
+            nextTick += tickNs;
+          }
+          if ((now - nextTick) >= 0) {
+            nextTick = now + tickNs; // Too far behind: resync.
+          }
+          // Fraction of the current tick that has elapsed.
+          alpha = 1f - ((float)(nextTick - now) / tickNs);
+        }
+        else {
+          ticks    = 1;
+          alpha    = 1f;
+          nextTick = now + tickNs;
+        }
         Canvas c = null;
         try {
           if (surfaceOK()) {
@@ -2380,7 +2425,26 @@ public class GameView extends SurfaceView
             if (c != null) {
               synchronized(mSurfaceHolder) {
                 if (mRun) {
-                  monitorRemotePlayer();
+                  for (int tick = 0; tick < ticks; tick++) {
+                    monitorRemotePlayer();
+                    if (mMode == stateEnum.RUNNING) {
+                      if (mModeWas != stateEnum.RUNNING) {
+                        if (mGameListener != null) {
+                          mGameListener.onGameEvent(eventEnum.GAME_RESUME);
+                        }
+                        mModeWas = stateEnum.RUNNING;
+                        resumeGame();
+                      }
+                      tickGameSprites();
+                      updateGameState();
+                    }
+                  }
+                  /*
+                   * Only interpolate while the game is running; any
+                   * other screen shows sprites where they are.
+                   */
+                  Sprite.setInterpolation(
+                      (smooth && (mMode == stateEnum.RUNNING)) ? alpha : 1f);
                   if (mMode == stateEnum.ABOUT) {
                     drawAboutScreen(c);
                   }
@@ -2406,16 +2470,6 @@ public class GameView extends SurfaceView
                     }
                   }
                   else {
-                    if (mMode == stateEnum.RUNNING) {
-                      if (mModeWas != stateEnum.RUNNING) {
-                        if (mGameListener != null) {
-                          mGameListener.onGameEvent(eventEnum.GAME_RESUME);
-                        }
-                        mModeWas = stateEnum.RUNNING;
-                        resumeGame();
-                      }
-                      updateGameState();
-                    }
                     doDraw(c);
                   }
                 }
@@ -2479,7 +2533,9 @@ public class GameView extends SurfaceView
         image.bmp.recycle();
       }
 
-      if ((mDisplayScale > 0.99999) && (mDisplayScale < 1.00001)) {
+      if (mDrawScaled ||
+          ((mDisplayScale > 0.99999) && (mDisplayScale < 1.00001))) {
+        // GPU path: keep the original; it is scaled while drawing.
         image.bmp = bmp;
         return;
       }
@@ -2621,6 +2677,43 @@ public class GameView extends SurfaceView
         mPreferHardware = preferHardware;
         mHardwareUsed   = false;
         mHardwareFailed = false;
+        boolean drawScaled = preferHardware &&
+            (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O);
+        Sprite.setInterpolation(1f);
+        if (drawScaled != mDrawScaled) {
+          mDrawScaled = drawScaled;
+          if (mDisplayScale > 0) {
+            resizeBitmaps(); // Mode changed: rescale before the next frame.
+          }
+        }
+      }
+    }
+
+    /** @return <code>true</code> when drawing smoothly on the GPU. */
+    public boolean isSmooth() {
+      return mDrawScaled;
+    }
+
+    /**
+     * Pace GPU frames to the screen's current refresh rate (it can
+     * change, e.g. when the system switches between 60 and 120 Hz).
+     */
+    private void updateFramePeriod() {
+      android.view.Display display = getDisplay();
+      float hz = (display != null) ? display.getRefreshRate() : 60f;
+      if ((hz < 30f) || (hz > 240f)) {
+        hz = 60f;
+      }
+      mFrameNs = (long)(1000000000L / hz);
+    }
+
+    /** Start of a logic step for each game's sprites. */
+    private void tickGameSprites() {
+      if (mFrozenGame1 != null) {
+        mFrozenGame1.tickSprites();
+      }
+      if (mFrozenGame2 != null) {
+        mFrozenGame2.tickSprites();
       }
     }
 
@@ -2641,6 +2734,16 @@ public class GameView extends SurfaceView
             return null; // Transient failure; try again next frame.
           }
           mHardwareFailed = true; // Never worked here: use the CPU.
+          synchronized(mSurfaceHolder) {
+            if (mDrawScaled) {
+              // Go back to pre-scaled bitmaps and 25 fps for the CPU.
+              mDrawScaled = false;
+              Sprite.setInterpolation(1f);
+              if (mDisplayScale > 0) {
+                resizeBitmaps();
+              }
+            }
+          }
         }
       }
       return mSurfaceHolder.lockCanvas(null);
@@ -3455,6 +3558,36 @@ public class GameView extends SurfaceView
                              int height) {
     //Log.i("frozen-bubble", "GameView.surfaceChanged");
     mGameThread.setSurfaceSize(width, height);
+    requestFrameRate(holder);
+  }
+
+  /**
+   * On the GPU path, ask for the screen's highest refresh rate (up to
+   * 120 Hz) for smooth motion; otherwise state no preference.  Android
+   * 11+ only; the system may still choose a lower rate.
+   */
+  private void requestFrameRate(SurfaceHolder holder) {
+    if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.R) {
+      return;
+    }
+    float best = 0f;
+    android.view.Display display = getDisplay();
+    if (mGameThread.isSmooth() && (display != null)) {
+      android.view.Display.Mode current = display.getMode();
+      for (android.view.Display.Mode mode : display.getSupportedModes()) {
+        if ((mode.getPhysicalWidth()  == current.getPhysicalWidth()) &&
+            (mode.getPhysicalHeight() == current.getPhysicalHeight())) {
+          best = Math.max(best, mode.getRefreshRate());
+        }
+      }
+      best = Math.min(best, 120f);
+    }
+    try {
+      holder.getSurface().setFrameRate(best,
+          android.view.Surface.FRAME_RATE_COMPATIBILITY_DEFAULT);
+    } catch (RuntimeException e) {
+      // Not supported here; the default rate is fine.
+    }
   }
 
   /** Options key: draw the game with the GPU (Android 8+). */

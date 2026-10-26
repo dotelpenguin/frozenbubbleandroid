@@ -85,7 +85,6 @@ public class ImageSprite extends Sprite {
   }
 
   public final void paint(Canvas c, double scale, int dx, int dy) {
-    Point p = super.getSpritePosition();
-    drawImage(displayedImage, p.x, p.y, c, scale, dx, dy);
+    drawImage(displayedImage, getDrawX(), getDrawY(), c, scale, dx, dy);
   }
 }

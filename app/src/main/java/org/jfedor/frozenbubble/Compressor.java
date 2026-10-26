@@ -121,16 +121,16 @@ public class Compressor {
 
   public void paint(Canvas c, double scale, int dx, int dy) {
     for (int i = 0; i < steps; i++) {
-      c.drawBitmap(compressor.bmp,
-                   (float)(BAR_L_X * scale + dx),
-                   (float)((BAR_Y * i + BAR_Y_ADJ) * scale + dy), null);
-      c.drawBitmap(compressor.bmp,
-                   (float)(BAR_R_X * scale + dx),
-                   (float)((BAR_Y * i + BAR_Y_ADJ) * scale + dy), null);
+      Sprite.blit(c, compressor.bmp,
+                  (float)(BAR_L_X * scale + dx),
+                  (float)((BAR_Y * i + BAR_Y_ADJ) * scale + dy));
+      Sprite.blit(c, compressor.bmp,
+                  (float)(BAR_R_X * scale + dx),
+                  (float)((BAR_Y * i + BAR_Y_ADJ) * scale + dy));
     }
-    c.drawBitmap(compressorHead.bmp,
-                 (float)(HEAD_X * scale + dx),
-                 (float)((BAR_Y * steps + HEAD_Y_ADJ) * scale + dy), null);
+    Sprite.blit(c, compressorHead.bmp,
+                (float)(HEAD_X * scale + dx),
+                (float)((BAR_Y * steps + HEAD_Y_ADJ) * scale + dy));
   }
 
   public void restoreState(Bundle map, int id) {

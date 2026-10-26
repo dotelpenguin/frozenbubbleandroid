@@ -62,6 +62,8 @@ import android.os.Bundle;
 public class LaunchBubbleSprite extends Sprite {
   private int currentColor;
   private double currentDirection;
+  /* Aim at the start of the last logic step, for smooth rotation. */
+  private double prevDirection;
 
   private Drawable  launcher;
   private BmpWrap[] bubbles;
@@ -74,6 +76,7 @@ public class LaunchBubbleSprite extends Sprite {
 
     currentColor           = initialColor;
     currentDirection       = initialDirection;
+    prevDirection          = initialDirection;
     this.launcher          = launcher;
     this.bubbles           = bubbles;
     this.colorblindBubbles = colorblindBubbles;
@@ -92,6 +95,12 @@ public class LaunchBubbleSprite extends Sprite {
 
   public int getTypeId() {
     return Sprite.TYPE_LAUNCH_BUBBLE;
+  }
+
+  @Override
+  public void onTick() {
+    super.onTick();
+    prevDirection = currentDirection;
   }
 
   public void changeColor(int newColor) {
@@ -114,7 +123,9 @@ public class LaunchBubbleSprite extends Sprite {
     c.save();
     int xCenter = 318;
     int yCenter = 406;
-    c.rotate((float)(0.025 * 180 * (currentDirection -
+    double direction = smoothMove(0, 0) ?
+        lerp(prevDirection, currentDirection) : currentDirection;
+    c.rotate((float)(0.025 * 180 * (direction -
                                     FrozenGame.START_LAUNCH_DIRECTION)),
              (float)(xCenter * scale + dx), (float)(yCenter * scale + dy));
     launcher.setBounds((int)((xCenter - 50) * scale + dx),

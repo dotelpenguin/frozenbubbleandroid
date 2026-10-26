@@ -54,9 +54,12 @@ package org.jfedor.frozenbubble;
 
 import java.util.Vector;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.Region;
 import android.os.Bundle;
 
@@ -68,6 +71,97 @@ public abstract class Sprite {
 
   private Rect spriteArea;
   private int saved_id;
+
+  /*
+   * Smooth motion.  The game logic runs in fixed 40 ms steps, but on
+   * the GPU path the screen is redrawn at its refresh rate, with each
+   * sprite drawn between where it was at the start of the last step
+   * and where it is now.  sAlpha is that position: 0 = previous, 1 =
+   * current.  The CPU path always draws with sAlpha = 1.
+   */
+  private static float sAlpha = 1f;
+  /*
+   * Scale applied while drawing bitmaps.  1 when bitmaps are pre-scaled
+   * to the screen (CPU path); the display scale when they are the
+   * original small images and the GPU scales them as they are drawn.
+   */
+  private static double sBitmapScale = 1.0;
+  private static final Paint FILTER_PAINT = new Paint(Paint.FILTER_BITMAP_FLAG);
+  private static final RectF sDst = new RectF(); // drawing is single-threaded
+  /* Moves larger than this in one step (game units) are drawn as jumps. */
+  protected static final double MAX_INTERP_JUMP = 48;
+
+  private int     prevLeft;
+  private int     prevTop;
+  private boolean hasPrev = false;
+
+  public static void setInterpolation(float alpha) {
+    sAlpha = (alpha < 0f) ? 0f : ((alpha > 1f) ? 1f : alpha);
+  }
+
+  public static void setBitmapScale(double scale) {
+    sBitmapScale = scale;
+  }
+
+  /**
+   * Called at the start of every logic step, before the game logic
+   * runs.  Remembers the position to interpolate from; subclasses also
+   * advance per-step animations here.
+   */
+  public void onTick() {
+    prevLeft = spriteArea.left;
+    prevTop  = spriteArea.top;
+    hasPrev  = true;
+  }
+
+  /**
+   * @return a value between <code>from</code> and <code>to</code> for
+   * the current interpolation position.
+   */
+  protected static double lerp(double from, double to) {
+    return from + ((to - from) * sAlpha);
+  }
+
+  /**
+   * @return <code>true</code> if a move by (dx, dy) during one step
+   * should be drawn as smooth motion rather than a jump.
+   */
+  protected static boolean smoothMove(double dx, double dy) {
+    return (sAlpha < 1f) &&
+        (Math.abs(dx) <= MAX_INTERP_JUMP) && (Math.abs(dy) <= MAX_INTERP_JUMP);
+  }
+
+  /** @return the X position to draw at this frame (game units). */
+  public float getDrawX() {
+    if (hasPrev && smoothMove(spriteArea.left - prevLeft,
+                              spriteArea.top  - prevTop)) {
+      return (float) lerp(prevLeft, spriteArea.left);
+    }
+    return spriteArea.left;
+  }
+
+  /** @return the Y position to draw at this frame (game units). */
+  public float getDrawY() {
+    if (hasPrev && smoothMove(spriteArea.left - prevLeft,
+                              spriteArea.top  - prevTop)) {
+      return (float) lerp(prevTop, spriteArea.top);
+    }
+    return spriteArea.top;
+  }
+
+  /**
+   * Draw a bitmap with its top-left corner at a screen position,
+   * scaling it on the GPU when bitmaps are not pre-scaled.
+   */
+  public static void blit(Canvas c, Bitmap bmp, float px, float py) {
+    if (sBitmapScale == 1.0) {
+      c.drawBitmap(bmp, px, py, null);
+      return;
+    }
+    float s = (float) sBitmapScale;
+    sDst.set(px, py, px + (bmp.getWidth() * s), py + (bmp.getHeight() * s));
+    c.drawBitmap(bmp, null, sDst, FILTER_PAINT);
+  }
 
   public Sprite(Rect spriteArea) {
     this.spriteArea = spriteArea;
@@ -126,8 +220,12 @@ public abstract class Sprite {
 
   public static void drawImage(BmpWrap image, int x, int y,
                                Canvas c, double scale, int dx, int dy) {
-    c.drawBitmap(image.bmp, (float)(x * scale + dx), (float)(y * scale + dy),
-                 null);
+    drawImage(image, (float) x, (float) y, c, scale, dx, dy);
+  }
+
+  public static void drawImage(BmpWrap image, float x, float y,
+                               Canvas c, double scale, int dx, int dy) {
+    blit(c, image.bmp, (float)(x * scale + dx), (float)(y * scale + dy));
   }
 
   public static void drawImageClipped(BmpWrap image, int x, int y, Rect clipr,
@@ -139,8 +237,7 @@ public abstract class Sprite {
                (float)(clipr.top * scale + dy),
                (float)(clipr.right * scale + dx),
                (float)(clipr.bottom * scale + dy));
-    c.drawBitmap(image.bmp, (float)(x * scale + dx), (float)(y * scale + dy),
-                 null);
+    blit(c, image.bmp, (float)(x * scale + dx), (float)(y * scale + dy));
     c.restore();
   }
 
