@@ -54,6 +54,12 @@
 
   <CheckBoxPreference
     android:defaultValue="true"
+    android:key="gpu_rendering_option"
+    android:summary="Draw the game with the graphics chip (Android 8+). Turn off if you see glitches."
+    android:title="GPU Rendering" />
+
+  <CheckBoxPreference
+    android:defaultValue="true"
     android:key="rush_me_option"
     android:summary="On/Off"
     android:title="Hurry Mode" />

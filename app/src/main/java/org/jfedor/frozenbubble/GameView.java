@@ -602,7 +602,15 @@ public class GameView extends SurfaceView
     private int    mDisplayDX;
     private int    mDisplayDY;
     private double mDisplayScale;
-    private long   mLastTime;
+    /*
+     * Rendering mode for the current surface.  GPU drawing
+     * (lockHardwareCanvas, Android 8+) is used when enabled; if it fails
+     * before ever working on this surface, drawing falls back to the
+     * CPU.  A surface cannot switch back once it has drawn with the GPU.
+     */
+    private boolean mPreferHardware = true;
+    private boolean mHardwareUsed   = false;
+    private boolean mHardwareFailed = false;
     private int    mPlayer1DX;
     private int    mPlayer2DX;
 
@@ -2346,17 +2354,29 @@ public class GameView extends SurfaceView
 
     @Override
     public void run() {
+      final long frameNs   = FRAME_DELAY * 1000000L;
+      long       nextFrame = System.nanoTime();
       while (mRun) {
-        long now = System.currentTimeMillis();
-        long delay = FRAME_DELAY + mLastTime - now;
-        if (delay > 0) try {
-          sleep(delay);
+        /*
+         * Steady frame pacing: every frame is scheduled exactly one
+         * period after the previous one on a monotonic clock, so frame
+         * intervals stay even no matter how long drawing takes.  If the
+         * game falls more than a frame behind (a stall, or the app was
+         * in the background), resync instead of rushing to catch up.
+         */
+        long wait = nextFrame - System.nanoTime();
+        if (wait > 0) try {
+          sleep(wait / 1000000L, (int)(wait % 1000000L));
         } catch (InterruptedException e) {}
-        mLastTime = now;
+        nextFrame += frameNs;
+        long now = System.nanoTime();
+        if ((now - nextFrame) > frameNs) {
+          nextFrame = now;
+        }
         Canvas c = null;
         try {
           if (surfaceOK()) {
-            c = mSurfaceHolder.lockCanvas(null);
+            c = lockFrameCanvas();
             if (c != null) {
               synchronized(mSurfaceHolder) {
                 if (mRun) {
@@ -2590,6 +2610,40 @@ public class GameView extends SurfaceView
       synchronized(mSurfaceHolder) {
         mSurfaceOK = ok;
       }
+    }
+
+    /**
+     * Choose GPU or CPU drawing for a newly created surface.
+     * @param preferHardware - use the GPU when the device supports it.
+     */
+    public void setRenderMode(boolean preferHardware) {
+      synchronized(mSurfaceHolder) {
+        mPreferHardware = preferHardware;
+        mHardwareUsed   = false;
+        mHardwareFailed = false;
+      }
+    }
+
+    /**
+     * Lock the surface for drawing the next frame, on the GPU when
+     * possible.
+     * @return the canvas, or <code>null</code> to skip this frame.
+     */
+    private Canvas lockFrameCanvas() {
+      if (mPreferHardware && !mHardwareFailed &&
+          (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)) {
+        try {
+          Canvas c = mSurfaceHolder.lockHardwareCanvas();
+          mHardwareUsed = true;
+          return c;
+        } catch (RuntimeException e) {
+          if (mHardwareUsed) {
+            return null; // Transient failure; try again next frame.
+          }
+          mHardwareFailed = true; // Never worked here: use the CPU.
+        }
+      }
+      return mSurfaceHolder.lockCanvas(null);
     }
 
     public void setSurfaceSize(int width, int height) {
@@ -3403,8 +3457,14 @@ public class GameView extends SurfaceView
     mGameThread.setSurfaceSize(width, height);
   }
 
+  /** Options key: draw the game with the GPU (Android 8+). */
+  public static final String KEY_GPU_RENDERING = "gpu_rendering_option";
+
   public void surfaceCreated(SurfaceHolder holder) {
     //Log.i("frozen-bubble", "GameView.surfaceCreated()");
+    mGameThread.setRenderMode(android.preference.PreferenceManager
+        .getDefaultSharedPreferences(mContext)
+        .getBoolean(KEY_GPU_RENDERING, true));
     mGameThread.setSurfaceOK(true);
   }
 
