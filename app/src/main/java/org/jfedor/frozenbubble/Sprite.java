@@ -132,12 +132,13 @@ public abstract class Sprite {
 
   public static void drawImageClipped(BmpWrap image, int x, int y, Rect clipr,
                                       Canvas c, double scale, int dx, int dy) {
-    c.save(Canvas.CLIP_SAVE_FLAG);
+    // Android 9+: save flags and Region.Op.REPLACE are no longer allowed.
+    // Intersecting inside save()/restore() gives the same result.
+    c.save();
     c.clipRect((float)(clipr.left * scale + dx),
                (float)(clipr.top * scale + dy),
                (float)(clipr.right * scale + dx),
-               (float)(clipr.bottom * scale + dy),
-               Region.Op.REPLACE);
+               (float)(clipr.bottom * scale + dy));
     c.drawBitmap(image.bmp, (float)(x * scale + dx), (float)(y * scale + dy),
                  null);
     c.restore();

@@ -576,6 +576,11 @@ public class GameView extends SurfaceView
     public static final int    BACK_2P_Y                  = 0;
     public static final int    BACK_TOUCH_X               = 463;
     public static final int    BACK_TOUCH_Y               = 15;
+    // Next song button, drawn over the penguin badge (single player).
+    public static final int    NEXT_SONG_1P_X             = 162;
+    public static final int    NEXT_SONG_1P_Y             = 0;
+    public static final int    NEXT_SONG_TOUCH_X          = 178;
+    public static final int    NEXT_SONG_TOUCH_Y          = 15;
     public static final int    PAUSE_TOUCH_X              = 183;
     public static final int    PAUSE_TOUCH_Y              = 460;
     public static final double TRACKBALL_COEFFICIENT      = 5;
@@ -602,6 +607,7 @@ public class GameView extends SurfaceView
     private stateEnum mModeWas;
 
     private Bitmap mBackButtonOrig;
+    private Bitmap mNextSongButtonOrig;
     private Bitmap mBackgroundOrig;
     private Bitmap[] mBubblesOrig;
     private Bitmap[] mBubblesBlindOrig;
@@ -623,6 +629,7 @@ public class GameView extends SurfaceView
     private Bitmap mBananaOrig;
     private Bitmap mTomatoOrig;
     private BmpWrap mBackButton;
+    private BmpWrap mNextSongButton;
     private BmpWrap mBackground;
     private BmpWrap[] mBubbles;
     private BmpWrap[] mBubblesBlind;
@@ -676,6 +683,8 @@ public class GameView extends SurfaceView
 
       mBackButtonOrig = BitmapFactory.decodeResource(
           res, R.drawable.back_button, options);
+      mNextSongButtonOrig = BitmapFactory.decodeResource(
+          res, R.drawable.next_song_button, options);
       mBackgroundOrig = BitmapFactory.decodeResource(
         res, R.drawable.background2, options);
       mBubblesOrig = new Bitmap[8];
@@ -796,6 +805,7 @@ public class GameView extends SurfaceView
       }
 
       mBackButton     = NewBmpWrap();
+      mNextSongButton = NewBmpWrap();
       mBackground     = NewBmpWrap();
       mBubbleBlink    = NewBmpWrap();
       mGameWon        = NewBmpWrap();
@@ -866,6 +876,8 @@ public class GameView extends SurfaceView
 
       mBackButtonOrig = BitmapFactory.decodeResource(
           res, R.drawable.back_button, options);
+      mNextSongButtonOrig = BitmapFactory.decodeResource(
+          res, R.drawable.next_song_button, options);
       mBackgroundOrig = BitmapFactory.decodeResource(
           res, R.drawable.background, options);
       mBubblesOrig = new Bitmap[8];
@@ -982,6 +994,7 @@ public class GameView extends SurfaceView
       }
 
       mBackButton     = NewBmpWrap();
+      mNextSongButton = NewBmpWrap();
       mBackground     = NewBmpWrap();
       mBubbleBlink    = NewBmpWrap();
       mGameWon        = NewBmpWrap();
@@ -1073,6 +1086,10 @@ public class GameView extends SurfaceView
 
         mBackButtonOrig.recycle();
         mBackButtonOrig = null;
+        if (mNextSongButtonOrig != null) {
+          mNextSongButtonOrig.recycle();
+          mNextSongButtonOrig = null;
+        }
 
         mBackgroundOrig.recycle();
         mBackgroundOrig = null;
@@ -1163,6 +1180,7 @@ public class GameView extends SurfaceView
         mImageList = null;
 
         mBackButton = null;
+        mNextSongButton = null;
         mBackground = null;
 
         for (int i = 0; i < mBubbles.length; i++) {
@@ -1430,6 +1448,21 @@ public class GameView extends SurfaceView
       }
 
       /*
+       * Check for a next song button press (single player, while
+       * playing).  Shots fire on touch down, so returning here also
+       * keeps this tap from launching a bubble.
+       */
+      if ((numPlayers == 1) && (mMode == stateEnum.RUNNING) &&
+          (event.getAction() == MotionEvent.ACTION_DOWN) &&
+          (Math.abs(x - NEXT_SONG_TOUCH_X) <= TOUCH_BUTTON_THRESHOLD) &&
+          (Math.abs(y - NEXT_SONG_TOUCH_Y) <= TOUCH_BUTTON_THRESHOLD)) {
+        if (mGameListener != null) {
+          mGameListener.onGameEvent(eventEnum.NEXT_SONG);
+        }
+        return true;
+      }
+
+      /*
        * Update the game state (paused, running, etc.) if necessary.
        */
       if(updateStateOnEvent(event)) {
@@ -1556,6 +1589,8 @@ public class GameView extends SurfaceView
       }
       else {
         Sprite.drawImage(mBackButton, BACK_1P_X, BACK_1P_Y, c,
+                         mDisplayScale, mDisplayDX, mDisplayDY);
+        Sprite.drawImage(mNextSongButton, NEXT_SONG_1P_X, NEXT_SONG_1P_Y, c,
                          mDisplayScale, mDisplayDX, mDisplayDY);
       }
     }
@@ -2070,6 +2105,7 @@ public class GameView extends SurfaceView
     private void resizeBitmaps() {
       //Log.i("frozen-bubble", "resizeBitmaps()");
       scaleFrom(mBackButton, mBackButtonOrig);
+      scaleFrom(mNextSongButton, mNextSongButtonOrig);
       scaleFrom(mBackground, mBackgroundOrig);
       for (int i = 0; i < mBubblesOrig.length; i++) {
         scaleFrom(mBubbles[i], mBubblesOrig[i]);

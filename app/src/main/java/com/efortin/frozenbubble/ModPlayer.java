@@ -53,6 +53,7 @@
 package com.efortin.frozenbubble;
 
 import android.content.Context;
+import android.net.Uri;
 
 import com.peculiargames.andmodplug.MODResourcePlayer;
 import com.peculiargames.andmodplug.PlayerThread.PlayerListener;
@@ -96,6 +97,22 @@ public class ModPlayer {
       if (startPlaying)
         resPlayer.unPausePlay();
     }
+  }
+
+  /**
+   * Load a song from a content URI (the player's own music folder).
+   * @return <code>true</code> if it loaded; on failure the player stays
+   * paused so the caller can try another song.
+   */
+  public boolean loadNewSong(Uri songUri, boolean startPlaying) {
+    if (resPlayer == null) {
+      return false;
+    }
+    resPlayer.pausePlay(true);
+    boolean ok = resPlayer.loadModuleUri(songUri);
+    if (ok && startPlaying)
+      resPlayer.unPausePlay();
+    return ok;
   }
 
   /**

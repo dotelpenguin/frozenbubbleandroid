@@ -78,6 +78,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Random;
 
 import org.jfedor.frozenbubble.GameScreen.eventEnum;
@@ -113,6 +114,7 @@ import android.widget.Toast;
 
 import com.efortin.frozenbubble.AccelerometerManager;
 import com.efortin.frozenbubble.AccelerometerManager.AccelerometerListener;
+import com.efortin.frozenbubble.CustomMusic;
 import com.efortin.frozenbubble.HomeScreen;
 import com.efortin.frozenbubble.ModPlayer;
 import com.efortin.frozenbubble.Preferences;
@@ -173,6 +175,8 @@ public class FrozenBubble extends Activity
   private GameThread mGameThread           = null;
   private GameView   mGameView             = null;
   private ModPlayer  myModPlayer           = null;
+  private int        lastSongIndex         = -1;  // index of the song playing
+  private int        songSkip              = 0;   // songs skipped this game
   private OrientationEventListener myOrientationEventListener = null;
 
   private final int[] MODlist = {
@@ -856,6 +860,10 @@ public class FrozenBubble extends Activity
       case GAME_LOST:
         break;
 
+      case NEXT_SONG:
+        nextSong();
+        break;
+
       case GAME_PAUSED:
         if (myModPlayer != null)
           myModPlayer.pausePlay();
@@ -947,38 +955,92 @@ public class FrozenBubble extends Activity
    * immediately.  Otherwise it is paused and must be unpaused to start
    * playing.
    */
-  private void playMusic(boolean startPlaying)
+  private void playMusic(boolean startPlaying) {
+    playSong(startPlaying, false);
+  }
+
+  /**
+   * Skip to the next song in whichever list is playing (the player's own
+   * music folder or the built-in songs).  Later levels continue on from
+   * the new song.
+   */
+  private void nextSong() {
+    if (myModPlayer == null) {
+      return;
+    }
+    if (songsSequential()) {
+      songSkip++;
+    }
+    playSong(true, true);
+  }
+
+  /**
+   * Pick and load a song.
+   * @param startPlaying - start playing immediately, or stay paused.
+   * @param skip - <code>true</code> to play the song after the current
+   * one instead of choosing by level (or at random).
+   */
+  private void playSong(boolean startPlaying, boolean skip)
   {
-    int loopCount;
-    int modNow;
+    int loopCount = PlayerThread.LOOP_SONG_FOREVER;
+    /*
+     * Songs from the player's own music folder, if that option is on.
+     * When present they replace the built-in level music.
+     */
+    List<Uri> customSongs = CustomMusic.getActiveSongs(this);
+    boolean   useCustom   = !customSongs.isEmpty();
+    int       count       = useCustom ? customSongs.size() : MODlist.length;
     /*
      * Ascertain which song to play.  For a single player game, the song
      * is based on the current level.  For an arcade game, a two player
      * game, or if the game thread has been destroyed, the song is
-     * selected at random.
+     * selected at random.  A skip moves on to the next song in the list.
      */
-    if (songsSequential()) {
-      loopCount = PlayerThread.LOOP_SONG_FOREVER;
-      modNow    = mGameThread.getCurrentLevelIndex() % MODlist.length;
+    boolean sequential = songsSequential();
+    int index;
+    if (skip && (lastSongIndex >= 0)) {
+      index = (lastSongIndex + 1) % count;
     }
-    else
-    {
-      loopCount = PlayerThread.LOOP_SONG_FOREVER;
-      modNow = new Random().nextInt(MODlist.length);
+    else if (sequential) {
+      index = (mGameThread.getCurrentLevelIndex() + songSkip) % count;
     }
+    else {
+      index = new Random().nextInt(count);
+    }
+    int modNow = index % MODlist.length;
     /*
      * Determine whether to create a music player or load the song.
+     * With custom songs, the player starts paused on a built-in song
+     * and the custom song is swapped in below.
      */
     if (myModPlayer == null) {
       myModPlayer = new ModPlayer(this,
                                   MODlist[modNow],
                                   loopCount,
                                   getMusicOn(),
-                                 !startPlaying);
+                                  useCustom || !startPlaying);
       myModPlayer.setPlayerListener(this);
     }
-    else {
+    else if (!useCustom) {
       myModPlayer.loadNewSong(MODlist[modNow], startPlaying);
+    }
+    lastSongIndex = index;
+    if (useCustom) {
+      boolean loaded = false;
+      /*
+       * Skip files that fail to load; after a few failures in a row,
+       * fall back to the built-in song.
+       */
+      for (int tries = 0; (tries < Math.min(count, 5)) && !loaded; tries++) {
+        int i = (index + tries) % count;
+        loaded = myModPlayer.loadNewSong(customSongs.get(i), startPlaying);
+        if (loaded) {
+          lastSongIndex = i;
+        }
+      }
+      if (!loaded) {
+        myModPlayer.loadNewSong(MODlist[modNow], startPlaying);
+      }
     }
     allowUnpause = true;
   }

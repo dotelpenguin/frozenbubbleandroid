@@ -53,10 +53,12 @@
 
 package com.peculiargames.andmodplug;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 import android.content.Context;
+import android.net.Uri;
 
 /**
  * Convenience class extending PlayerThread, handling all the file
@@ -175,6 +177,55 @@ public class MODResourcePlayer extends PlayerThread {
      */
     loadModuleData(modData);
     return true;
+  }
+
+  /** Largest song file accepted from the device (bytes). */
+  private static final int MAX_SONG_BYTES = 32 * 1024 * 1024;
+
+  /**
+   * Load a MOD/XM/etc. song from a content URI, such as a file in a
+   * folder the player chose with the system folder picker.
+   * @param songUri - content:// URI of the song file.
+   * @return <code>true</code> if the file was read and the native player
+   * recognized it as a song it can play.
+   */
+  public boolean loadModuleUri(Uri songUri) {
+    byte[] modData;
+    InputStream in = null;
+
+    unLoadMod();
+    try {
+      in = mContext.getContentResolver().openInputStream(songUri);
+      if (in == null) {
+        return false;
+      }
+      ByteArrayOutputStream out = new ByteArrayOutputStream();
+      byte[] chunk = new byte[64 * 1024];
+      int n;
+      while ((n = in.read(chunk)) > 0) {
+        out.write(chunk, 0, n);
+        if (out.size() > MAX_SONG_BYTES) {
+          return false;
+        }
+      }
+      modData = out.toByteArray();
+    } catch (IOException | SecurityException | OutOfMemoryError e) {
+      return false;
+    } finally {
+      if (in != null) {
+        try {
+          in.close();
+        } catch (IOException ioe) {
+          // Ignore.
+        }
+      }
+    }
+    if (modData.length == 0) {
+      return false;
+    }
+    setModSize(modData.length);
+    loadModuleData(modData);
+    return isLoadOk();
   }
 
   /**

@@ -57,11 +57,17 @@ import org.jfedor.frozenbubble.FrozenBubble;
 import org.jfedor.frozenbubble.LevelManager;
 import org.jfedor.frozenbubble.R;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
+import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
+import android.widget.Toast;
 
 public class PreferencesActivity extends PreferenceActivity{
 
@@ -96,6 +102,82 @@ public class PreferencesActivity extends PreferenceActivity{
      addPreferencesFromResource(R.layout.activity_preferences_screen);
      collisionSlider  = (SeekBarPreference) findPreference("collision_option" );
      difficultySlider = (SeekBarPreference) findPreference("difficulty_option");
+     setupCustomMusic();
+     SystemUi.apply(this, PreferenceManager.getDefaultSharedPreferences(this)
+         .getBoolean("fullscreen_option", true));
+  }
+
+  private static final String KEY_FOLDER_PICK      = "custom_music_folder_pick";
+  private static final int    REQUEST_MUSIC_FOLDER = 2001;
+
+  /**
+   * Wire up the "Use My Music Folder" switch and the folder chooser row.
+   */
+  private void setupCustomMusic() {
+    CheckBoxPreference toggle =
+        (CheckBoxPreference) findPreference(CustomMusic.KEY_ON);
+    Preference folderRow = findPreference(KEY_FOLDER_PICK);
+
+    folderRow.setOnPreferenceClickListener(p -> {
+      pickMusicFolder();
+      return true;
+    });
+    toggle.setOnPreferenceChangeListener((p, newValue) -> {
+      // Turning it on with no folder yet: go straight to the picker.
+      if (Boolean.TRUE.equals(newValue) && (CustomMusic.getFolder(this) == null)) {
+        pickMusicFolder();
+      }
+      return true;
+    });
+    updateMusicFolderSummary();
+  }
+
+  private void pickMusicFolder() {
+    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+    try {
+      startActivityForResult(intent, REQUEST_MUSIC_FOLDER);
+    } catch (ActivityNotFoundException e) {
+      Toast.makeText(this, "No folder picker is available on this device.",
+                     Toast.LENGTH_LONG).show();
+    }
+  }
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode,
+                                  Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (requestCode != REQUEST_MUSIC_FOLDER) {
+      return;
+    }
+    CheckBoxPreference toggle =
+        (CheckBoxPreference) findPreference(CustomMusic.KEY_ON);
+    if ((resultCode == RESULT_OK) && (data != null) && (data.getData() != null)) {
+      Uri folder = data.getData();
+      CustomMusic.setFolder(this, folder);
+      toggle.setChecked(true);
+      int count = CustomMusic.listSongs(this, folder).size();
+      Toast.makeText(this, (count == 0) ?
+          "No .mod/.xm/.it/.s3m songs found there. Built-in music will play." :
+          count + ((count == 1) ? " song found." : " songs found."),
+          Toast.LENGTH_LONG).show();
+    }
+    else if (CustomMusic.getFolder(this) == null) {
+      // Picker cancelled and there is still no folder: switch back off.
+      toggle.setChecked(false);
+    }
+    updateMusicFolderSummary();
+  }
+
+  private void updateMusicFolderSummary() {
+    Preference folderRow = findPreference(KEY_FOLDER_PICK);
+    Uri folder = CustomMusic.getFolder(this);
+    if (folder == null) {
+      folderRow.setSummary("No folder chosen");
+      return;
+    }
+    int count = CustomMusic.listSongs(this, folder).size();
+    folderRow.setSummary(CustomMusic.describeFolder(this, folder) + " - " +
+        count + ((count == 1) ? " song" : " songs"));
   }
 
   @Override

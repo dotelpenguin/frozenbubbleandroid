@@ -757,6 +757,14 @@ public class PlayerThread extends Thread {
   }
 
   /**
+   * @return <code>true</code> if the last song handed to the native
+   * player was recognized and loaded.
+   */
+  public boolean isLoadOk() {
+    return mLoadOk;
+  }
+
+  /**
    * Set the file size of the MOD/XM song.
    */
   public void setModSize(int modsize) {

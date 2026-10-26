@@ -26,6 +26,15 @@
     android:key="sound_effects_option"
     android:summary="On/Off"
     android:title="@string/play_sound_effects" />
+  <CheckBoxPreference
+    android:defaultValue="false"
+    android:key="custom_music_option"
+    android:summary="Play level music from your own folder of .mod/.xm/.it/.s3m songs instead of the built-in songs"
+    android:title="Use My Music Folder" />
+  <Preference
+    android:key="custom_music_folder_pick"
+    android:summary="No folder chosen"
+    android:title="Music Folder" />
   </PreferenceCategory>
 
   <PreferenceCategory

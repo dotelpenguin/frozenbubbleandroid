@@ -65,7 +65,8 @@ public abstract class GameScreen {
     GAME_PAUSED,
     GAME_RESUME,
     GAME_START,
-    GAME_EXIT;
+    GAME_EXIT,
+    NEXT_SONG;
   }
 
   public static enum gameEnum {
