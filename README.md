@@ -1,6 +1,12 @@
 The Android port of the Frozen Bubble game.  Originally developed with SDK
-v20.1.0, using API level 4 (version 1.6 Donut).  Currently developed with
-SDK v25.2.5 and NDK r10e, using API level 12 (version 3.1 Lollipop).
+v20.1.0, using API level 4 (version 1.6 Donut), later with SDK v25.2.5 and NDK
+r10e using API level 12.
+
+Now built with Android Studio and Gradle: Android Gradle Plugin 9.4, Gradle 9.6,
+JDK 17, compileSdk/targetSdk 36 (Android 16), minSdk 24 (Android 7.0).  The
+libmodplug music player is built with CMake from `app/src/main/cpp`.
+
+To build: open this folder in Android Studio, let Gradle sync, then Run 'app'.
 
 <a href="https://f-droid.org/repository/browse/?fdid=org.jfedor.frozenbubble" target="_blank">
 <img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80"/></a>

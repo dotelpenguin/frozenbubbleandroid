@@ -300,9 +300,13 @@ public class BluetoothManager {
     BluetoothAdapter localAdapter = null;
 
     localAdapter = BluetoothAdapter.getDefaultAdapter();
-    if ((localAdapter != null) && !localAdapter.getBondedDevices().isEmpty()) {
-      Set<BluetoothDevice> deviceSet = localAdapter.getBondedDevices();
-      return deviceSet.toArray(new BluetoothDevice[deviceSet.size()]);
+    try {
+      if ((localAdapter != null) && !localAdapter.getBondedDevices().isEmpty()) {
+        Set<BluetoothDevice> deviceSet = localAdapter.getBondedDevices();
+        return deviceSet.toArray(new BluetoothDevice[deviceSet.size()]);
+      }
+    } catch (SecurityException se) {
+      // Android 12+: BLUETOOTH_CONNECT permission not granted.
     }
     return null;
   }

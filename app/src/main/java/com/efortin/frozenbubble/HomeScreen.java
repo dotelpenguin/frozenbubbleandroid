@@ -526,7 +526,7 @@ public class HomeScreen extends Activity {
       public void onClick(View v){
         buttonSelPage2 = BTN6_ID;
         mSoundManager.playSound("stick", R.raw.stick);
-        displayBluetoothDevicesList();
+        requestBluetoothThenShowDevices();
       }
     });
     startBluetoothGameButton.setOnTouchListener(new Button.OnTouchListener(){
@@ -801,6 +801,42 @@ public class HomeScreen extends Activity {
       myModPlayer.destroyMusicPlayer();
     }
     myModPlayer = null;
+  }
+
+  private static final int REQUEST_BLUETOOTH_CONNECT = 1001;
+
+  /**
+   * Android 12+ requires the BLUETOOTH_CONNECT runtime permission before
+   * paired devices can be listed or sockets opened.
+   */
+  private void requestBluetoothThenShowDevices() {
+    if ((android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) &&
+        (checkSelfPermission(android.Manifest.permission.BLUETOOTH_CONNECT) !=
+         android.content.pm.PackageManager.PERMISSION_GRANTED)) {
+      requestPermissions(
+          new String[] { android.Manifest.permission.BLUETOOTH_CONNECT },
+          REQUEST_BLUETOOTH_CONNECT);
+      return;
+    }
+    displayBluetoothDevicesList();
+  }
+
+  @Override
+  public void onRequestPermissionsResult(int requestCode,
+                                         String[] permissions,
+                                         int[] grantResults) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    if (requestCode == REQUEST_BLUETOOTH_CONNECT) {
+      if ((grantResults.length > 0) &&
+          (grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED)) {
+        displayBluetoothDevicesList();
+      }
+      else {
+        android.widget.Toast.makeText(this,
+            "Bluetooth permission is needed for Bluetooth play.",
+            android.widget.Toast.LENGTH_LONG).show();
+      }
+    }
   }
 
   private void displayBluetoothDevicesList() {
@@ -1122,6 +1158,7 @@ public class HomeScreen extends Activity {
       getWindow().clearFlags(flagFs);
       getWindow().addFlags(flagNoFs);
     }
+    SystemUi.apply(this, myPreferences.fullscreen);
 
     if (myLayout != null) {
       myLayout.requestLayout();

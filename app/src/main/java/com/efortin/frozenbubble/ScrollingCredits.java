@@ -191,6 +191,7 @@ public class ScrollingCredits extends Activity implements Runnable {
       getWindow().clearFlags(flagFs);
       getWindow().addFlags(flagNoFs);
     }
+    SystemUi.apply(this, fullscreen);
   }
 
   public boolean checkCreditsDone() {

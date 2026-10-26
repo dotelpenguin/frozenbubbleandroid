@@ -1131,6 +1131,7 @@ public class FrozenBubble extends Activity
       getWindow().clearFlags(flagFs);
       getWindow().addFlags(flagNoFs);
     }
+    com.efortin.frozenbubble.SystemUi.apply(this, prefs.fullscreen);
 
     if (mGameView != null)
       mGameView.requestLayout();
