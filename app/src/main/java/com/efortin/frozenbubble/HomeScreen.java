@@ -105,6 +105,7 @@ public class HomeScreen extends Activity {
   private final static int BTN10_ID  = 111;
   private final static int BTN11_ID  = 112;
   private final static int BTN12_ID  = 113;
+  private final static int BTN13_ID  = 114;
 
   private static int buttonSelPage1 = BTN1_ID;
   private static int buttonSelPage2 = BTN5_ID;
@@ -361,7 +362,7 @@ public class HomeScreen extends Activity {
         return false;
       }
     });
-    start1pGameButton.setText("Puzzle");
+    start1pGameButton.setText(playerSave ? "New Puzzle" : "Puzzle");
     start1pGameButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
     start1pGameButton.setWidth((int) (start1pGameButton.getTextSize() * 9));
     start1pGameButton.setTypeface(null, Typeface.BOLD);
@@ -405,7 +406,7 @@ public class HomeScreen extends Activity {
         return false;
       }
     });
-    startArcadeGameButton.setText("Arcade");
+    startArcadeGameButton.setText(playerSave ? "New Arcade" : "Arcade");
     startArcadeGameButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
     startArcadeGameButton.setWidth((int) (startArcadeGameButton.getTextSize() * 9));
     startArcadeGameButton.setTypeface(null, Typeface.BOLD);
@@ -434,9 +435,11 @@ public class HomeScreen extends Activity {
         buttonSelPage1 = BTN4_ID;
         mSoundManager.playSound("stick", R.raw.stick);
         /*
-         * Display the game extras buttons page.
+         * Open the options screen.  (This used to open an Extras page
+         * holding Options and Saved Game; saved games are now resumed
+         * with Continue at the top of this menu.)
          */
-        displayPage(4);
+        startPreferencesScreen();
       }
     });
     gameExtrasButton.setOnTouchListener(new Button.OnTouchListener(){
@@ -446,7 +449,7 @@ public class HomeScreen extends Activity {
         return false;
       }
     });
-    gameExtrasButton.setText("Extras");
+    gameExtrasButton.setText("Options");
     gameExtrasButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
     gameExtrasButton.setWidth((int) (gameExtrasButton.getTextSize() * 9));
     gameExtrasButton.setTypeface(null, Typeface.BOLD);
@@ -466,6 +469,77 @@ public class HomeScreen extends Activity {
      * Add view to layout.
      */
     myLayout.addView(gameExtrasButton, myParams);
+    /*
+     * With a saved game, offer to continue it at the top of the menu.
+     */
+    if (playerSave) {
+      addContinueButton(startArcadeGameButton);
+    }
+  }
+
+  /**
+   * "Continue Arcade" / "Continue Puzzle" button above the others, which
+   * resumes the saved game (its own mode, players and board).
+   */
+  private void addContinueButton(Button below) {
+    String mode = PreferenceManager.getDefaultSharedPreferences(this)
+        .getString(FrozenBubble.SAVED_GAME_MODE, "");
+    String label;
+    if (FrozenBubble.SAVED_MODE_ARCADE.equals(mode)) {
+      label = "Continue Arcade";
+    }
+    else if (FrozenBubble.SAVED_MODE_PUZZLE.equals(mode)) {
+      label = "Continue Puzzle";
+    }
+    else if (FrozenBubble.SAVED_MODE_2PLAYER.equals(mode)) {
+      label = "Continue 2 Player";
+    }
+    else {
+      label = "Continue"; // Saved before the mode was recorded.
+    }
+    Button continueButton = new Button(this);
+    continueButton.setOnClickListener(new Button.OnClickListener(){
+      public void onClick(View v){
+        buttonSelPage1 = BTN13_ID;
+        mSoundManager.playSound("stick", R.raw.stick);
+        /*
+         * Load the saved game; its saved mode replaces these settings.
+         */
+        startFrozenBubble(VirtualInput.PLAYER1, 1,
+                          FrozenBubble.HUMAN,
+                          FrozenBubble.LOCALE_LOCAL, false, true);
+      }
+    });
+    continueButton.setOnTouchListener(new Button.OnTouchListener(){
+      public boolean onTouch(View v, MotionEvent event){
+        if (event.getAction() == MotionEvent.ACTION_DOWN)
+          v.requestFocus();
+        return false;
+      }
+    });
+    continueButton.setText(label);
+    MenuButtons.style(continueButton);
+    continueButton.setId(BTN13_ID);
+    continueButton.setFocusable(true);
+    continueButton.setFocusableInTouchMode(true);
+    LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT,
+                                           LayoutParams.WRAP_CONTENT);
+    params.addRule(RelativeLayout.CENTER_IN_PARENT);
+    params.addRule(RelativeLayout.ABOVE, below.getId());
+    params.topMargin    = 15;
+    params.bottomMargin = 15;
+    myLayout.addView(continueButton, params);
+    /*
+     * "Continue Puzzle" is longer than the other labels: widen the whole
+     * menu a little so every label stays on one line.
+     */
+    for (int id : new int[] { BTN13_ID, BTN1_ID, BTN2_ID, BTN3_ID, BTN4_ID }) {
+      View view = myLayout.findViewById(id);
+      if (view instanceof Button) {
+        Button b = (Button) view;
+        b.setWidth((int) (b.getTextSize() * 10.5f));
+      }
+    }
   }
 
   /**
@@ -972,6 +1046,7 @@ public class HomeScreen extends Activity {
     removeViewByID(BTN10_ID);
     removeViewByID(BTN11_ID);
     removeViewByID(BTN12_ID);
+    removeViewByID(BTN13_ID);
   }
 
   @Override
@@ -1020,13 +1095,16 @@ public class HomeScreen extends Activity {
       startHomeScreen();
     }
     else {
+      /*
+       * A game left mid-play is now saved automatically and offered as
+       * Continue on the menu, so a fresh launch always shows the splash
+       * and menu instead of jumping into a (new) game.
+       */
       if (systemSave) {
         Editor editor = mConfig.edit();
         editor.putBoolean("systemSave", false);
         editor.commit();
-        startFrozenBubble();
       }
-      else
       {
         setBackgroundImage(R.drawable.splash);
         setContentView(myLayout);
@@ -1119,9 +1197,35 @@ public class HomeScreen extends Activity {
 
   private void selectInitialButton(int initialButton) {
     /*
+     * On a touch screen every menu button looks the same: buttons don't
+     * take focus from a tap (a focused button is drawn in a different
+     * colour), and there is no initial highlight.  With a keyboard,
+     * controller or remote, Android leaves touch mode and the focused
+     * button is highlighted as usual.
+     */
+    for (int i = 0; i < myLayout.getChildCount(); i++) {
+      View child = myLayout.getChildAt(i);
+      if (child instanceof Button) {
+        child.setFocusableInTouchMode(false);
+      }
+    }
+    if (myLayout.isInTouchMode()) {
+      return;
+    }
+    /*
      * Select the last button that was pressed.
      */
     Button selectedButton = (Button) myLayout.findViewById(initialButton);
+    if (selectedButton == null) {
+      /*
+       * The remembered button isn't on this page now (e.g. Continue
+       * after the saved game is gone): use the page's first button.
+       */
+      selectedButton = (Button) myLayout.findViewById(BTN1_ID);
+      if (selectedButton == null) {
+        return;
+      }
+    }
     selectedButton.requestFocus();
     selectedButton.setSelected(true);
   }

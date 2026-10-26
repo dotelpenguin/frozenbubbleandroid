@@ -167,6 +167,11 @@ public class FrozenBubble extends Activity
   public final static String EDITORACTION = "org.jfedor.frozenbubble.GAME";
   public final static String PREFS_NAME   = "frozenbubble";
   public final static String SAVE_GAME    = "FrozenBubble.save";
+  /* Preference recording which kind of game the save file holds. */
+  public final static String SAVED_GAME_MODE    = "savedGameMode";
+  public final static String SAVED_MODE_ARCADE  = "arcade";
+  public final static String SAVED_MODE_PUZZLE  = "puzzle";
+  public final static String SAVED_MODE_2PLAYER = "2player";
   public final static String TAG          = "FrozenBubble.java";
 
   private boolean    activityCustomStarted = false;
@@ -309,9 +314,18 @@ public class FrozenBubble extends Activity
 
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
+    return handleMenuAction(item.getItemId());
+  }
+
+  /**
+   * Carry out an in-game menu action.  Shared by the options menu (the
+   * hardware Menu key, on devices that still have one) and the Game
+   * Options list reached from the exit dialog.
+   */
+  private boolean handleMenuAction(int itemId) {
     boolean prefsUpdated = false;
 
-    switch (item.getItemId()) {
+    switch (itemId) {
       case MENU_NEW_GAME:
         newGameDialog();
         return true;
@@ -379,6 +393,43 @@ public class FrozenBubble extends Activity
     //Log.i(TAG, "FrozenBubble.onPause()");
     super.onPause();
     pause();
+    /*
+     * Leaving the game any way (Home, switching apps, screen off) saves
+     * it, so it survives the app being closed; Continue resumes it.
+     * When finishing, exit() has already saved and reset the game.
+     */
+    if (!isFinishing()) {
+      autoSave();
+    }
+  }
+
+  /*
+   * Set when an arcade game ends (its save is deleted then), and cleared
+   * when the next game or level starts.
+   */
+  private boolean gameOver = false;
+
+  /**
+   * Save the current game for Continue, unless there is nothing worth
+   * resuming: a finished arcade game, a score screen, a level-editor
+   * game, or a network game (which would come back as a local one).
+   */
+  private void autoSave() {
+    if ((mGameThread == null) || (numPlayers == 0) || gameOver ||
+        activityCustomStarted || (gameLocale != LOCALE_LOCAL) ||
+        mGameThread.showingScores()) {
+      return;
+    }
+    saveGame(null);
+  }
+
+  /** Delete the saved game, so the home screen offers no Continue. */
+  private void clearSavedGame() {
+    deleteFile(SAVE_GAME);
+    PreferenceManager.getDefaultSharedPreferences(this).edit()
+        .putBoolean("playerSave", false)
+        .remove(SAVED_GAME_MODE)
+        .commit();
   }
 
   @Override
@@ -592,49 +643,97 @@ public class FrozenBubble extends Activity
     finish();
   }
 
-  private void exitGameDialog() {
-    AlertDialog.Builder builder = new AlertDialog.Builder(FrozenBubble.this);
-    /*
-     * Set the dialog title.
-     */
-    builder.setTitle(R.string.exit)
-    /*
-     * Set the action buttons.
-     */
-    .setPositiveButton(R.string.save_and_exit,
-                       new DialogInterface.OnClickListener() {
+  /**
+   * The in-game menu as a list, with each on/off option showing the
+   * choice that would change the current setting (as the old options
+   * menu did).
+   */
+  private void gameOptionsDialog() {
+    final java.util.List<Integer> ids    = new java.util.ArrayList<Integer>();
+    final java.util.List<String>  labels = new java.util.ArrayList<String>();
+    int[][] entries = {
+      (prefs.colorMode == GAME_NORMAL) ?
+          new int[] { MENU_COLORBLIND_ON,  R.string.menu_colorblind_on  } :
+          new int[] { MENU_COLORBLIND_OFF, R.string.menu_colorblind_off },
+      prefs.fullscreen ?
+          new int[] { MENU_FULLSCREEN_OFF, R.string.menu_fullscreen_off } :
+          new int[] { MENU_FULLSCREEN_ON,  R.string.menu_fullscreen_on  },
+      { MENU_SOUND_OPTIONS, R.string.menu_sound_options },
+      { MENU_TARGET_MODE,   R.string.menu_target_mode   },
+      prefs.dontRushMe ?
+          new int[] { MENU_RUSH_ME,      R.string.menu_rush_me      } :
+          new int[] { MENU_DONT_RUSH_ME, R.string.menu_dont_rush_me },
+      { MENU_ABOUT,    R.string.menu_about    },
+      { MENU_NEW_GAME, R.string.menu_new_game },
+      { MENU_EDITOR,   R.string.menu_editor   },
+    };
+    for (int[] entry : entries) {
+      ids.add(entry[0]);
+      labels.add(getString(entry[1]));
+    }
+    new AlertDialog.Builder(FrozenBubble.this)
+    .setTitle(R.string.game_options)
+    .setItems(labels.toArray(new String[0]),
+              new DialogInterface.OnClickListener() {
       @Override
-      public void onClick(DialogInterface dialog, int id) {
-        /*
-         * User clicked OK.  Save and quit.  Only save if this isn't a
-         * custom game.
-         */
-        if (!activityCustomStarted) {
-          saveGame(null);
-        }
-        exit(true);
+      public void onClick(DialogInterface dialog, int which) {
+        handleMenuAction(ids.get(which));
       }
     })
     .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
       @Override
       public void onClick(DialogInterface dialog, int id) {
-        /*
-         * User clicked Cancel.  Do nothing.
-         */
         if (mGameThread != null) {
           mGameThread.resumeGame();
         }
       }
     })
-    .setNeutralButton(R.string.exit, new DialogInterface.OnClickListener() {
+    .setOnCancelListener(new DialogInterface.OnCancelListener() {
       @Override
-      public void onClick(DialogInterface dialog, int id) {
-        /*
-         * User clicked neutral option.  Quit.
-         */
-        exit(true);
+      public void onCancel(DialogInterface dialog) {
+        if (mGameThread != null) {
+          mGameThread.resumeGame();
+        }
       }
     })
+    .show();
+  }
+
+  /**
+   * Place a dialog window just below the "PAUSE" panel at the top of
+   * the playfield, instead of centered on the screen.
+   */
+  private void positionBelowPausePanel(android.view.Window window) {
+    if (mGameView == null) {
+      return;
+    }
+    int[] loc = new int[2];
+    mGameView.getLocationOnScreen(loc);
+    int y = loc[1] + mGameView.gameToViewY(FrozenGame.PAUSED_PANEL_Y +
+                                           FrozenGame.PAUSED_PANEL_HEIGHT);
+    /*
+     * Dialog windows are placed below a visible status bar, so measure
+     * from there.
+     */
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+      android.view.WindowInsets insets = mGameView.getRootWindowInsets();
+      if (insets != null) {
+        y -= insets.getInsets(android.view.WindowInsets.Type.statusBars()).top;
+      }
+    }
+    android.view.WindowManager.LayoutParams lp = window.getAttributes();
+    lp.gravity = android.view.Gravity.TOP | android.view.Gravity.CENTER_HORIZONTAL;
+    lp.y       = Math.max(0, y);
+    window.setAttributes(lp);
+  }
+
+  private void exitGameDialog() {
+    /*
+     * Exit (which always saves), Options and Cancel as a column of buttons in
+     * the home screen menu style.  Options opens the in-game menu, since
+     * modern phones have no Menu key to reach it.
+     */
+    final AlertDialog alert = new AlertDialog.Builder(FrozenBubble.this)
     .setOnCancelListener(new DialogInterface.OnCancelListener() {
       @Override
       public void onCancel(DialogInterface dialog) {
@@ -645,15 +744,49 @@ public class FrozenBubble extends Activity
           mGameThread.resumeGame();
         }
       }
+    })
+    .create();
+
+    Button exitButton = com.efortin.frozenbubble.MenuButtons.create(this,
+        R.string.exit, new android.view.View.OnClickListener() {
+      @Override
+      public void onClick(android.view.View v) {
+        alert.dismiss();
+        // The game is always saved; Continue on the home screen resumes it.
+        autoSave();
+        exit(true);
+      }
     });
-    AlertDialog alert = builder.create();
+    Button optionsButton = com.efortin.frozenbubble.MenuButtons.create(this,
+        R.string.options, new android.view.View.OnClickListener() {
+      @Override
+      public void onClick(android.view.View v) {
+        alert.dismiss();
+        gameOptionsDialog();
+      }
+    });
+    Button cancelButton = com.efortin.frozenbubble.MenuButtons.create(this,
+        R.string.cancel, new android.view.View.OnClickListener() {
+      @Override
+      public void onClick(android.view.View v) {
+        alert.dismiss();
+        if (mGameThread != null) {
+          mGameThread.resumeGame();
+        }
+      }
+    });
+    alert.setView(com.efortin.frozenbubble.MenuButtons.column(this,
+        exitButton, optionsButton, cancelButton));
+    /*
+     * No dialog box: the buttons float over the (dimmed) game.
+     */
+    if (alert.getWindow() != null) {
+      alert.getWindow().setBackgroundDrawable(
+          new android.graphics.drawable.ColorDrawable(
+              android.graphics.Color.TRANSPARENT));
+      positionBelowPausePanel(alert.getWindow());
+    }
     alert.show();
-    Button btn1 = alert.getButton(DialogInterface.BUTTON_NEGATIVE);
-    btn1.setTextSize(18);
-    Button btn2 = alert.getButton(DialogInterface.BUTTON_NEUTRAL);
-    btn2.setTextSize(18);
-    Button btn3 = alert.getButton(DialogInterface.BUTTON_POSITIVE);
-    btn3.setTextSize(18);
   }
 
   /**
@@ -855,9 +988,16 @@ public class FrozenBubble extends Activity
         break;
 
       case GAME_WON:
-        break;
-
       case GAME_LOST:
+        /*
+         * An arcade game is over when it is won or lost: nothing left to
+         * continue.  (Puzzle and 2 player games carry on with the next
+         * level or round.)
+         */
+        if (arcadeGame) {
+          gameOver = true;
+          clearSavedGame();
+        }
         break;
 
       case NEXT_SONG:
@@ -877,6 +1017,7 @@ public class FrozenBubble extends Activity
         break;
 
       case GAME_START:
+        gameOver = false;
         if (!arcadeGame && (mGameView != null) && (mGameThread != null) &&
             (numPlayers == 1)) {
           if (mGameThread.getCurrentLevelIndex() == 0) {
@@ -1125,6 +1266,9 @@ public class FrozenBubble extends Activity
       Editor editor =
           PreferenceManager.getDefaultSharedPreferences(this).edit();
       editor.putBoolean("playerSave", true);
+      editor.putString(SAVED_GAME_MODE,
+                       (numPlayers > 1) ? SAVED_MODE_2PLAYER :
+                       (arcadeGame ? SAVED_MODE_ARCADE : SAVED_MODE_PUZZLE));
       editor.commit();
     } catch (FileNotFoundException fnfe) {
       /*

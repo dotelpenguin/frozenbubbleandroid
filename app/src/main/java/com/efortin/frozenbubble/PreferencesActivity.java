@@ -103,8 +103,38 @@ public class PreferencesActivity extends PreferenceActivity{
      collisionSlider  = (SeekBarPreference) findPreference("collision_option" );
      difficultySlider = (SeekBarPreference) findPreference("difficulty_option");
      setupCustomMusic();
+     addBackButton();
      SystemUi.apply(this, PreferenceManager.getDefaultSharedPreferences(this)
          .getBoolean("fullscreen_option", true));
+  }
+
+  /**
+   * An on-screen Back button at the top of the list, in the home screen
+   * menu style; phones may have no Back button, and the gesture isn't
+   * obvious.  It does the same as Back: apply the options and close.
+   */
+  private void addBackButton() {
+    // Same look as the menu buttons elsewhere (this screen's own theme
+    // would draw an old-style button).
+    android.content.Context themed = new android.view.ContextThemeWrapper(
+        this, android.R.style.Theme_DeviceDefault_Light);
+    android.widget.Button back = MenuButtons.create(themed, R.string.back,
+        new android.view.View.OnClickListener() {
+      @Override
+      public void onClick(android.view.View v) {
+        closeOptions();
+      }
+    });
+    android.widget.LinearLayout header =
+        MenuButtons.column(themed, back);
+    getListView().addHeaderView(header, null, false);
+  }
+
+  /** Apply the chosen options and return to the previous screen. */
+  private void closeOptions() {
+    FrozenBubble.setPrefs(getDefaultPrefs(PreferenceManager.
+        getDefaultSharedPreferences(this)));
+    finish();
   }
 
   private static final String KEY_FOLDER_PICK      = "custom_music_folder_pick";
@@ -191,9 +221,7 @@ public class PreferencesActivity extends PreferenceActivity{
     boolean result = false;
 
     if (keyCode == KeyEvent.KEYCODE_BACK) {
-      FrozenBubble.setPrefs(getDefaultPrefs(PreferenceManager.
-          getDefaultSharedPreferences(this)));
-      finish();
+      closeOptions();
     }
     else {
       result  = collisionSlider .onKey(keyCode, msg);

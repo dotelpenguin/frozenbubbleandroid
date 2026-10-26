@@ -642,6 +642,26 @@ public class GameView extends SurfaceView
     private Bitmap[] mFrozenBubblesOrig;
     private Bitmap[] mTargetedBubblesOrig;
     private Bitmap mBubbleBlinkOrig;
+    /*
+     * The bubble set is loaded from high-resolution art (res/drawable-
+     * nodpi/*_hd.png), HD_ASSET_SCALE times the game's own units.
+     */
+    private static final float HD_ASSET_SCALE = 4f;
+    /*
+     * Options: "Use Original Art" switches back to the original 32 px
+     * bubble set.  Read when the game screen is created.
+     */
+    private final boolean mUseHdArt =
+        !android.preference.PreferenceManager.getDefaultSharedPreferences(
+            mContext).getBoolean(KEY_ORIGINAL_ART, false);
+
+    /** @return the HD resource, or the original when that is chosen. */
+    private int art(int hdId, int originalId) {
+      return mUseHdArt ? hdId : originalId;
+    }
+    private final java.util.Set<Bitmap> mHdBitmaps =
+        java.util.Collections.newSetFromMap(
+            new java.util.IdentityHashMap<Bitmap, Boolean>());
     private Bitmap mGameWonOrig;
     private Bitmap mGameLostOrig;
     private Bitmap mGamePausedOrig;
@@ -717,70 +737,71 @@ public class GameView extends SurfaceView
         res, R.drawable.background2, options);
       mBubblesOrig = new Bitmap[8];
       mBubblesOrig[0] = BitmapFactory.decodeResource(
-        res, R.drawable.bubble_1, options);
+        res, art(R.drawable.bubble_1_hd, R.drawable.bubble_1), options);
       mBubblesOrig[1] = BitmapFactory.decodeResource(
-        res, R.drawable.bubble_2, options);
+        res, art(R.drawable.bubble_2_hd, R.drawable.bubble_2), options);
       mBubblesOrig[2] = BitmapFactory.decodeResource(
-        res, R.drawable.bubble_3, options);
+        res, art(R.drawable.bubble_3_hd, R.drawable.bubble_3), options);
       mBubblesOrig[3] = BitmapFactory.decodeResource(
-        res, R.drawable.bubble_4, options);
+        res, art(R.drawable.bubble_4_hd, R.drawable.bubble_4), options);
       mBubblesOrig[4] = BitmapFactory.decodeResource(
-        res, R.drawable.bubble_5, options);
+        res, art(R.drawable.bubble_5_hd, R.drawable.bubble_5), options);
       mBubblesOrig[5] = BitmapFactory.decodeResource(
-        res, R.drawable.bubble_6, options);
+        res, art(R.drawable.bubble_6_hd, R.drawable.bubble_6), options);
       mBubblesOrig[6] = BitmapFactory.decodeResource(
-        res, R.drawable.bubble_7, options);
+        res, art(R.drawable.bubble_7_hd, R.drawable.bubble_7), options);
       mBubblesOrig[7] = BitmapFactory.decodeResource(
-        res, R.drawable.bubble_8, options);
+        res, art(R.drawable.bubble_8_hd, R.drawable.bubble_8), options);
       mBubblesBlindOrig = new Bitmap[8];
       mBubblesBlindOrig[0] = BitmapFactory.decodeResource(
-        res, R.drawable.bubble_colourblind_1, options);
+        res, art(R.drawable.bubble_colourblind_1_hd, R.drawable.bubble_colourblind_1), options);
       mBubblesBlindOrig[1] = BitmapFactory.decodeResource(
-        res, R.drawable.bubble_colourblind_2, options);
+        res, art(R.drawable.bubble_colourblind_2_hd, R.drawable.bubble_colourblind_2), options);
       mBubblesBlindOrig[2] = BitmapFactory.decodeResource(
-        res, R.drawable.bubble_colourblind_3, options);
+        res, art(R.drawable.bubble_colourblind_3_hd, R.drawable.bubble_colourblind_3), options);
       mBubblesBlindOrig[3] = BitmapFactory.decodeResource(
-        res, R.drawable.bubble_colourblind_4, options);
+        res, art(R.drawable.bubble_colourblind_4_hd, R.drawable.bubble_colourblind_4), options);
       mBubblesBlindOrig[4] = BitmapFactory.decodeResource(
-        res, R.drawable.bubble_colourblind_5, options);
+        res, art(R.drawable.bubble_colourblind_5_hd, R.drawable.bubble_colourblind_5), options);
       mBubblesBlindOrig[5] = BitmapFactory.decodeResource(
-        res, R.drawable.bubble_colourblind_6, options);
+        res, art(R.drawable.bubble_colourblind_6_hd, R.drawable.bubble_colourblind_6), options);
       mBubblesBlindOrig[6] = BitmapFactory.decodeResource(
-        res, R.drawable.bubble_colourblind_7, options);
+        res, art(R.drawable.bubble_colourblind_7_hd, R.drawable.bubble_colourblind_7), options);
       mBubblesBlindOrig[7] = BitmapFactory.decodeResource(
-        res, R.drawable.bubble_colourblind_8, options);
+        res, art(R.drawable.bubble_colourblind_8_hd, R.drawable.bubble_colourblind_8), options);
       mFrozenBubblesOrig = new Bitmap[8];
       mFrozenBubblesOrig[0] = BitmapFactory.decodeResource(
-        res, R.drawable.frozen_1, options);
+        res, art(R.drawable.frozen_1_hd, R.drawable.frozen_1), options);
       mFrozenBubblesOrig[1] = BitmapFactory.decodeResource(
-        res, R.drawable.frozen_2, options);
+        res, art(R.drawable.frozen_2_hd, R.drawable.frozen_2), options);
       mFrozenBubblesOrig[2] = BitmapFactory.decodeResource(
-        res, R.drawable.frozen_3, options);
+        res, art(R.drawable.frozen_3_hd, R.drawable.frozen_3), options);
       mFrozenBubblesOrig[3] = BitmapFactory.decodeResource(
-        res, R.drawable.frozen_4, options);
+        res, art(R.drawable.frozen_4_hd, R.drawable.frozen_4), options);
       mFrozenBubblesOrig[4] = BitmapFactory.decodeResource(
-        res, R.drawable.frozen_5, options);
+        res, art(R.drawable.frozen_5_hd, R.drawable.frozen_5), options);
       mFrozenBubblesOrig[5] = BitmapFactory.decodeResource(
-        res, R.drawable.frozen_6, options);
+        res, art(R.drawable.frozen_6_hd, R.drawable.frozen_6), options);
       mFrozenBubblesOrig[6] = BitmapFactory.decodeResource(
-        res, R.drawable.frozen_7, options);
+        res, art(R.drawable.frozen_7_hd, R.drawable.frozen_7), options);
       mFrozenBubblesOrig[7] = BitmapFactory.decodeResource(
-        res, R.drawable.frozen_8, options);
+        res, art(R.drawable.frozen_8_hd, R.drawable.frozen_8), options);
       mTargetedBubblesOrig = new Bitmap[6];
       mTargetedBubblesOrig[0] = BitmapFactory.decodeResource(
-        res, R.drawable.fixed_1, options);
+        res, art(R.drawable.fixed_1_hd, R.drawable.fixed_1), options);
       mTargetedBubblesOrig[1] = BitmapFactory.decodeResource(
-        res, R.drawable.fixed_2, options);
+        res, art(R.drawable.fixed_2_hd, R.drawable.fixed_2), options);
       mTargetedBubblesOrig[2] = BitmapFactory.decodeResource(
-        res, R.drawable.fixed_3, options);
+        res, art(R.drawable.fixed_3_hd, R.drawable.fixed_3), options);
       mTargetedBubblesOrig[3] = BitmapFactory.decodeResource(
-        res, R.drawable.fixed_4, options);
+        res, art(R.drawable.fixed_4_hd, R.drawable.fixed_4), options);
       mTargetedBubblesOrig[4] = BitmapFactory.decodeResource(
-        res, R.drawable.fixed_5, options);
+        res, art(R.drawable.fixed_5_hd, R.drawable.fixed_5), options);
       mTargetedBubblesOrig[5] = BitmapFactory.decodeResource(
-        res, R.drawable.fixed_6, options);
+        res, art(R.drawable.fixed_6_hd, R.drawable.fixed_6), options);
       mBubbleBlinkOrig = BitmapFactory.decodeResource(
-        res, R.drawable.bubble_blink, options);
+        res, art(R.drawable.bubble_blink_hd, R.drawable.bubble_blink), options);
+      markHdBubbleBitmaps();
       mGameWonOrig = BitmapFactory.decodeResource(
         res, R.drawable.win_panel, options);
       mGameLostOrig = BitmapFactory.decodeResource(
@@ -910,70 +931,71 @@ public class GameView extends SurfaceView
           res, R.drawable.background, options);
       mBubblesOrig = new Bitmap[8];
       mBubblesOrig[0] = BitmapFactory.decodeResource(
-          res, R.drawable.bubble_1, options);
+          res, art(R.drawable.bubble_1_hd, R.drawable.bubble_1), options);
       mBubblesOrig[1] = BitmapFactory.decodeResource(
-          res, R.drawable.bubble_2, options);
+          res, art(R.drawable.bubble_2_hd, R.drawable.bubble_2), options);
       mBubblesOrig[2] = BitmapFactory.decodeResource(
-          res, R.drawable.bubble_3, options);
+          res, art(R.drawable.bubble_3_hd, R.drawable.bubble_3), options);
       mBubblesOrig[3] = BitmapFactory.decodeResource(
-          res, R.drawable.bubble_4, options);
+          res, art(R.drawable.bubble_4_hd, R.drawable.bubble_4), options);
       mBubblesOrig[4] = BitmapFactory.decodeResource(
-          res, R.drawable.bubble_5, options);
+          res, art(R.drawable.bubble_5_hd, R.drawable.bubble_5), options);
       mBubblesOrig[5] = BitmapFactory.decodeResource(
-          res, R.drawable.bubble_6, options);
+          res, art(R.drawable.bubble_6_hd, R.drawable.bubble_6), options);
       mBubblesOrig[6] = BitmapFactory.decodeResource(
-          res, R.drawable.bubble_7, options);
+          res, art(R.drawable.bubble_7_hd, R.drawable.bubble_7), options);
       mBubblesOrig[7] = BitmapFactory.decodeResource(
-          res, R.drawable.bubble_8, options);
+          res, art(R.drawable.bubble_8_hd, R.drawable.bubble_8), options);
       mBubblesBlindOrig = new Bitmap[8];
       mBubblesBlindOrig[0] = BitmapFactory.decodeResource(
-          res, R.drawable.bubble_colourblind_1, options);
+          res, art(R.drawable.bubble_colourblind_1_hd, R.drawable.bubble_colourblind_1), options);
       mBubblesBlindOrig[1] = BitmapFactory.decodeResource(
-          res, R.drawable.bubble_colourblind_2, options);
+          res, art(R.drawable.bubble_colourblind_2_hd, R.drawable.bubble_colourblind_2), options);
       mBubblesBlindOrig[2] = BitmapFactory.decodeResource(
-          res, R.drawable.bubble_colourblind_3, options);
+          res, art(R.drawable.bubble_colourblind_3_hd, R.drawable.bubble_colourblind_3), options);
       mBubblesBlindOrig[3] = BitmapFactory.decodeResource(
-          res, R.drawable.bubble_colourblind_4, options);
+          res, art(R.drawable.bubble_colourblind_4_hd, R.drawable.bubble_colourblind_4), options);
       mBubblesBlindOrig[4] = BitmapFactory.decodeResource(
-          res, R.drawable.bubble_colourblind_5, options);
+          res, art(R.drawable.bubble_colourblind_5_hd, R.drawable.bubble_colourblind_5), options);
       mBubblesBlindOrig[5] = BitmapFactory.decodeResource(
-          res, R.drawable.bubble_colourblind_6, options);
+          res, art(R.drawable.bubble_colourblind_6_hd, R.drawable.bubble_colourblind_6), options);
       mBubblesBlindOrig[6] = BitmapFactory.decodeResource(
-          res, R.drawable.bubble_colourblind_7, options);
+          res, art(R.drawable.bubble_colourblind_7_hd, R.drawable.bubble_colourblind_7), options);
       mBubblesBlindOrig[7] = BitmapFactory.decodeResource(
-          res, R.drawable.bubble_colourblind_8, options);
+          res, art(R.drawable.bubble_colourblind_8_hd, R.drawable.bubble_colourblind_8), options);
       mFrozenBubblesOrig = new Bitmap[8];
       mFrozenBubblesOrig[0] = BitmapFactory.decodeResource(
-          res, R.drawable.frozen_1, options);
+          res, art(R.drawable.frozen_1_hd, R.drawable.frozen_1), options);
       mFrozenBubblesOrig[1] = BitmapFactory.decodeResource(
-          res, R.drawable.frozen_2, options);
+          res, art(R.drawable.frozen_2_hd, R.drawable.frozen_2), options);
       mFrozenBubblesOrig[2] = BitmapFactory.decodeResource(
-          res, R.drawable.frozen_3, options);
+          res, art(R.drawable.frozen_3_hd, R.drawable.frozen_3), options);
       mFrozenBubblesOrig[3] = BitmapFactory.decodeResource(
-          res, R.drawable.frozen_4, options);
+          res, art(R.drawable.frozen_4_hd, R.drawable.frozen_4), options);
       mFrozenBubblesOrig[4] = BitmapFactory.decodeResource(
-          res, R.drawable.frozen_5, options);
+          res, art(R.drawable.frozen_5_hd, R.drawable.frozen_5), options);
       mFrozenBubblesOrig[5] = BitmapFactory.decodeResource(
-          res, R.drawable.frozen_6, options);
+          res, art(R.drawable.frozen_6_hd, R.drawable.frozen_6), options);
       mFrozenBubblesOrig[6] = BitmapFactory.decodeResource(
-          res, R.drawable.frozen_7, options);
+          res, art(R.drawable.frozen_7_hd, R.drawable.frozen_7), options);
       mFrozenBubblesOrig[7] = BitmapFactory.decodeResource(
-          res, R.drawable.frozen_8, options);
+          res, art(R.drawable.frozen_8_hd, R.drawable.frozen_8), options);
       mTargetedBubblesOrig = new Bitmap[6];
       mTargetedBubblesOrig[0] = BitmapFactory.decodeResource(
-          res, R.drawable.fixed_1, options);
+          res, art(R.drawable.fixed_1_hd, R.drawable.fixed_1), options);
       mTargetedBubblesOrig[1] = BitmapFactory.decodeResource(
-          res, R.drawable.fixed_2, options);
+          res, art(R.drawable.fixed_2_hd, R.drawable.fixed_2), options);
       mTargetedBubblesOrig[2] = BitmapFactory.decodeResource(
-          res, R.drawable.fixed_3, options);
+          res, art(R.drawable.fixed_3_hd, R.drawable.fixed_3), options);
       mTargetedBubblesOrig[3] = BitmapFactory.decodeResource(
-          res, R.drawable.fixed_4, options);
+          res, art(R.drawable.fixed_4_hd, R.drawable.fixed_4), options);
       mTargetedBubblesOrig[4] = BitmapFactory.decodeResource(
-          res, R.drawable.fixed_5, options);
+          res, art(R.drawable.fixed_5_hd, R.drawable.fixed_5), options);
       mTargetedBubblesOrig[5] = BitmapFactory.decodeResource(
-          res, R.drawable.fixed_6, options);
+          res, art(R.drawable.fixed_6_hd, R.drawable.fixed_6), options);
       mBubbleBlinkOrig = BitmapFactory.decodeResource(
-          res, R.drawable.bubble_blink, options);
+          res, art(R.drawable.bubble_blink_hd, R.drawable.bubble_blink), options);
+      markHdBubbleBitmaps();
       mGameWonOrig = BitmapFactory.decodeResource(
           res, R.drawable.win_panel, options);
       mGameLostOrig = BitmapFactory.decodeResource(
@@ -2528,21 +2550,42 @@ public class GameView extends SurfaceView
       return map;
     }
 
+    private void markHdBubbleBitmaps() {
+      mHdBitmaps.clear();
+      if (!mUseHdArt) {
+        return; // Original art: nothing to scale down.
+      }
+      for (Bitmap[] set : new Bitmap[][] { mBubblesOrig, mBubblesBlindOrig,
+                                           mFrozenBubblesOrig,
+                                           mTargetedBubblesOrig }) {
+        for (Bitmap b : set) {
+          mHdBitmaps.add(b);
+        }
+      }
+      mHdBitmaps.add(mBubbleBlinkOrig);
+    }
+
     private void scaleFrom(BmpWrap image, Bitmap bmp) {
       if ((image.bmp != null) && (image.bmp != bmp)) {
         image.bmp.recycle();
       }
+      float asset = mHdBitmaps.contains(bmp) ? HD_ASSET_SCALE : 1f;
 
       if (mDrawScaled ||
-          ((mDisplayScale > 0.99999) && (mDisplayScale < 1.00001))) {
+          ((asset == 1f) &&
+           (mDisplayScale > 0.99999) && (mDisplayScale < 1.00001))) {
         // GPU path: keep the original; it is scaled while drawing.
-        image.bmp = bmp;
+        image.bmp        = bmp;
+        image.assetScale = asset;
         return;
       }
 
-      int dstWidth  = (int)(bmp.getWidth()  * mDisplayScale);
-      int dstHeight = (int)(bmp.getHeight() * mDisplayScale);
-      image.bmp = Bitmap.createScaledBitmap(bmp, dstWidth, dstHeight, true);
+      // CPU path: pre-scale to the screen (from the HD art when present,
+      // which is sharper than enlarging the small original).
+      int dstWidth  = Math.max(1, (int)(bmp.getWidth()  * mDisplayScale / asset));
+      int dstHeight = Math.max(1, (int)(bmp.getHeight() * mDisplayScale / asset));
+      image.bmp        = Bitmap.createScaledBitmap(bmp, dstWidth, dstHeight, true);
+      image.assetScale = 1f;
     }
 
     /**
@@ -2705,6 +2748,15 @@ public class GameView extends SurfaceView
         hz = 60f;
       }
       mFrameNs = (long)(1000000000L / hz);
+    }
+
+    /** @return true while a score screen is shown (the level is over). */
+    public boolean showingScores() {
+      return mShowScores;
+    }
+
+    public int gameToViewY(double gameY) {
+      return (int) (mDisplayDY + (gameY * mDisplayScale));
     }
 
     /** Start of a logic step for each game's sprites. */
@@ -2941,7 +2993,12 @@ public class GameView extends SurfaceView
               return true;
             }
             setState(stateEnum.RUNNING);
-            break;
+            /*
+             * The tap that dismisses the pause screen only resumes the
+             * game; it must not also aim or fire, since the player
+             * couldn't see the board behind the pause panel.
+             */
+            return true;
 
           case RUNNING:
             levelStarted = false;
@@ -3368,6 +3425,14 @@ public class GameView extends SurfaceView
     return mGameThread;
   }
 
+  /**
+   * @return the Y position within this view of a game Y coordinate, for
+   * placing UI (such as the pause menu) relative to the playfield.
+   */
+  public int gameToViewY(double gameY) {
+    return mGameThread.gameToViewY(gameY);
+  }
+
   private void monitorRemotePlayer() {
     if ((mNetworkManager != null) && (mRemoteInput != null)) {
       /*
@@ -3589,6 +3654,9 @@ public class GameView extends SurfaceView
       // Not supported here; the default rate is fine.
     }
   }
+
+  /** Options key: use the original low-resolution art instead of HD. */
+  public static final String KEY_ORIGINAL_ART = "original_art_option";
 
   /** Options key: draw the game with the GPU (Android 8+). */
   public static final String KEY_GPU_RENDERING = "gpu_rendering_option";

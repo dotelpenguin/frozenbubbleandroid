@@ -154,11 +154,20 @@ public abstract class Sprite {
    * scaling it on the GPU when bitmaps are not pre-scaled.
    */
   public static void blit(Canvas c, Bitmap bmp, float px, float py) {
-    if (sBitmapScale == 1.0) {
+    blit(c, bmp, px, py, 1f);
+  }
+
+  /**
+   * @param assetScale - how much larger the bitmap is than its size in
+   * game units (4 for the HD bubbles), so it is drawn that much smaller.
+   */
+  public static void blit(Canvas c, Bitmap bmp, float px, float py,
+                          float assetScale) {
+    if ((sBitmapScale == 1.0) && (assetScale == 1f)) {
       c.drawBitmap(bmp, px, py, null);
       return;
     }
-    float s = (float) sBitmapScale;
+    float s = (float) (sBitmapScale / assetScale);
     sDst.set(px, py, px + (bmp.getWidth() * s), py + (bmp.getHeight() * s));
     c.drawBitmap(bmp, null, sDst, FILTER_PAINT);
   }
@@ -225,7 +234,8 @@ public abstract class Sprite {
 
   public static void drawImage(BmpWrap image, float x, float y,
                                Canvas c, double scale, int dx, int dy) {
-    blit(c, image.bmp, (float)(x * scale + dx), (float)(y * scale + dy));
+    blit(c, image.bmp, (float)(x * scale + dx), (float)(y * scale + dy),
+         image.assetScale);
   }
 
   public static void drawImageClipped(BmpWrap image, int x, int y, Rect clipr,
@@ -237,7 +247,8 @@ public abstract class Sprite {
                (float)(clipr.top * scale + dy),
                (float)(clipr.right * scale + dx),
                (float)(clipr.bottom * scale + dy));
-    blit(c, image.bmp, (float)(x * scale + dx), (float)(y * scale + dy));
+    blit(c, image.bmp, (float)(x * scale + dx), (float)(y * scale + dy),
+         image.assetScale);
     c.restore();
   }
 

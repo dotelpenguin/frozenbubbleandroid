@@ -59,6 +59,12 @@
     android:title="GPU Rendering" />
 
   <CheckBoxPreference
+    android:defaultValue="false"
+    android:key="original_art_option"
+    android:summary="Use the original low-resolution bubbles instead of the new HD art. Applies from the next game."
+    android:title="Use Original Art" />
+
+  <CheckBoxPreference
     android:defaultValue="true"
     android:key="rush_me_option"
     android:summary="On/Off"

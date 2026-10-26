@@ -66,6 +66,10 @@ public class BmpWrap {
   }
 
   public Bitmap bmp;
+  // How many times larger bmp is than the game's own units at the
+  // current drawing scale: 1 for pre-scaled bitmaps, or the
+  // high-resolution factor when an HD original is scaled while drawing.
+  public float assetScale = 1f;
   // Image id used for saving and restoring the image sprites.
   public int id;
 }

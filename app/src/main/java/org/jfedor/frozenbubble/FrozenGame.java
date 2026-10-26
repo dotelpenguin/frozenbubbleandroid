@@ -70,6 +70,12 @@ import com.efortin.frozenbubble.NetworkManager;
 import com.efortin.frozenbubble.VirtualInput;
 
 public class FrozenGame extends GameScreen {
+  /*
+   * The "PAUSE" panel sits at the top of the playfield, just under the
+   * compressor bar, so the pause menu can open below it.
+   */
+  public static final int PAUSED_PANEL_Y      = 46;
+  public static final int PAUSED_PANEL_HEIGHT = 116;
   private final int[] columnX = {190, 206, 222, 238, 254,
                                  270, 286, 302, 318, 334,
                                  350, 366, 382, 398, 414};
@@ -228,7 +234,7 @@ public class FrozenGame extends GameScreen {
     compressor   = new Compressor(compressorHead_arg, compressor_arg);
     hurrySprite  = new ImageSprite(new Rect(203, 265, 203 + 240, 265 + 90),
                                    hurry_arg);
-    pausedSprite = new ImageSprite(new Rect(152, 190, 337, 116),
+    pausedSprite = new ImageSprite(new Rect(152, PAUSED_PANEL_Y, 337, 116),
                                    gamePaused_arg);
 
     if (malusBar != null)
@@ -1286,6 +1292,33 @@ public class FrozenGame extends GameScreen {
   }
 
   public void saveState(Bundle map) {
+    /*
+     * Leave popped (jumping) and dropped (falling) bubbles out of the
+     * save.  They have already left the grid and been scored, and a
+     * continued game should open on a clean board rather than with
+     * bubbles frozen mid-animation.  The live game keeps them.
+     */
+    Vector<Sprite> leaving = new Vector<Sprite>(jumping);
+    leaving.addAll(falling);
+    Vector<Sprite> jumpingWas = jumping;
+    Vector<Sprite> fallingWas = falling;
+    for (Sprite sprite : leaving) {
+      removeSprite(sprite);
+    }
+    jumping = new Vector<Sprite>();
+    falling = new Vector<Sprite>();
+    try {
+      saveSnapshot(map);
+    } finally {
+      jumping = jumpingWas;
+      falling = fallingWas;
+      for (Sprite sprite : leaving) {
+        addSprite(sprite);
+      }
+    }
+  }
+
+  private void saveSnapshot(Bundle map) {
     Vector<Sprite> savedSprites = new Vector<Sprite>();
 
     saveSprites(map, savedSprites, player);
