@@ -63,6 +63,9 @@ public class Compressor {
   private static final int BAR_Y_ADJ    = -4;
   private static final int HEAD_X       = 160;
   private static final int HEAD_Y_ADJ   = -7;
+  // First row of the head image that is solid all the way across
+  // (the wooden bar); everything above it is partly transparent.
+  private static final int HEAD_BAR_TOP = 42;
 
   private BmpWrap compressor;
   private BmpWrap compressorHead;
@@ -90,6 +93,14 @@ public class Compressor {
 
   public int getSteps() {
     return steps;
+  }
+
+  /**
+   * @return the game Y coordinate of the top of the compressor head's
+   * solid wooden bar.
+   */
+  public int getBarTopY() {
+    return (BAR_Y * steps) + HEAD_Y_ADJ + HEAD_BAR_TOP;
   }
 
   public void init() {

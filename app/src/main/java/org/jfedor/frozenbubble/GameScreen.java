@@ -145,6 +145,29 @@ public abstract class GameScreen {
     }
   }
 
+  /**
+   * Paint all sprites except the given ones (which the caller has
+   * already painted, e.g. underneath another layer).
+   */
+  protected final void paintExcept(Canvas c, double scale, int dx, int dy,
+                                   Sprite[] skip) {
+    for (int i = 0; i < sprites.size(); i++) {
+      Sprite sprite = (Sprite)sprites.elementAt(i);
+      boolean skipped = false;
+      if (skip != null) {
+        for (Sprite s : skip) {
+          if (s == sprite) {
+            skipped = true;
+            break;
+          }
+        }
+      }
+      if (!skipped) {
+        sprite.paint(c, scale, dx, dy);
+      }
+    }
+  }
+
   public abstract gameEnum play(boolean key_left, boolean key_right,
                                 boolean key_fire, boolean key_swap,
                                 double trackball_dx,

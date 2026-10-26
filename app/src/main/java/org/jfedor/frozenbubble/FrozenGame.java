@@ -675,8 +675,28 @@ public class FrozenGame extends GameScreen {
     else {
       nextBubble.changeImage(bubblesBlind[nextColor]);
     }
+    /*
+     * Arcade mode: the incoming row of bubbles starts behind the
+     * compressor head and scrolls down into play, so draw it before
+     * the compressor to make it slide out from underneath.
+     */
+    if (scrolling != null) {
+      /*
+       * Clip it to below the top of the compressor's solid bar; the bar
+       * is drawn over it, so the bubbles emerge from underneath.
+       */
+      c.save();
+      c.clipRect(0f, (float)(compressor.getBarTopY() * scale + dy),
+                 (float)c.getWidth(), (float)c.getHeight());
+      for (BubbleSprite sprite : scrolling) {
+        if (sprite != null) {
+          sprite.paint(c, scale, dx, dy);
+        }
+      }
+      c.restore();
+    }
     compressor.paint(c, scale, dx, dy);
-    super     .paint(c, scale, dx, dy);
+    paintExcept(c, scale, dx, dy, scrolling);
   }
 
   public void pause() {
