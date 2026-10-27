@@ -730,9 +730,9 @@ public class GameView extends SurfaceView
       } catch (Exception ignore) {}
 
       mBackButtonOrig = BitmapFactory.decodeResource(
-          res, R.drawable.back_button, options);
+          res, art(R.drawable.back_button_hd, R.drawable.back_button), options);
       mNextSongButtonOrig = BitmapFactory.decodeResource(
-          res, R.drawable.next_song_button, options);
+          res, art(R.drawable.next_song_button_hd, R.drawable.next_song_button), options);
       mBackgroundOrig = BitmapFactory.decodeResource(
         res, R.drawable.background2, options);
       mBubblesOrig = new Bitmap[8];
@@ -811,9 +811,9 @@ public class GameView extends SurfaceView
       mHurryOrig = BitmapFactory.decodeResource(
         res, R.drawable.hurry, options);
       mPauseButtonOrig = BitmapFactory.decodeResource(
-        res, R.drawable.pause_button, options);
+        res, art(R.drawable.pause_button_hd, R.drawable.pause_button), options);
       mPlayButtonOrig = BitmapFactory.decodeResource(
-        res, R.drawable.play_button, options);
+        res, art(R.drawable.play_button_hd, R.drawable.play_button), options);
       mPenguinsOrig = BitmapFactory.decodeResource(
         res, R.drawable.penguins, options);
       mPenguins2Orig = BitmapFactory.decodeResource(
@@ -827,9 +827,9 @@ public class GameView extends SurfaceView
       mFontImageOrig = BitmapFactory.decodeResource(
         res, R.drawable.bubble_font, options);
       mBananaOrig = BitmapFactory.decodeResource(
-        res, R.drawable.banana, options);
+        res, art(R.drawable.banana_hd, R.drawable.banana), options);
       mTomatoOrig = BitmapFactory.decodeResource(
-        res, R.drawable.tomato, options);
+        res, art(R.drawable.tomato_hd, R.drawable.tomato), options);
 
       mImageList = new Vector<BmpWrap>();
 
@@ -873,7 +873,7 @@ public class GameView extends SurfaceView
       mTomato         = NewBmpWrap();
 
       mFont             = new BubbleFont(mFontImage);
-      mLauncher         = res.getDrawable(R.drawable.launcher);
+      mLauncher         = res.getDrawable(art(R.drawable.launcher_hd, R.drawable.launcher));
       mSoundManager     = new SoundManager(mContext);
 
       /*
@@ -924,9 +924,9 @@ public class GameView extends SurfaceView
       } catch (Exception ignore) {}
 
       mBackButtonOrig = BitmapFactory.decodeResource(
-          res, R.drawable.back_button, options);
+          res, art(R.drawable.back_button_hd, R.drawable.back_button), options);
       mNextSongButtonOrig = BitmapFactory.decodeResource(
-          res, R.drawable.next_song_button, options);
+          res, art(R.drawable.next_song_button_hd, R.drawable.next_song_button), options);
       mBackgroundOrig = BitmapFactory.decodeResource(
           res, R.drawable.background, options);
       mBubblesOrig = new Bitmap[8];
@@ -1006,7 +1006,7 @@ public class GameView extends SurfaceView
           res, R.drawable.hurry, options);
       mPauseButtonOrig = null;
       mPlayButtonOrig = BitmapFactory.decodeResource(
-          res, R.drawable.play_button, options);
+          res, art(R.drawable.play_button_hd, R.drawable.play_button), options);
       mPenguinsOrig = BitmapFactory.decodeResource(
           res, R.drawable.penguins, options);
       mPenguins2Orig = null;
@@ -1063,7 +1063,7 @@ public class GameView extends SurfaceView
       mTomato         = null;
 
       mFont             = new BubbleFont(mFontImage);
-      mLauncher         = res.getDrawable(R.drawable.launcher);
+      mLauncher         = res.getDrawable(art(R.drawable.launcher_hd, R.drawable.launcher));
       mSoundManager     = new SoundManager(mContext);
 
       /*
@@ -2292,6 +2292,7 @@ public class GameView extends SurfaceView
     private void resizeBitmaps() {
       //Log.i("frozen-bubble", "resizeBitmaps()");
       Sprite.setBitmapScale(mDrawScaled ? mDisplayScale : 1.0);
+      markHdBubbleBitmaps(); // Everything is loaded by now.
       scaleFrom(mBackButton, mBackButtonOrig);
       scaleFrom(mNextSongButton, mNextSongButtonOrig);
       scaleFrom(mBackground, mBackgroundOrig);
@@ -2558,11 +2559,26 @@ public class GameView extends SurfaceView
       for (Bitmap[] set : new Bitmap[][] { mBubblesOrig, mBubblesBlindOrig,
                                            mFrozenBubblesOrig,
                                            mTargetedBubblesOrig }) {
+        if (set == null) {
+          continue;
+        }
         for (Bitmap b : set) {
+          if (b != null) {
+            mHdBitmaps.add(b);
+          }
+        }
+      }
+      if (mBubbleBlinkOrig != null) {
+        mHdBitmaps.add(mBubbleBlinkOrig);
+      }
+      // HD UI art: round buttons and the multiplayer attack markers.
+      for (Bitmap b : new Bitmap[] { mBackButtonOrig, mNextSongButtonOrig,
+                                     mPauseButtonOrig, mPlayButtonOrig,
+                                     mBananaOrig, mTomatoOrig }) {
+        if (b != null) {
           mHdBitmaps.add(b);
         }
       }
-      mHdBitmaps.add(mBubbleBlinkOrig);
     }
 
     private void scaleFrom(BmpWrap image, Bitmap bmp) {
