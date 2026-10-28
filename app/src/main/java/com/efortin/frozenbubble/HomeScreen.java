@@ -1622,7 +1622,43 @@ public class HomeScreen extends Activity {
                         PlayerThread.LOOP_SONG_FOREVER,
                         myPreferences.musicOn,
                         false);
+      /*
+       * First start: language, name, and Bluetooth permission.
+       */
+      if (FirstRunSetup.isNeeded(this)) {
+        myLayout.post(this::startFirstRunSetup);
+      }
     }
+  }
+
+  private static final int REQUEST_BLUETOOTH_SETUP = 1003;
+
+  private void startFirstRunSetup() {
+    new FirstRunSetup(this, new FirstRunSetup.Host() {
+      @Override
+      public void click() {
+        if (mSoundManager != null) {
+          mSoundManager.playSound("stick", R.raw.stick);
+        }
+      }
+      @Override
+      public void showPopup(AlertDialog dialog) {
+        showOverDimmedMenu(dialog);
+      }
+      @Override
+      public void reloadForLanguage() {
+        HomeScreen.this.reloadForLanguage();
+      }
+      @Override
+      public void requestBluetoothPermission() {
+        if (android.os.Build.VERSION.SDK_INT >=
+            android.os.Build.VERSION_CODES.S) {
+          requestPermissions(
+              new String[] { android.Manifest.permission.BLUETOOTH_CONNECT },
+              REQUEST_BLUETOOTH_SETUP);
+        }
+      }
+    }).start();
   }
 
   private void startPreferencesScreen() {

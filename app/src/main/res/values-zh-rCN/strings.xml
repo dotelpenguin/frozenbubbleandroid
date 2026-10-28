@@ -177,4 +177,16 @@
   <string name="folder_chosen">已选文件夹</string>
   <string name="opt_language">语言</string>
   <string name="lang_system">跟随系统</string>
+  <string name="setup_welcome">欢迎来到 Frozen Bubble HD！</string>
+  <string name="setup_choose_language">选择你的语言</string>
+  <string name="setup_name_question">你叫什么名字？</string>
+  <string name="setup_name_note">名字会和你的高分一起保存。可以在“选项”中修改。</string>
+  <string name="name_hint">你的名字</string>
+  <string name="name_default">玩家</string>
+  <string name="setup_next">下一步</string>
+  <string name="setup_bt_title">和附近的朋友一起玩</string>
+  <string name="setup_bt_message">通过蓝牙进行双人游戏需要连接附近手机的权限。你也可以稍后在开始蓝牙游戏时再允许。</string>
+  <string name="setup_allow">允许</string>
+  <string name="setup_not_now">暂不</string>
+  <string name="opt_player_name">玩家名字</string>
 </resources>

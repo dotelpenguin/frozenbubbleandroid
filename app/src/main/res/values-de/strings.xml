@@ -179,4 +179,16 @@
   <string name="folder_chosen">Gewählter Ordner</string>
   <string name="opt_language">Sprache</string>
   <string name="lang_system">Systemsprache</string>
+  <string name="setup_welcome">Willkommen bei Frozen Bubble HD!</string>
+  <string name="setup_choose_language">Wähle deine Sprache</string>
+  <string name="setup_name_question">Wie heißt du?</string>
+  <string name="setup_name_note">Dein Name wird mit deinen Bestwerten gespeichert. Du kannst ihn in den Optionen ändern.</string>
+  <string name="name_hint">Dein Name</string>
+  <string name="name_default">Spieler</string>
+  <string name="setup_next">Weiter</string>
+  <string name="setup_bt_title">Mit Freunden in der Nähe spielen</string>
+  <string name="setup_bt_message">2-Spieler-Spiele über Bluetooth brauchen die Erlaubnis, sich mit Handys in der Nähe zu verbinden. Du kannst das auch später erlauben, wenn du ein Bluetooth-Spiel startest.</string>
+  <string name="setup_allow">Erlauben</string>
+  <string name="setup_not_now">Nicht jetzt</string>
+  <string name="opt_player_name">Spielername</string>
 </resources>

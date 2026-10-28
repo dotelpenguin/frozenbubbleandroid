@@ -175,7 +175,58 @@ public class OptionsMenus {
                LevelManager.EASY, DIFFICULTY_MAX, LevelManager.NORMAL,
                R.string.opt_difficulty_value, R.string.opt_difficulty_help),
         toggle(R.string.opt_hurry, KEY_RUSH_ME, true, null),
-        toggle(R.string.opt_compressor, KEY_COMPRESSOR, false, null));
+        toggle(R.string.opt_compressor, KEY_COMPRESSOR, false, null),
+        new Item() {
+          public String label() {
+            return activity.getString(R.string.opt_player_name) + ": " +
+                PlayerName.get(activity);
+          }
+          public void onTap() {
+            showNameEditor();
+          }
+        });
+  }
+
+  /**
+   * Edit the player's name (recorded with high scores): a name field
+   * with Done / Cancel, in place of the category popup.
+   */
+  private void showNameEditor() {
+    final AlertDialog dialog = new AlertDialog.Builder(activity).create();
+    LinearLayout box = new LinearLayout(activity);
+    box.setOrientation(LinearLayout.VERTICAL);
+    box.setGravity(Gravity.CENTER_HORIZONTAL);
+    int pad = (int) (12 * activity.getResources().getDisplayMetrics().density);
+    box.setPadding(pad, pad, pad, 0);
+    TextView title = new TextView(activity);
+    styleText(title, 22);
+    title.setText(R.string.opt_player_name);
+    box.addView(title);
+    final android.widget.EditText edit =
+        PlayerName.makeEditor(activity, PlayerName.get(activity));
+    box.addView(edit);
+    Button done = MenuButtons.create(activity, R.string.opt_done, v -> {
+      host.click();
+      PlayerName.set(activity, edit.getText().toString());
+      dialog.dismiss();
+    });
+    Button cancel = MenuButtons.create(activity, R.string.cancel, v -> {
+      host.click();
+      dialog.dismiss();
+    });
+    box.addView(MenuButtons.column(activity, done, cancel));
+    dialog.setView(scrolling(box));
+    // Only this popup shows; its category popup comes back after.
+    final AlertDialog under = openMenu;
+    if (under != null)
+      under.hide();
+    dialog.setOnDismissListener(d -> {
+      if ((under != null) && (openMenu == under)) {
+        refresh();
+        under.show();
+      }
+    });
+    showSeeThrough(dialog);
   }
 
   /**

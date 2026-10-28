@@ -179,4 +179,16 @@
     <item>@string/play_sound_effects</item>
     <item>@string/play_level_music</item>
   </string-array>
+  <string name="setup_welcome">Velkomin(n) í Frozen Bubble HD!</string>
+  <string name="setup_choose_language">Veldu tungumál</string>
+  <string name="setup_name_question">Hvað heitir þú?</string>
+  <string name="setup_name_note">Nafnið er vistað með stigunum þínum. Þú getur breytt því í Stillingum.</string>
+  <string name="name_hint">Nafnið þitt</string>
+  <string name="name_default">Leikmaður</string>
+  <string name="setup_next">Áfram</string>
+  <string name="setup_bt_title">Spilaðu við vin í nágrenninu</string>
+  <string name="setup_bt_message">Tveggja manna leikir yfir Bluetooth þurfa heimild til að tengjast símum í nágrenninu. Þú getur líka leyft það seinna, þegar þú byrjar Bluetooth-leik.</string>
+  <string name="setup_allow">Leyfa</string>
+  <string name="setup_not_now">Ekki núna</string>
+  <string name="opt_player_name">Nafn leikmanns</string>
 </resources>

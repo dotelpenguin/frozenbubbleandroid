@@ -132,7 +132,8 @@ public class HighscoreManager {
                                                     Context.MODE_PRIVATE);
     name = sp.getString("highscorename", "anon");
     */
-    lastScoreDO = new HighscoreDO(currentLevel, "anon", nbBubbles, duration);
+    lastScoreDO = new HighscoreDO(currentLevel, PlayerName.get(ctx),
+                                  nbBubbles, duration);
     lastScoreId = db.insert(lastScoreDO);
     //Log.i("FrozenBubble-highscore", "endLevel() " + (duration / 1000F) +
     //  " seconds and " + nbBubbles + " shots used for level " + currentLevel);
