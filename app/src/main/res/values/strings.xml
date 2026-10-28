@@ -129,5 +129,13 @@
   <string name="opt_difficulty_value">%1$d colors</string>
   <string name="opt_difficulty_help">Number of bubble colors in Arcade and 2 Player games.</string>
   <string name="opt_hurry">Hurry Mode</string>
+  <string name="opt_effects">Effects</string>
+  <string name="fx_pop">Pop Sparkles</string>
+  <string name="fx_fade">Falling Fade</string>
+  <string name="fx_wobble">Impact Wobble</string>
+  <string name="fx_shake">Screen Shake</string>
+  <string name="fx_trail">Shot Trail</string>
+  <string name="fx_guide">Aiming Guide</string>
+  <string name="fx_vibrate">Vibration</string>
   <string name="opt_compressor">2P Compressor</string>
 </resources>

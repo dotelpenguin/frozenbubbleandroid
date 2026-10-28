@@ -1293,6 +1293,28 @@ public class GameView extends SurfaceView
       }
     }
 
+    /**
+     * Screen shake (Options &rarr; Effects): offset the playfield, and
+     * zoom in just enough that its edges never show.
+     */
+    private void applyScreenShake(Canvas canvas) {
+      float sx = Effects.shakeOffset(0);
+      float sy = Effects.shakeOffset(1);
+      if ((sx == 0f) && (sy == 0f)) {
+        return;
+      }
+      int size = Math.min(mContentRect.width(), mContentRect.height());
+      if (size <= 0) {
+        return;
+      }
+      float shift = (float) (Effects.MAX_SHAKE * mDisplayScale);
+      float zoom  = 1f + ((2f * shift) / size);
+      canvas.scale(zoom, zoom, mContentRect.exactCenterX(),
+                   mContentRect.exactCenterY());
+      canvas.translate((float) (sx * mDisplayScale),
+                       (float) (sy * mDisplayScale));
+    }
+
     private void doDraw(Canvas canvas) {
       //Log.i("frozen-bubble", "doDraw()");
       if (!mImagesReady) {
@@ -1308,6 +1330,7 @@ public class GameView extends SurfaceView
        */
       canvas.save();
       canvas.clipRect(mContentRect);
+      applyScreenShake(canvas);
       drawBackground(canvas);
       if (mFrozenGame1 != null) {
         mFrozenGame1.paint(canvas, mDisplayScale, mPlayer1DX, mDisplayDY);
@@ -1325,6 +1348,9 @@ public class GameView extends SurfaceView
         drawLevelNumber(canvas);
       }
       canvas.restore();
+      if (mMenuDim && (mMode == stateEnum.PAUSED)) {
+        canvas.drawColor(MENU_DIM_COLOR);
+      }
     }
 
     /**
@@ -2750,7 +2776,20 @@ public class GameView extends SurfaceView
           mModeWas = mMode;
 
         mMode = newMode;
+        if (newMode != stateEnum.PAUSED)
+          mMenuDim = false;
       }
+    }
+
+    /*
+     * Darken the game behind the in-game menus.  Set by the activity
+     * while a menu is open; cleared when the game leaves the pause.
+     */
+    private volatile boolean mMenuDim = false;
+    private static final int MENU_DIM_COLOR = 0xA6000000; // 65% black
+
+    public void setMenuDim(boolean on) {
+      mMenuDim = on;
     }
 
     public void setSurfaceOK(boolean ok) {
@@ -2820,10 +2859,13 @@ public class GameView extends SurfaceView
     private void tickGameSprites() {
       if (mFrozenGame1 != null) {
         mFrozenGame1.tickSprites();
+        mFrozenGame1.tickEffects();
       }
       if (mFrozenGame2 != null) {
         mFrozenGame2.tickSprites();
+        mFrozenGame2.tickEffects();
       }
+      Effects.tickShake();
     }
 
     /**
@@ -3415,6 +3457,7 @@ public class GameView extends SurfaceView
                     byte[] levels,
                     int startingLevel) {
     mContext = context;
+    Effects.init(context);
     this.gameLocale = gameLocale;
     this.numPlayers = numPlayers;
     SurfaceHolder holder = getHolder();

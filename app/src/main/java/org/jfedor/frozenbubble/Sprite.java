@@ -95,6 +95,11 @@ public abstract class Sprite {
   private int     prevTop;
   private boolean hasPrev = false;
 
+  /** How far through the current game step this frame is (0 to 1). */
+  public static float interpolationAlpha() {
+    return sAlpha;
+  }
+
   public static void setInterpolation(float alpha) {
     sAlpha = (alpha < 0f) ? 0f : ((alpha > 1f) ? 1f : alpha);
   }
@@ -236,6 +241,31 @@ public abstract class Sprite {
                                Canvas c, double scale, int dx, int dy) {
     blit(c, image.bmp, (float)(x * scale + dx), (float)(y * scale + dy),
          image.assetScale);
+  }
+
+  private static final Paint ALPHA_PAINT = new Paint(Paint.FILTER_BITMAP_FLAG);
+
+  /**
+   * Draw an image partly transparent.
+   * @param alpha - 0 (invisible) to 255 (solid).
+   */
+  public static void drawImageAlpha(BmpWrap image, float x, float y,
+                                    Canvas c, double scale, int dx, int dy,
+                                    int alpha) {
+    if (alpha >= 255) {
+      drawImage(image, x, y, c, scale, dx, dy);
+      return;
+    }
+    if (alpha <= 0) {
+      return;
+    }
+    Bitmap bmp = image.bmp;
+    float px = (float)(x * scale + dx);
+    float py = (float)(y * scale + dy);
+    float s  = (float)(sBitmapScale / image.assetScale);
+    ALPHA_PAINT.setAlpha(alpha);
+    sDst.set(px, py, px + (bmp.getWidth() * s), py + (bmp.getHeight() * s));
+    c.drawBitmap(bmp, null, sDst, ALPHA_PAINT);
   }
 
   public static void drawImageClipped(BmpWrap image, int x, int y, Rect clipr,

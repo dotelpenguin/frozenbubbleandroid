@@ -163,6 +163,8 @@ public class PreferencesActivity extends Activity
                            v -> { openCategory(); menus.showControlsMenu(backToMain); }),
         MenuButtons.create(this, R.string.opt_gameplay,
                            v -> { openCategory(); menus.showGameplayMenu(backToMain); }),
+        MenuButtons.create(this, R.string.opt_effects,
+                           v -> { openCategory(); menus.showEffectsMenu(backToMain); }),
         MenuButtons.create(this, R.string.credits,
                            v -> { click(); showCredits(); }),
         MenuButtons.create(this, R.string.back,

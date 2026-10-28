@@ -684,7 +684,7 @@ public class FrozenBubble extends Activity
         }
         @Override
         public void placePopup(android.view.Window window) {
-          positionBelowPausePanel(window);
+          centerOverDimmedGame(window);
         }
       });
     }
@@ -710,6 +710,8 @@ public class FrozenBubble extends Activity
           v -> { menu.hide(); menus.showControlsMenu(backHere); }),
       com.efortin.frozenbubble.MenuButtons.create(this, R.string.opt_gameplay,
           v -> { menu.hide(); menus.showGameplayMenu(backHere); }),
+      com.efortin.frozenbubble.MenuButtons.create(this, R.string.opt_effects,
+          v -> { menu.hide(); menus.showEffectsMenu(backHere); }),
       com.efortin.frozenbubble.MenuButtons.create(this, R.string.menu_new_game,
           v -> { menu.hide(); newGameDialog(backHere); }),
       com.efortin.frozenbubble.MenuButtons.create(this, R.string.menu_about,
@@ -731,31 +733,25 @@ public class FrozenBubble extends Activity
   }
 
   /**
-   * Place a dialog window just below the "PAUSE" panel at the top of
-   * the playfield, instead of centered on the screen.
+   * Center an in-game menu on the screen, like the main menus.  The game
+   * dims itself behind the menus (see GameThread.setMenuDim()): the
+   * window's own dimming doesn't reach the game's drawing surface on
+   * every phone, so it is switched off to avoid dimming twice.
    */
-  private void positionBelowPausePanel(android.view.Window window) {
-    if (mGameView == null) {
-      return;
-    }
-    int[] loc = new int[2];
-    mGameView.getLocationOnScreen(loc);
-    int y = loc[1] + mGameView.gameToViewY(FrozenGame.PAUSED_PANEL_Y +
-                                           FrozenGame.PAUSED_PANEL_HEIGHT);
-    /*
-     * Dialog windows are placed below a visible status bar, so measure
-     * from there.
-     */
-    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-      android.view.WindowInsets insets = mGameView.getRootWindowInsets();
-      if (insets != null) {
-        y -= insets.getInsets(android.view.WindowInsets.Type.statusBars()).top;
-      }
-    }
+  private void centerOverDimmedGame(android.view.Window window) {
     android.view.WindowManager.LayoutParams lp = window.getAttributes();
-    lp.gravity = android.view.Gravity.TOP | android.view.Gravity.CENTER_HORIZONTAL;
-    lp.y       = Math.max(0, y);
+    lp.gravity   = android.view.Gravity.CENTER;
+    lp.y         = 0;
+    lp.dimAmount = 0f;
     window.setAttributes(lp);
+    window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+  }
+
+  /** Dim the game while an in-game menu is open. */
+  private void setMenuDim(boolean on) {
+    if (mGameThread != null) {
+      mGameThread.setMenuDim(on);
+    }
   }
 
   private void exitGameDialog() {
@@ -764,6 +760,7 @@ public class FrozenBubble extends Activity
      * the home screen menu style.  Options opens the in-game menu, since
      * modern phones have no Menu key to reach it.
      */
+    setMenuDim(true);
     final AlertDialog alert = new AlertDialog.Builder(FrozenBubble.this)
     .setOnCancelListener(new DialogInterface.OnCancelListener() {
       @Override
@@ -771,6 +768,7 @@ public class FrozenBubble extends Activity
         /*
          * User canceled.  Do nothing.
          */
+        setMenuDim(false);
         if (mGameThread != null) {
           mGameThread.resumeGame();
         }
@@ -801,6 +799,7 @@ public class FrozenBubble extends Activity
       @Override
       public void onClick(android.view.View v) {
         alert.dismiss();
+        setMenuDim(false);
         if (mGameThread != null) {
           mGameThread.resumeGame();
         }
@@ -815,7 +814,7 @@ public class FrozenBubble extends Activity
       alert.getWindow().setBackgroundDrawable(
           new android.graphics.drawable.ColorDrawable(
               android.graphics.Color.TRANSPARENT));
-      positionBelowPausePanel(alert.getWindow());
+      centerOverDimmedGame(alert.getWindow());
     }
     alert.show();
   }
@@ -925,6 +924,7 @@ public class FrozenBubble extends Activity
    * Start a new game and music player.
    */
   public void newGame() {
+    setMenuDim(false);
     if (mGameThread != null) {
       mGameThread.newGame(true);
     }

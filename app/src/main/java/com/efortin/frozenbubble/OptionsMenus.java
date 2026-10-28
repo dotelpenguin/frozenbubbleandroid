@@ -9,6 +9,7 @@
 package com.efortin.frozenbubble;
 
 import org.jfedor.frozenbubble.BubbleSprite;
+import org.jfedor.frozenbubble.Effects;
 import org.jfedor.frozenbubble.FrozenBubble;
 import org.jfedor.frozenbubble.GameView;
 import org.jfedor.frozenbubble.LevelManager;
@@ -167,6 +168,17 @@ public class OptionsMenus {
         toggle(R.string.opt_compressor, KEY_COMPRESSOR, false, null));
   }
 
+  public void showEffectsMenu(Runnable onClose) {
+    showMenu(onClose,
+        toggle(R.string.fx_pop,     Effects.KEY_POP,     Effects.DEF_POP,     null),
+        toggle(R.string.fx_fade,    Effects.KEY_FADE,    Effects.DEF_FADE,    null),
+        toggle(R.string.fx_wobble,  Effects.KEY_WOBBLE,  Effects.DEF_WOBBLE,  null),
+        toggle(R.string.fx_shake,   Effects.KEY_SHAKE,   Effects.DEF_SHAKE,   null),
+        toggle(R.string.fx_trail,   Effects.KEY_TRAIL,   Effects.DEF_TRAIL,   null),
+        toggle(R.string.fx_guide,   Effects.KEY_GUIDE,   Effects.DEF_GUIDE,   null),
+        toggle(R.string.fx_vibrate, Effects.KEY_VIBRATE, Effects.DEF_VIBRATE, null));
+  }
+
   private int targetMode() {
     try {
       return Integer.parseInt(sp.getString(KEY_TARGETING,
@@ -179,6 +191,7 @@ public class OptionsMenus {
   /** Apply the saved settings to the game, then tell the host. */
   private void changed(String key) {
     FrozenBubble.setPrefs(PreferencesActivity.getDefaultPrefs(sp));
+    Effects.loadSettings(activity);
     host.onSettingChanged(key);
   }
 

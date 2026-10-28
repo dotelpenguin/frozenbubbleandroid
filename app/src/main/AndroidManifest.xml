@@ -12,6 +12,8 @@
   <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
   <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
   <uses-permission android:name="android.permission.INTERNET"/>
+  <!-- Optional vibration effect; granted at install, no prompt. -->
+  <uses-permission android:name="android.permission.VIBRATE"/>
 
   <!-- Bluetooth multiplayer: legacy permissions apply up to Android 11. -->
   <uses-permission android:name="android.permission.BLUETOOTH"

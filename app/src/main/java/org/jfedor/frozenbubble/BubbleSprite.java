@@ -91,6 +91,15 @@ public class BubbleSprite extends Sprite {
   private boolean fixed;
   private boolean released;
 
+  /*
+   * Visual-only effect state (see Effects); never saved, never used by
+   * the game logic.
+   */
+  private boolean dropping = false;  // popped or cut loose, falling away
+  private static final int WOBBLE_TICKS = 8;
+  private double  wobbleX, wobbleY;
+  private int     wobbleTicks = 0;
+
   /**
    * Class constructor used when restoring the game state from a bundle.
    */
@@ -367,6 +376,7 @@ public class BubbleSprite extends Sprite {
   }
 
   public void fall() {
+    dropping = true;
     if (fixed) {
       moveY = frozen.getRandom().nextDouble()* 5.;
     }
@@ -438,6 +448,7 @@ public class BubbleSprite extends Sprite {
   }
 
   public void jump() {
+    dropping = true;
     if (fixed) {
       moveX = -6. + frozen.getRandom().nextDouble() * 12.;
       moveY = -5. - frozen.getRandom().nextDouble() * 10.;
@@ -509,6 +520,7 @@ public class BubbleSprite extends Sprite {
           }
         }
 
+        int detached = 0;
         for (int i = 0; i < LevelManager.NUM_COLS; i++) {
           for (int j = 0; j < (LevelManager.NUM_ROWS - 1); j++) {
             if (grid[i][j] != null) {
@@ -516,10 +528,12 @@ public class BubbleSprite extends Sprite {
                 frozen.addFallingBubble(grid[i][j]);
                 grid[i][j].removeFromManager();
                 grid[i][j] = null;
+                detached++;
               }
             }
           }
         }
+        frozen.effects().onPop(checkJump, detached);
 
         soundManager.playSound("destroy_group", R.raw.destroy_group);
       }
@@ -535,6 +549,7 @@ public class BubbleSprite extends Sprite {
       }
       else {
         addToManager();
+        frozen.effects().onImpact(this, neighbors, moveX, moveY);
         moveX = 0.;
         moveY = 0.;
         fixedAnim = 0;
@@ -568,6 +583,9 @@ public class BubbleSprite extends Sprite {
     checkJump   = false;
     checkFall   = false;
     blink       = false;
+    if (wobbleTicks > 0) {
+      wobbleTicks--;
+    }
     if (fixedAnim != -1) {
       fixedAnim++;
       if (fixedAnim >= 6) {
@@ -603,22 +621,49 @@ public class BubbleSprite extends Sprite {
     float x = getDrawX();
     float y = getDrawY();
 
+    // Impact wobble: a small, quickly fading springy offset.
+    if ((wobbleTicks > 0) && Effects.impactWobble) {
+      double t = (WOBBLE_TICKS - wobbleTicks) + Sprite.interpolationAlpha();
+      double f = Math.max(0., 1. - (t / WOBBLE_TICKS)) * Math.cos(t * 1.6);
+      x += (float) (wobbleX * f);
+      y += (float) (wobbleY * f);
+    }
+
+    // Falling fade: bubbles falling away fade out near the bottom.
+    int alpha = 255;
+    if (dropping && Effects.fallingFade) {
+      alpha = (int) (255 * Math.max(0., Math.min(1., (470. - y) / 170.)));
+      if (alpha <= 0) {
+        return;
+      }
+    }
+
     if (blink && bubbleFace != frozenFace) {
-      drawImage(bubbleBlink, x, y, c, scale, dx, dy);
+      drawImageAlpha(bubbleBlink, x, y, c, scale, dx, dy, alpha);
     }
     else {
-      if (FrozenBubble.getColorMode() == FrozenBubble.GAME_NORMAL ||
-          bubbleFace == frozenFace) {
-        drawImage(bubbleFace, x, y, c, scale, dx, dy);
-      }
-      else {
-        drawImage(bubbleBlindFace, x, y, c, scale, dx, dy);
-      }
+      drawImageAlpha(currentFace(), x, y, c, scale, dx, dy, alpha);
     }
 
     if (fixedAnim != -1) {
       drawImage(bubbleFixed[fixedAnim], x, y, c, scale, dx, dy);
     }
+  }
+
+  /** The image this bubble shows now (normal, colorblind or frozen). */
+  BmpWrap currentFace() {
+    if (FrozenBubble.getColorMode() == FrozenBubble.GAME_NORMAL ||
+        bubbleFace == frozenFace) {
+      return bubbleFace;
+    }
+    return bubbleBlindFace;
+  }
+
+  /** Start an impact wobble (visual only), in game pixels. */
+  void nudge(double dx, double dy) {
+    wobbleX     = dx;
+    wobbleY     = dy;
+    wobbleTicks = WOBBLE_TICKS;
   }
 
   /**

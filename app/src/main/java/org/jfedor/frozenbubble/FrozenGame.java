@@ -74,7 +74,8 @@ public class FrozenGame extends GameScreen {
    * The "PAUSE" panel sits at the top of the playfield, just under the
    * compressor bar, so the pause menu can open below it.
    */
-  public static final int PAUSED_PANEL_Y      = 46;
+  // Centered on the playfield, as in the original game.
+  public static final int PAUSED_PANEL_Y      = 190;
   public static final int PAUSED_PANEL_HEIGHT = 116;
   private final int[] columnX = {190, 206, 222, 238, 254,
                                  270, 286, 302, 318, 334,
@@ -143,6 +144,13 @@ public class FrozenGame extends GameScreen {
   boolean frozenify;
   boolean isArcade;
   boolean isRemote;
+
+  /*
+   * Optional bubble and screen effects (visual only).  Only the player
+   * on this phone gets the aiming guide, screen shake and vibration.
+   */
+  private Effects effects     = null;
+  private boolean localPlayer = true;
   boolean readyToFire;
   boolean swapPressed;
   gameEnum playResult;
@@ -205,6 +213,9 @@ public class FrozenGame extends GameScreen {
       player    = VirtualInput.PLAYER1;
       isRemote  = false;
     }
+    localPlayer = (input_arg == null) ||
+                  (!input_arg.isRemote && !input_arg.isCPU);
+    effects     = new Effects(this, localPlayer);
 
     isArcade = FrozenBubble.arcadeGame;
 
@@ -426,6 +437,7 @@ public class FrozenGame extends GameScreen {
         endOfGame = true;
         initFrozenify();
         soundManager.playSound("lose", R.raw.lose);
+        effects().onLost();
       }
     }
 
@@ -618,12 +630,38 @@ public class FrozenGame extends GameScreen {
             endOfGame = true;
             initFrozenify();
             soundManager.playSound("lose", R.raw.lose);
+            effects().onLost();
           }
         }
       }
     }
 
     compressor.moveDown();
+    effects().onCeilingDown();
+  }
+
+  /** The optional visual effects for this player's game. */
+  Effects effects() {
+    if (effects == null) {
+      effects = new Effects(this, localPlayer);
+    }
+    return effects;
+  }
+
+  /** Advance the visual effects by one game step. */
+  public void tickEffects() {
+    effects().tick();
+  }
+
+  /** The bubble in flight, or <code>null</code>. */
+  BubbleSprite getMovingBubble() {
+    return movingBubble;
+  }
+
+  /** <code>true</code> while this player can aim the next shot. */
+  boolean canAim() {
+    return (movingBubble == null) && !endOfGame && !isRemote &&
+           (playResult == gameEnum.PLAYING);
   }
 
   /**
@@ -702,7 +740,9 @@ public class FrozenGame extends GameScreen {
       c.restore();
     }
     compressor.paint(c, scale, dx, dy);
+    effects().paintUnder(c, scale, dx, dy);
     paintExcept(c, scale, dx, dy, scrolling);
+    effects().paintOver(c, scale, dx, dy);
   }
 
   public void pause() {
@@ -1280,6 +1320,8 @@ public class FrozenGame extends GameScreen {
     hurryTime      = map.getInt(String.format("%d-hurryTime", player));
     int pausedId   = map.getInt(String.format("%d-pausedId", player));
     pausedSprite   = (ImageSprite)savedSprites.elementAt(pausedId);
+    // Saves from before the panel moved back to the center.
+    pausedSprite.changeSpriteArea(new Rect(152, PAUSED_PANEL_Y, 337, 116));
     readyToFire    = map.getBoolean(String.format("%d-readyToFire", player));
     endOfGame      = map.getBoolean(String.format("%d-endOfGame", player));
     frozenify      = map.getBoolean(String.format("%d-frozenify", player));
