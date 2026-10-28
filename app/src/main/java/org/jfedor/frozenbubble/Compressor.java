@@ -123,14 +123,17 @@ public class Compressor {
     for (int i = 0; i < steps; i++) {
       Sprite.blit(c, compressor.bmp,
                   (float)(BAR_L_X * scale + dx),
-                  (float)((BAR_Y * i + BAR_Y_ADJ) * scale + dy));
+                  (float)((BAR_Y * i + BAR_Y_ADJ) * scale + dy),
+                  compressor.assetScale);
       Sprite.blit(c, compressor.bmp,
                   (float)(BAR_R_X * scale + dx),
-                  (float)((BAR_Y * i + BAR_Y_ADJ) * scale + dy));
+                  (float)((BAR_Y * i + BAR_Y_ADJ) * scale + dy),
+                  compressor.assetScale);
     }
     Sprite.blit(c, compressorHead.bmp,
                 (float)(HEAD_X * scale + dx),
-                (float)((BAR_Y * steps + HEAD_Y_ADJ) * scale + dy));
+                (float)((BAR_Y * steps + HEAD_Y_ADJ) * scale + dy),
+                compressorHead.assetScale);
   }
 
   public void restoreState(Bundle map, int id) {

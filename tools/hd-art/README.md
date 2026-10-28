@@ -25,3 +25,14 @@ icon at 4x (`hdui.py`):
     python3 tools/hd-art/build_ui.py app/src/main/res
 
 Both sets are used unless "Use Original Art" is switched on in Options.
+
+## Upscaled painted art
+
+The backgrounds, panels, penguin sheets, compressor, bubble font and menu
+screens were upscaled 4x with Upscayl (Digital Art model), then cleaned
+up by `fix_upscaled.py`: coloured halos from the originals' transparent
+key colour are repainted, and the fine ice texture the upscaler smoothed
+away is restored.  To redo them, put the `<name>-UPSCALED.png` files in a
+folder and run:
+
+    python3 tools/hd-art/fix_upscaled.py <folder> app/src/main/res

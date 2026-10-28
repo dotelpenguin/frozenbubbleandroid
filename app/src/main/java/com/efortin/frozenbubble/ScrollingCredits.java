@@ -248,7 +248,8 @@ public class ScrollingCredits extends Activity implements Runnable {
       // Make the credits text transparent.
       credits.setTextColor(Color.TRANSPARENT);
       // Display the end of game victory image.
-      displayImage(R.drawable.victory);
+      displayImage(org.jfedor.frozenbubble.GameView.chooseArt(this,
+          R.drawable.victory_hd, R.drawable.victory));
     }
     credits.postDelayed(this, 100);
   }

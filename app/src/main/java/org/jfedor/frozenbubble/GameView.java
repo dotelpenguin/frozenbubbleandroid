@@ -659,6 +659,25 @@ public class GameView extends SurfaceView
     private int art(int hdId, int originalId) {
       return mUseHdArt ? hdId : originalId;
     }
+
+    /* Bitmaps loaded from HD (upscaled) art, drawn at 1/HD_ASSET_SCALE. */
+    private final java.util.Set<Bitmap> mHdLoaded =
+        java.util.Collections.newSetFromMap(
+            new java.util.IdentityHashMap<Bitmap, Boolean>());
+
+    /**
+     * Load a bitmap from its HD version (unless original art is chosen)
+     * and remember whether it is HD, so it is drawn at the right size.
+     */
+    private Bitmap loadArt(android.content.res.Resources res, int hdId,
+                           int originalId, BitmapFactory.Options options) {
+      Bitmap bmp = BitmapFactory.decodeResource(res, art(hdId, originalId),
+                                                options);
+      if (mUseHdArt && (bmp != null)) {
+        mHdLoaded.add(bmp);
+      }
+      return bmp;
+    }
     private final java.util.Set<Bitmap> mHdBitmaps =
         java.util.Collections.newSetFromMap(
             new java.util.IdentityHashMap<Bitmap, Boolean>());
@@ -802,30 +821,21 @@ public class GameView extends SurfaceView
       mBubbleBlinkOrig = BitmapFactory.decodeResource(
         res, art(R.drawable.bubble_blink_hd, R.drawable.bubble_blink), options);
       markHdBubbleBitmaps();
-      mGameWonOrig = BitmapFactory.decodeResource(
-        res, R.drawable.win_panel, options);
-      mGameLostOrig = BitmapFactory.decodeResource(
-        res, R.drawable.lose_panel, options);
-      mGamePausedOrig = BitmapFactory.decodeResource(
-        res, R.drawable.pause_panel, options);
-      mHurryOrig = BitmapFactory.decodeResource(
-        res, R.drawable.hurry, options);
+      mGameWonOrig = loadArt(res, R.drawable.win_panel_hd, R.drawable.win_panel, options);
+      mGameLostOrig = loadArt(res, R.drawable.lose_panel_hd, R.drawable.lose_panel, options);
+      mGamePausedOrig = loadArt(res, R.drawable.pause_panel_hd, R.drawable.pause_panel, options);
+      mHurryOrig = loadArt(res, R.drawable.hurry_hd, R.drawable.hurry, options);
       mPauseButtonOrig = BitmapFactory.decodeResource(
         res, art(R.drawable.pause_button_hd, R.drawable.pause_button), options);
       mPlayButtonOrig = BitmapFactory.decodeResource(
         res, art(R.drawable.play_button_hd, R.drawable.play_button), options);
-      mPenguinsOrig = BitmapFactory.decodeResource(
-        res, R.drawable.penguins, options);
-      mPenguins2Orig = BitmapFactory.decodeResource(
-        res, R.drawable.penguins2, options);
-      mCompressorHeadOrig = BitmapFactory.decodeResource(
-        res, R.drawable.compressor, options);
-      mCompressorOrig = BitmapFactory.decodeResource(
-        res, R.drawable.compressor_body, options);
+      mPenguinsOrig = loadArt(res, R.drawable.penguins_hd, R.drawable.penguins, options);
+      mPenguins2Orig = loadArt(res, R.drawable.penguins2_hd, R.drawable.penguins2, options);
+      mCompressorHeadOrig = loadArt(res, R.drawable.compressor_hd, R.drawable.compressor, options);
+      mCompressorOrig = loadArt(res, R.drawable.compressor_body_hd, R.drawable.compressor_body, options);
       mLifeOrig = BitmapFactory.decodeResource(
         res, R.drawable.life, options);
-      mFontImageOrig = BitmapFactory.decodeResource(
-        res, R.drawable.bubble_font, options);
+      mFontImageOrig = loadArt(res, R.drawable.bubble_font_hd, R.drawable.bubble_font, options);
       mBananaOrig = BitmapFactory.decodeResource(
         res, art(R.drawable.banana_hd, R.drawable.banana), options);
       mTomatoOrig = BitmapFactory.decodeResource(
@@ -927,8 +937,7 @@ public class GameView extends SurfaceView
           res, art(R.drawable.back_button_hd, R.drawable.back_button), options);
       mNextSongButtonOrig = BitmapFactory.decodeResource(
           res, art(R.drawable.next_song_button_hd, R.drawable.next_song_button), options);
-      mBackgroundOrig = BitmapFactory.decodeResource(
-          res, R.drawable.background, options);
+      mBackgroundOrig = loadArt(res, R.drawable.background_hd, R.drawable.background, options);
       mBubblesOrig = new Bitmap[8];
       mBubblesOrig[0] = BitmapFactory.decodeResource(
           res, art(R.drawable.bubble_1_hd, R.drawable.bubble_1), options);
@@ -996,28 +1005,20 @@ public class GameView extends SurfaceView
       mBubbleBlinkOrig = BitmapFactory.decodeResource(
           res, art(R.drawable.bubble_blink_hd, R.drawable.bubble_blink), options);
       markHdBubbleBitmaps();
-      mGameWonOrig = BitmapFactory.decodeResource(
-          res, R.drawable.win_panel, options);
-      mGameLostOrig = BitmapFactory.decodeResource(
-          res, R.drawable.lose_panel, options);
-      mGamePausedOrig = BitmapFactory.decodeResource(
-          res, R.drawable.pause_panel, options);
-      mHurryOrig = BitmapFactory.decodeResource(
-          res, R.drawable.hurry, options);
+      mGameWonOrig = loadArt(res, R.drawable.win_panel_hd, R.drawable.win_panel, options);
+      mGameLostOrig = loadArt(res, R.drawable.lose_panel_hd, R.drawable.lose_panel, options);
+      mGamePausedOrig = loadArt(res, R.drawable.pause_panel_hd, R.drawable.pause_panel, options);
+      mHurryOrig = loadArt(res, R.drawable.hurry_hd, R.drawable.hurry, options);
       mPauseButtonOrig = null;
       mPlayButtonOrig = BitmapFactory.decodeResource(
           res, art(R.drawable.play_button_hd, R.drawable.play_button), options);
-      mPenguinsOrig = BitmapFactory.decodeResource(
-          res, R.drawable.penguins, options);
+      mPenguinsOrig = loadArt(res, R.drawable.penguins_hd, R.drawable.penguins, options);
       mPenguins2Orig = null;
-      mCompressorHeadOrig = BitmapFactory.decodeResource(
-          res, R.drawable.compressor, options);
-      mCompressorOrig = BitmapFactory.decodeResource(
-          res, R.drawable.compressor_body, options);
+      mCompressorHeadOrig = loadArt(res, R.drawable.compressor_hd, R.drawable.compressor, options);
+      mCompressorOrig = loadArt(res, R.drawable.compressor_body_hd, R.drawable.compressor_body, options);
       mLifeOrig = BitmapFactory.decodeResource(
            res, R.drawable.life, options);
-      mFontImageOrig = BitmapFactory.decodeResource(
-          res, R.drawable.bubble_font, options);
+      mFontImageOrig = loadArt(res, R.drawable.bubble_font_hd, R.drawable.bubble_font, options);
       mBananaOrig = null;
       mTomatoOrig = null;
 
@@ -2556,6 +2557,7 @@ public class GameView extends SurfaceView
       if (!mUseHdArt) {
         return; // Original art: nothing to scale down.
       }
+      mHdBitmaps.addAll(mHdLoaded);
       for (Bitmap[] set : new Bitmap[][] { mBubblesOrig, mBubblesBlindOrig,
                                            mFrozenBubblesOrig,
                                            mTargetedBubblesOrig }) {
@@ -3673,6 +3675,16 @@ public class GameView extends SurfaceView
 
   /** Options key: use the original low-resolution art instead of HD. */
   public static final String KEY_ORIGINAL_ART = "original_art_option";
+
+  /**
+   * @return the HD resource, or the original when "Use Original Art" is
+   * switched on (for screens outside the game view).
+   */
+  public static int chooseArt(Context context, int hdId, int originalId) {
+    return android.preference.PreferenceManager
+        .getDefaultSharedPreferences(context)
+        .getBoolean(KEY_ORIGINAL_ART, false) ? originalId : hdId;
+  }
 
   /** Options key: draw the game with the GPU (Android 8+). */
   public static final String KEY_GPU_RENDERING = "gpu_rendering_option";

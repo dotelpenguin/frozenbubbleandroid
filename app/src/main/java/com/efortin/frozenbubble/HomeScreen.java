@@ -53,6 +53,7 @@
 package com.efortin.frozenbubble;
 
 import org.jfedor.frozenbubble.FrozenBubble;
+import org.jfedor.frozenbubble.GameView;
 import org.jfedor.frozenbubble.R;
 import org.jfedor.frozenbubble.SoundManager;
 
@@ -1089,7 +1090,7 @@ public class HomeScreen extends Activity {
     if (FrozenBubble.numPlayers != 0)
       startFrozenBubble();
     else if (getIntent().hasExtra("startHomeScreen")) {
-      setBackgroundImage(R.drawable.home_screen);
+      setBackgroundImage(GameView.chooseArt(this, R.drawable.home_screen_hd, R.drawable.home_screen));
       setContentView(myLayout);
       setWindowLayout();
       startHomeScreen();
@@ -1106,7 +1107,7 @@ public class HomeScreen extends Activity {
         editor.commit();
       }
       {
-        setBackgroundImage(R.drawable.splash);
+        setBackgroundImage(GameView.chooseArt(this, R.drawable.splash_hd, R.drawable.splash));
         setContentView(myLayout);
         setWindowLayout();
         /*
@@ -1337,7 +1338,7 @@ public class HomeScreen extends Activity {
   private void startHomeScreen() {
     if (!homeShown) {
       homeShown = true;
-      setBackgroundImage(R.drawable.home_screen);
+      setBackgroundImage(GameView.chooseArt(this, R.drawable.home_screen_hd, R.drawable.home_screen));
       setContentView(myLayout);
       myLayout.setFocusable(true);
       myLayout.setFocusableInTouchMode(true);
