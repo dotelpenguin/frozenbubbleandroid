@@ -102,5 +102,30 @@
    </string-array>
   <string name="about">About</string>
   <string name="credits">Credits</string>
-  <string name="credits_summary">Play the scrolling credits</string>
+  <string name="opt_music_sound">Music &amp; Sound</string>
+  <string name="opt_display">Display</string>
+  <string name="opt_controls">Controls</string>
+  <string name="opt_gameplay">Gameplay</string>
+  <string name="opt_on">On</string>
+  <string name="opt_off">Off</string>
+  <string name="opt_done">Done</string>
+  <string name="opt_music">Music</string>
+  <string name="opt_sound">Sound Effects</string>
+  <string name="opt_my_music">My Music Folder</string>
+  <string name="opt_choose_folder">Choose Music Folder</string>
+  <string name="opt_no_picker">No folder picker is available on this device.</string>
+  <string name="opt_fullscreen">Fullscreen</string>
+  <string name="opt_gpu">GPU Rendering</string>
+  <string name="opt_original_art">Original Art</string>
+  <string name="opt_original_art_note">Applies from the next game.</string>
+  <string name="opt_colorblind">Colorblind Mode</string>
+  <string name="opt_targeting">Targeting</string>
+  <string name="opt_sensitivity">Sensitivity</string>
+  <string name="opt_sensitivity_value">%1$d</string>
+  <string name="opt_sensitivity_help">Higher: shots stick to bubbles from farther away.</string>
+  <string name="opt_difficulty">Difficulty</string>
+  <string name="opt_difficulty_value">%1$d colors</string>
+  <string name="opt_difficulty_help">Number of bubble colors in Arcade and 2 Player games.</string>
+  <string name="opt_hurry">Hurry Mode</string>
+  <string name="opt_compressor">2P Compressor</string>
 </resources>

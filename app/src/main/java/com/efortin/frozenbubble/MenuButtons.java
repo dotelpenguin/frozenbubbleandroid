@@ -45,6 +45,16 @@ public final class MenuButtons {
     return button;
   }
 
+  /** A home-screen-style menu button with a text label. */
+  public static Button create(Context context, CharSequence text,
+                              View.OnClickListener listener) {
+    Button button = new Button(context);
+    button.setText(text);
+    style(button);
+    button.setOnClickListener(listener);
+    return button;
+  }
+
   /**
    * A centered column of home-screen-style menu buttons, spaced like the
    * home screen menu.

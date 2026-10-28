@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Options slider track: a thick dark bar with a white outline, filled
+     with icy blue up to the current value. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+  <item android:id="@android:id/background">
+    <shape android:shape="rectangle">
+      <corners android:radius="8dp" />
+      <solid android:color="#B3000000" />
+      <stroke android:width="2dp" android:color="#FFFFFFFF" />
+    </shape>
+  </item>
+  <item android:id="@android:id/progress">
+    <clip>
+      <shape android:shape="rectangle">
+        <corners android:radius="8dp" />
+        <solid android:color="#FF4FC3F7" />
+        <stroke android:width="2dp" android:color="#FFFFFFFF" />
+      </shape>
+    </clip>
+  </item>
+</layer-list>

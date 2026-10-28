@@ -135,10 +135,20 @@ public class AccelerometerManager {
 
     if (sensors.size() > 0) {
       sensor   = sensors.get(0);
-      running  =
-        sensorManager.registerListener(sensorEventListener, sensor,
-                                       SensorManager.SENSOR_DELAY_FASTEST);
       listener = accelerometerListener;
+      /*
+       * SENSOR_DELAY_FASTEST needs the HIGH_SAMPLING_RATE_SENSORS
+       * permission on Android 12+, and threw a SecurityException that
+       * crashed the game when "rotate to shoot" was selected.  The game
+       * rate (about 50 updates a second) is plenty: the game itself
+       * updates 25 times a second.
+       */
+      try {
+        running = sensorManager.registerListener(sensorEventListener,
+            sensor, SensorManager.SENSOR_DELAY_GAME);
+      } catch (RuntimeException e) {
+        running = false;
+      }
     }
   }
 
@@ -147,7 +157,13 @@ public class AccelerometerManager {
    */
   private static SensorEventListener sensorEventListener = 
     new SensorEventListener() {
-    private float filter = 0.1f;
+    /*
+     * Smoothing time constant, in seconds.  The smoothing is based on
+     * the time between readings, so it feels the same at any sensor
+     * rate.
+     */
+    private static final float SMOOTHING_SECONDS = 0.05f;
+    private long  lastTimestamp = 0;
     private float avgX   = 0.0f;
     private float avgY   = 0.0f;
     private float avgZ   = 0.0f;
@@ -155,11 +171,22 @@ public class AccelerometerManager {
     public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
     public void onSensorChanged(SensorEvent event) {
+      float filter = 1.0f;
+      if (lastTimestamp != 0) {
+        float dt = (event.timestamp - lastTimestamp) / 1.0e9f;
+        if (dt > 0.0f) {
+          filter = 1.0f - (float) Math.exp(-dt / SMOOTHING_SECONDS);
+        }
+      }
+      lastTimestamp = event.timestamp;
       avgX = event.values[0] * filter + (avgX * (1.0f-filter));
       avgY = event.values[1] * filter + (avgY * (1.0f-filter));
       avgZ = event.values[2] * filter + (avgZ * (1.0f-filter));
 
-      listener.onAccelerationChanged(avgX, avgY, avgZ);
+      AccelerometerListener l = listener;
+      if (l != null) {
+        l.onAccelerationChanged(avgX, avgY, avgZ);
+      }
     }
   };
 }

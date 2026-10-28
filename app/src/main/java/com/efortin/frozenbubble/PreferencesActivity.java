@@ -54,136 +54,500 @@ package com.efortin.frozenbubble;
 
 import org.jfedor.frozenbubble.BubbleSprite;
 import org.jfedor.frozenbubble.FrozenBubble;
+import org.jfedor.frozenbubble.GameView;
 import org.jfedor.frozenbubble.LevelManager;
 import org.jfedor.frozenbubble.R;
+import org.jfedor.frozenbubble.SoundManager;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
-public class PreferencesActivity extends PreferenceActivity{
+/**
+ * The Options screen, in the style of the home screen menu: a short
+ * menu of categories, each opening a see-through popup of bubble
+ * buttons that show and change their setting.  Sliders (difficulty,
+ * bubble sensitivity) open their own popup.
+ * <p>Settings are stored in the same shared preferences, under the same
+ * keys, as the old settings list, so existing settings carry over.
+ */
+public class PreferencesActivity extends Activity {
 
-  private SeekBarPreference collisionSlider;
-  private SeekBarPreference difficultySlider;
+  private static final String KEY_COLLISION   = "collision_option";
+  private static final String KEY_COMPRESSOR  = "compressor_option";
+  private static final String KEY_DIFFICULTY  = "difficulty_option";
+  private static final String KEY_RUSH_ME     = "rush_me_option";
+  private static final String KEY_FULLSCREEN  = "fullscreen_option";
+  private static final String KEY_COLORBLIND  = "colorblind_option";
+  private static final String KEY_MUSIC       = "play_music_option";
+  private static final String KEY_SOUND       = "sound_effects_option";
+  private static final String KEY_TARGETING   = "targeting_option";
+  private static final String KEY_GPU         = "gpu_rendering_option";
+  private static final String KEY_ORIGINAL    = "original_art_option";
 
-  private void cleanUp() {
-    collisionSlider  = null;
-    difficultySlider = null;
+  private static final int COLLISION_MAX  = 29;
+  private static final int DIFFICULTY_MAX = 8;
+
+  private static final int REQUEST_MUSIC_FOLDER = 2001;
+
+  private SharedPreferences sp;
+  private SoundManager      mSoundManager;
+  /** Refreshes the button labels of the open category popup, if any. */
+  private Runnable          refreshOpenMenu = null;
+  /** The open category popup, hidden while a slider popup is open. */
+  private AlertDialog       openMenu        = null;
+  /** The main Options menu, hidden while a category popup is open. */
+  private View              mainMenu        = null;
+
+  /** One button in a category popup. */
+  private interface Item {
+    String label();
+    void   onTap();
   }
-  
+
   public static Preferences getDefaultPrefs(SharedPreferences sp) {
     Preferences prefs = new Preferences();
     prefs.bluetooth  =  sp.getInt("bluetooth", 0);
-    prefs.collision  =  sp.getInt("collision_option", BubbleSprite.MIN_PIX);
-    prefs.compressor =  sp.getBoolean("compressor_option", false);
-    prefs.difficulty =  sp.getInt("difficulty_option", LevelManager.NORMAL);
-    prefs.dontRushMe = !sp.getBoolean("rush_me_option", true);
-    prefs.fullscreen =  sp.getBoolean("fullscreen_option", true);
-    prefs.colorMode  =  sp.getBoolean("colorblind_option", FrozenBubble.GAME_COLORBLIND);
-    prefs.musicOn    =  sp.getBoolean("play_music_option", true);
-    prefs.soundOn    =  sp.getBoolean("sound_effects_option", true);
-    prefs.targetMode =  Integer.valueOf(sp.getString("targeting_option",
+    prefs.collision  =  sp.getInt(KEY_COLLISION, BubbleSprite.MIN_PIX);
+    prefs.compressor =  sp.getBoolean(KEY_COMPRESSOR, false);
+    prefs.difficulty =  sp.getInt(KEY_DIFFICULTY, LevelManager.NORMAL);
+    prefs.dontRushMe = !sp.getBoolean(KEY_RUSH_ME, true);
+    prefs.fullscreen =  sp.getBoolean(KEY_FULLSCREEN, true);
+    prefs.colorMode  =  sp.getBoolean(KEY_COLORBLIND, FrozenBubble.GAME_COLORBLIND);
+    prefs.musicOn    =  sp.getBoolean(KEY_MUSIC, true);
+    prefs.soundOn    =  sp.getBoolean(KEY_SOUND, true);
+    prefs.targetMode =  Integer.valueOf(sp.getString(KEY_TARGETING,
         Integer.toString(FrozenBubble.POINT_TO_SHOOT)));
 
     return prefs;
   }
 
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-     super.onCreate(savedInstanceState);
-     addPreferencesFromResource(R.layout.activity_preferences_screen);
-     collisionSlider  = (SeekBarPreference) findPreference("collision_option" );
-     difficultySlider = (SeekBarPreference) findPreference("difficulty_option");
-     setupCustomMusic();
-     setupCredits();
-     addBackButton();
-     SystemUi.apply(this, PreferenceManager.getDefaultSharedPreferences(this)
-         .getBoolean("fullscreen_option", true));
+  public static void saveDefaultPreferences(Preferences prefs,
+                                            SharedPreferences sp) {
+    SharedPreferences.Editor editor = sp.edit();
+    editor.putInt    ("bluetooth",       prefs.bluetooth );
+    editor.putInt    (KEY_COLLISION,     prefs.collision );
+    editor.putBoolean(KEY_COMPRESSOR,    prefs.compressor);
+    editor.putInt    (KEY_DIFFICULTY,    prefs.difficulty);
+    editor.putBoolean(KEY_RUSH_ME,      !prefs.dontRushMe);
+    editor.putBoolean(KEY_FULLSCREEN,    prefs.fullscreen);
+    editor.putBoolean(KEY_COLORBLIND,    prefs.colorMode );
+    editor.putBoolean(KEY_MUSIC,         prefs.musicOn   );
+    editor.putBoolean(KEY_SOUND,         prefs.soundOn   );
+    editor.putString (KEY_TARGETING,     Integer.toString(prefs.targetMode));
+    editor.commit();
   }
 
-  /**
-   * An on-screen Back button at the top of the list, in the home screen
-   * menu style; phones may have no Back button, and the gesture isn't
-   * obvious.  It does the same as Back: apply the options and close.
-   */
-  private void addBackButton() {
-    // Same look as the menu buttons elsewhere (this screen's own theme
-    // would draw an old-style button).
-    android.content.Context themed = new android.view.ContextThemeWrapper(
-        this, android.R.style.Theme_DeviceDefault_Light);
-    android.widget.Button back = MenuButtons.create(themed, R.string.back,
-        new android.view.View.OnClickListener() {
-      @Override
-      public void onClick(android.view.View v) {
-        closeOptions();
-      }
-    });
-    android.widget.LinearLayout header =
-        MenuButtons.column(themed, back);
-    getListView().addHeaderView(header, null, false);
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    requestWindowFeature(Window.FEATURE_NO_TITLE);
+    sp = PreferenceManager.getDefaultSharedPreferences(this);
+    applyFullscreen();
+
+    mSoundManager = new SoundManager(this);
+    mSoundManager.loadSound("stick", R.raw.stick);
+
+    // The home screen art behind the menu, as on the home screen.
+    FrameLayout root = new FrameLayout(this);
+    ImageView art = new ImageView(this);
+    art.setBackgroundColor(Color.BLACK);
+    art.setImageResource(GameView.chooseArt(this, R.drawable.home_screen_hd,
+                                            R.drawable.home_screen));
+    root.addView(art, new FrameLayout.LayoutParams(
+        FrameLayout.LayoutParams.MATCH_PARENT,
+        FrameLayout.LayoutParams.MATCH_PARENT));
+
+    LinearLayout menu = MenuButtons.column(this,
+        MenuButtons.create(this, R.string.opt_music_sound,
+                           v -> { click(); showMusicMenu(); }),
+        MenuButtons.create(this, R.string.opt_display,
+                           v -> { click(); showDisplayMenu(); }),
+        MenuButtons.create(this, R.string.opt_controls,
+                           v -> { click(); showControlsMenu(); }),
+        MenuButtons.create(this, R.string.opt_gameplay,
+                           v -> { click(); showGameplayMenu(); }),
+        MenuButtons.create(this, R.string.credits,
+                           v -> { click(); showCredits(); }),
+        MenuButtons.create(this, R.string.back,
+                           v -> { click(); closeOptions(); }));
+    ScrollView scroll = new ScrollView(this);
+    scroll.setFillViewport(true);
+    FrameLayout center = new FrameLayout(this);
+    center.addView(menu, new FrameLayout.LayoutParams(
+        FrameLayout.LayoutParams.WRAP_CONTENT,
+        FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
+    scroll.addView(center, new FrameLayout.LayoutParams(
+        FrameLayout.LayoutParams.MATCH_PARENT,
+        FrameLayout.LayoutParams.WRAP_CONTENT));
+    mainMenu = scroll;
+    root.addView(scroll, new FrameLayout.LayoutParams(
+        FrameLayout.LayoutParams.MATCH_PARENT,
+        FrameLayout.LayoutParams.MATCH_PARENT));
+    setContentView(root);
+  }
+
+  @Override
+  protected void onPause() {
+    super.onPause();
+    if (mSoundManager != null)
+      mSoundManager.onPause();
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    if (mSoundManager != null)
+      mSoundManager.onResume();
+    applyFullscreen();
+  }
+
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+    if (mSoundManager != null) {
+      mSoundManager.cleanUp();
+      mSoundManager = null;
+    }
+  }
+
+  @Override
+  public boolean onKeyDown(int keyCode, KeyEvent msg) {
+    if (keyCode == KeyEvent.KEYCODE_BACK) {
+      closeOptions();
+      return true;
+    }
+    return super.onKeyDown(keyCode, msg);
   }
 
   /** Apply the chosen options and return to the previous screen. */
   private void closeOptions() {
-    FrozenBubble.setPrefs(getDefaultPrefs(PreferenceManager.
-        getDefaultSharedPreferences(this)));
+    applyPrefs();
     finish();
   }
 
-  private static final String KEY_FOLDER_PICK      = "custom_music_folder_pick";
-  private static final String KEY_CREDITS          = "credits_pick";
-
-  /**
-   * The "Credits" row plays the scrolling end-of-game credits, then
-   * returns here.
-   */
-  private void setupCredits() {
-    findPreference(KEY_CREDITS).setOnPreferenceClickListener(p -> {
-      Intent intent = new Intent(this, ScrollingCredits.class);
-      intent.putExtra(ScrollingCredits.EXTRA_FROM_OPTIONS, true);
-      startActivity(intent);
-      return true;
-    });
+  /** Make the game use the current settings straight away. */
+  private void applyPrefs() {
+    FrozenBubble.setPrefs(getDefaultPrefs(sp));
   }
-  private static final int    REQUEST_MUSIC_FOLDER = 2001;
+
+  private void applyFullscreen() {
+    boolean fullscreen = sp.getBoolean(KEY_FULLSCREEN, true);
+    if (fullscreen) {
+      getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+      getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+    }
+    else {
+      getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+      getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+    }
+    SystemUi.apply(this, fullscreen);
+  }
+
+  private void click() {
+    if (mSoundManager != null)
+      mSoundManager.playSound("stick", R.raw.stick);
+  }
+
+  /*
+   * Category popups.
+   */
+
+  private void showMusicMenu() {
+    showMenu(
+        toggle(R.string.opt_music, KEY_MUSIC, true, null),
+        toggle(R.string.opt_sound, KEY_SOUND, true, null),
+        toggle(R.string.opt_my_music, CustomMusic.KEY_ON, false, () -> {
+          // Turned on with no folder yet: go straight to the picker.
+          if (sp.getBoolean(CustomMusic.KEY_ON, false) &&
+              (CustomMusic.getFolder(this) == null)) {
+            pickMusicFolder();
+          }
+        }),
+        action(R.string.opt_choose_folder, this::pickMusicFolder));
+  }
+
+  private void showDisplayMenu() {
+    showMenu(
+        toggle(R.string.opt_fullscreen, KEY_FULLSCREEN, true,
+               this::applyFullscreen),
+        toggle(R.string.opt_gpu, KEY_GPU, true, null),
+        toggle(R.string.opt_original_art, KEY_ORIGINAL, false, () ->
+            Toast.makeText(this, R.string.opt_original_art_note,
+                           Toast.LENGTH_SHORT).show()),
+        toggle(R.string.opt_colorblind, KEY_COLORBLIND,
+               FrozenBubble.GAME_COLORBLIND, null));
+  }
+
+  private void showControlsMenu() {
+    final String[] modes = getResources().getStringArray(R.array.shoot_mode_array);
+    showMenu(
+        new Item() {
+          public String label() {
+            int mode = targetMode();
+            String name = ((mode >= 0) && (mode < modes.length)) ?
+                modes[mode] : modes[FrozenBubble.POINT_TO_SHOOT];
+            return getString(R.string.opt_targeting) + ": " + name;
+          }
+          public void onTap() {
+            int mode = (targetMode() + 1) % modes.length;
+            sp.edit().putString(KEY_TARGETING, Integer.toString(mode)).apply();
+          }
+        },
+        slider(R.string.opt_sensitivity, KEY_COLLISION,
+               BubbleSprite.MIN_PIX, COLLISION_MAX, BubbleSprite.MIN_PIX,
+               R.string.opt_sensitivity_value, R.string.opt_sensitivity_help));
+  }
+
+  private void showGameplayMenu() {
+    showMenu(
+        slider(R.string.opt_difficulty, KEY_DIFFICULTY,
+               LevelManager.EASY, DIFFICULTY_MAX, LevelManager.NORMAL,
+               R.string.opt_difficulty_value, R.string.opt_difficulty_help),
+        toggle(R.string.opt_hurry, KEY_RUSH_ME, true, null),
+        toggle(R.string.opt_compressor, KEY_COMPRESSOR, false, null));
+  }
+
+  private int targetMode() {
+    try {
+      return Integer.parseInt(sp.getString(KEY_TARGETING,
+          Integer.toString(FrozenBubble.POINT_TO_SHOOT)));
+    } catch (NumberFormatException e) {
+      return FrozenBubble.POINT_TO_SHOOT;
+    }
+  }
 
   /**
-   * Wire up the "Use My Music Folder" switch and the folder chooser row.
+   * A see-through popup with one bubble button per item, plus Back.
+   * Tapping an item changes its setting and relabels the buttons; the
+   * popup stays open until Back.
    */
-  private void setupCustomMusic() {
-    CheckBoxPreference toggle =
-        (CheckBoxPreference) findPreference(CustomMusic.KEY_ON);
-    Preference folderRow = findPreference(KEY_FOLDER_PICK);
-
-    folderRow.setOnPreferenceClickListener(p -> {
-      pickMusicFolder();
-      return true;
+  private void showMenu(final Item... items) {
+    final AlertDialog dialog = new AlertDialog.Builder(this).create();
+    final Button[] buttons = new Button[items.length + 1];
+    final Runnable refresh = () -> {
+      for (int i = 0; i < items.length; i++)
+        buttons[i].setText(items[i].label());
+    };
+    for (int i = 0; i < items.length; i++) {
+      final Item item = items[i];
+      buttons[i] = MenuButtons.create(this, item.label(), v -> {
+        click();
+        item.onTap();
+        applyPrefs();
+        refresh.run();
+      });
+      widen(buttons[i]);
+    }
+    buttons[items.length] = MenuButtons.create(this, R.string.back, v -> {
+      click();
+      dialog.dismiss();
     });
-    toggle.setOnPreferenceChangeListener((p, newValue) -> {
-      // Turning it on with no folder yet: go straight to the picker.
-      if (Boolean.TRUE.equals(newValue) && (CustomMusic.getFolder(this) == null)) {
-        pickMusicFolder();
+    widen(buttons[items.length]);
+    dialog.setView(scrolling(MenuButtons.column(this, buttons)));
+    dialog.setOnDismissListener(d -> {
+      if (refreshOpenMenu == refresh)
+        refreshOpenMenu = null;
+      if (openMenu == dialog)
+        openMenu = null;
+      // Back to the main Options menu.
+      if (mainMenu != null)
+        mainMenu.setVisibility(View.VISIBLE);
+    });
+    refreshOpenMenu = refresh;
+    openMenu        = dialog;
+    // Only the category popup shows, not the main menu behind it.
+    if (mainMenu != null)
+      mainMenu.setVisibility(View.INVISIBLE);
+    showSeeThrough(dialog);
+  }
+
+  /** Lets a popup scroll when it is taller than the screen (landscape). */
+  private View scrolling(View content) {
+    ScrollView scroll = new ScrollView(this);
+    scroll.addView(content);
+    return scroll;
+  }
+
+  /** Setting buttons show a value too, so they are wider. */
+  private static void widen(Button button) {
+    button.setWidth((int) (button.getTextSize() * 13));
+  }
+
+  private static void showSeeThrough(AlertDialog dialog) {
+    if (dialog.getWindow() != null) {
+      // No dialog box: the buttons float over the menu.
+      dialog.getWindow().setBackgroundDrawable(
+          new ColorDrawable(Color.TRANSPARENT));
+    }
+    dialog.show();
+  }
+
+  private Item toggle(final int nameId, final String key,
+                      final boolean def, final Runnable after) {
+    return new Item() {
+      public String label() {
+        return getString(nameId) + ": " +
+            getString(sp.getBoolean(key, def) ? R.string.opt_on
+                                              : R.string.opt_off);
       }
-      return true;
-    });
-    updateMusicFolderSummary();
+      public void onTap() {
+        sp.edit().putBoolean(key, !sp.getBoolean(key, def)).apply();
+        if (after != null)
+          after.run();
+      }
+    };
   }
+
+  private Item action(final int nameId, final Runnable run) {
+    return new Item() {
+      public String label() { return getString(nameId); }
+      public void   onTap() { run.run(); }
+    };
+  }
+
+  /** A button showing a number setting, which opens a slider popup. */
+  private Item slider(final int nameId, final String key, final int min,
+                      final int max, final int def, final int valueFmtId,
+                      final int helpId) {
+    return new Item() {
+      public String label() {
+        return getString(nameId) + ": " +
+            getString(valueFmtId, clamp(sp.getInt(key, def), min, max));
+      }
+      public void onTap() {
+        showSlider(nameId, key, min, max, def, valueFmtId, helpId);
+      }
+    };
+  }
+
+  private static int clamp(int v, int min, int max) {
+    return Math.max(min, Math.min(max, v));
+  }
+
+  /**
+   * A see-through popup with a slider, its value above it, and Done /
+   * Cancel.  The setting only changes on Done.
+   */
+  private void showSlider(int nameId, final String key, final int min,
+                          int max, int def, final int valueFmtId,
+                          int helpId) {
+    final AlertDialog dialog = new AlertDialog.Builder(this).create();
+    final float dp = getResources().getDisplayMetrics().density;
+    final String name = getString(nameId);
+
+    final TextView value = new TextView(this);
+    styleText(value, 22);
+    final TextView help = new TextView(this);
+    styleText(help, 14);
+    help.setTypeface(null, Typeface.NORMAL);
+    help.setText(helpId);
+
+    // A thick, high-contrast slider (res/layout/options_slider.xml).
+    final SeekBar bar = (SeekBar) getLayoutInflater()
+        .inflate(R.layout.options_slider, null);
+    bar.setMax(max - min);
+    bar.setProgress(clamp(sp.getInt(key, def), min, max) - min);
+    value.setText(name + ": " + getString(valueFmtId, bar.getProgress() + min));
+    bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+      public void onProgressChanged(SeekBar s, int progress, boolean user) {
+        value.setText(name + ": " + getString(valueFmtId, progress + min));
+      }
+      public void onStartTrackingTouch(SeekBar s) {}
+      public void onStopTrackingTouch(SeekBar s) {}
+    });
+
+    Button done = MenuButtons.create(this, R.string.opt_done, v -> {
+      click();
+      sp.edit().putInt(key, bar.getProgress() + min).apply();
+      applyPrefs();
+      dialog.dismiss();
+    });
+    Button cancel = MenuButtons.create(this, R.string.cancel, v -> {
+      click();
+      dialog.dismiss();
+    });
+
+    LinearLayout box = new LinearLayout(this);
+    box.setOrientation(LinearLayout.VERTICAL);
+    box.setGravity(Gravity.CENTER_HORIZONTAL);
+    int pad = (int) (12 * dp);
+    box.setPadding(pad, pad, pad, 0);
+    box.addView(value);
+    LinearLayout.LayoutParams barParams = new LinearLayout.LayoutParams(
+        (int) (300 * dp), LinearLayout.LayoutParams.WRAP_CONTENT);
+    barParams.topMargin    = (int) (16 * dp);
+    barParams.bottomMargin = (int) (8 * dp);
+    box.addView(bar, barParams);
+    box.addView(help);
+    box.addView(MenuButtons.column(this, done, cancel));
+    dialog.setView(scrolling(box));
+    // Only the slider popup shows; its category popup comes back after.
+    final AlertDialog under = openMenu;
+    if (under != null)
+      under.hide();
+    dialog.setOnDismissListener(d -> {
+      if ((under != null) && (openMenu == under)) {
+        if (refreshOpenMenu != null)
+          refreshOpenMenu.run();
+        under.show();
+      }
+    });
+    showSeeThrough(dialog);
+  }
+
+  /** White, bold, shadowed text, readable over the home screen art. */
+  private static void styleText(TextView text, int sizeDp) {
+    text.setTextSize(TypedValue.COMPLEX_UNIT_DIP, sizeDp);
+    text.setTypeface(null, Typeface.BOLD);
+    text.setTextColor(Color.WHITE);
+    text.setShadowLayer(6, 2, 2, Color.BLACK);
+    text.setGravity(Gravity.CENTER_HORIZONTAL);
+  }
+
+  /*
+   * Credits.
+   */
+
+  private void showCredits() {
+    Intent intent = new Intent(this, ScrollingCredits.class);
+    intent.putExtra(ScrollingCredits.EXTRA_FROM_OPTIONS, true);
+    startActivity(intent);
+  }
+
+  /*
+   * Custom music folder.
+   */
 
   private void pickMusicFolder() {
     Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
     try {
       startActivityForResult(intent, REQUEST_MUSIC_FOLDER);
     } catch (ActivityNotFoundException e) {
-      Toast.makeText(this, "No folder picker is available on this device.",
-                     Toast.LENGTH_LONG).show();
+      Toast.makeText(this, R.string.opt_no_picker, Toast.LENGTH_LONG).show();
     }
   }
 
@@ -194,71 +558,22 @@ public class PreferencesActivity extends PreferenceActivity{
     if (requestCode != REQUEST_MUSIC_FOLDER) {
       return;
     }
-    CheckBoxPreference toggle =
-        (CheckBoxPreference) findPreference(CustomMusic.KEY_ON);
     if ((resultCode == RESULT_OK) && (data != null) && (data.getData() != null)) {
       Uri folder = data.getData();
       CustomMusic.setFolder(this, folder);
-      toggle.setChecked(true);
+      sp.edit().putBoolean(CustomMusic.KEY_ON, true).apply();
       int count = CustomMusic.listSongs(this, folder).size();
-      Toast.makeText(this, (count == 0) ?
-          "No .mod/.xm/.it/.s3m songs found there. Built-in music will play." :
-          count + ((count == 1) ? " song found." : " songs found."),
+      Toast.makeText(this, CustomMusic.describeFolder(this, folder) + ": " +
+          ((count == 0) ?
+           "no .mod/.xm/.it/.s3m songs found. Built-in music will play." :
+           count + ((count == 1) ? " song found." : " songs found.")),
           Toast.LENGTH_LONG).show();
     }
     else if (CustomMusic.getFolder(this) == null) {
       // Picker cancelled and there is still no folder: switch back off.
-      toggle.setChecked(false);
+      sp.edit().putBoolean(CustomMusic.KEY_ON, false).apply();
     }
-    updateMusicFolderSummary();
-  }
-
-  private void updateMusicFolderSummary() {
-    Preference folderRow = findPreference(KEY_FOLDER_PICK);
-    Uri folder = CustomMusic.getFolder(this);
-    if (folder == null) {
-      folderRow.setSummary("No folder chosen");
-      return;
-    }
-    int count = CustomMusic.listSongs(this, folder).size();
-    folderRow.setSummary(CustomMusic.describeFolder(this, folder) + " - " +
-        count + ((count == 1) ? " song" : " songs"));
-  }
-
-  @Override
-  protected void onDestroy() {
-    super.onDestroy();
-    cleanUp();
-  }
-
-  @Override
-  public boolean onKeyDown(int keyCode, KeyEvent msg) {
-    boolean result = false;
-
-    if (keyCode == KeyEvent.KEYCODE_BACK) {
-      closeOptions();
-    }
-    else {
-      result  = collisionSlider .onKey(keyCode, msg);
-      result |= difficultySlider.onKey(keyCode, msg);
-    }
-
-    return result || super.onKeyDown(keyCode, msg);
-  }
-
-  public static void saveDefaultPreferences(Preferences prefs,
-                                            SharedPreferences sp) {
-    SharedPreferences.Editor editor = sp.edit();
-    editor.putInt    ("bluetooth",            prefs.bluetooth );
-    editor.putInt    ("collision_option",     prefs.collision );
-    editor.putBoolean("compressor_option",    prefs.compressor);
-    editor.putInt    ("difficulty_option",    prefs.difficulty);
-    editor.putBoolean("rush_me_option",      !prefs.dontRushMe);
-    editor.putBoolean("fullscreen_option",    prefs.fullscreen);
-    editor.putBoolean("colorblind_option",    prefs.colorMode );
-    editor.putBoolean("play_music_option",    prefs.musicOn   );
-    editor.putBoolean("sound_effects_option", prefs.soundOn   );
-    editor.putString ("targeting_option",     Integer.toString(prefs.targetMode));
-    editor.commit();
+    if (refreshOpenMenu != null)
+      refreshOpenMenu.run();
   }
 }
