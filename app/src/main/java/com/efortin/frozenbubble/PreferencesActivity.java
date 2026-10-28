@@ -133,6 +133,12 @@ public class PreferencesActivity extends Activity
   }
 
   @Override
+  protected void attachBaseContext(android.content.Context base) {
+    // Show the language chosen in Options (or the phone's).
+    super.attachBaseContext(com.efortin.frozenbubble.LocaleHelper.wrap(base));
+  }
+
+  @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -165,6 +171,8 @@ public class PreferencesActivity extends Activity
                            v -> { openCategory(); menus.showGameplayMenu(backToMain); }),
         MenuButtons.create(this, R.string.opt_effects,
                            v -> { openCategory(); menus.showEffectsMenu(backToMain); }),
+        MenuButtons.create(this, R.string.opt_language,
+                           v -> { openCategory(); menus.showLanguageMenu(backToMain); }),
         MenuButtons.create(this, R.string.credits,
                            v -> { click(); showCredits(); }),
         MenuButtons.create(this, R.string.back,
@@ -257,6 +265,13 @@ public class PreferencesActivity extends Activity
   public void onSettingChanged(String key) {
     if (KEY_FULLSCREEN.equals(key))
       applyFullscreen();
+    else if (LocaleHelper.KEY_LANGUAGE.equals(key))
+      // Show this screen in the new language (the home screen reloads
+      // itself when it comes back; a game uses it from the next game).
+      getWindow().getDecorView().post(() -> {
+        menus.closeOpenMenu();
+        recreate();
+      });
   }
 
   @Override
@@ -301,10 +316,11 @@ public class PreferencesActivity extends Activity
       CustomMusic.setFolder(this, folder);
       sp.edit().putBoolean(CustomMusic.KEY_ON, true).apply();
       int count = CustomMusic.listSongs(this, folder).size();
-      Toast.makeText(this, CustomMusic.describeFolder(this, folder) + ": " +
-          ((count == 0) ?
-           "no .mod/.xm/.it/.s3m songs found. Built-in music will play." :
-           count + ((count == 1) ? " song found." : " songs found.")),
+      String name = CustomMusic.describeFolder(this, folder);
+      Toast.makeText(this, (count == 0) ?
+          getString(R.string.music_no_songs, name) :
+          getResources().getQuantityString(R.plurals.music_songs_found,
+                                           count, name, count),
           Toast.LENGTH_LONG).show();
     }
     else if (CustomMusic.getFolder(this) == null) {

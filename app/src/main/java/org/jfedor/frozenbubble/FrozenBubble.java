@@ -340,6 +340,12 @@ public class FrozenBubble extends Activity
    * process, after which it regained focus to invoke this method.
    */
   @Override
+  protected void attachBaseContext(android.content.Context base) {
+    // Show the language chosen in Options (or the phone's).
+    super.attachBaseContext(com.efortin.frozenbubble.LocaleHelper.wrap(base));
+  }
+
+  @Override
   public void onCreate(Bundle savedInstanceState) {
     //if (savedInstanceState != null)
     //{
@@ -1802,7 +1808,7 @@ public class FrozenBubble extends Activity
          * him to the application market.
          */
         try {
-          Toast.makeText(getApplicationContext(), 
+          Toast.makeText(FrozenBubble.this,
                          R.string.install_editor, Toast.LENGTH_SHORT).show();
           i = new Intent(Intent.ACTION_VIEW,
                          Uri.parse(
@@ -1812,7 +1818,7 @@ public class FrozenBubble extends Activity
           /*
            * Damn, you don't have market?
            */
-          Toast.makeText(getApplicationContext(), 
+          Toast.makeText(FrozenBubble.this,
                          R.string.market_missing, Toast.LENGTH_SHORT).show();
         }
       }

@@ -8,6 +8,8 @@
 
 package com.efortin.frozenbubble;
 
+import org.jfedor.frozenbubble.R;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -140,9 +142,9 @@ public final class CustomMusic {
         return c.getString(0);
       }
     } catch (RuntimeException e) {
-      return "Folder unavailable - choose it again";
+      return context.getString(R.string.folder_unavailable);
     }
-    return "Chosen folder";
+    return context.getString(R.string.folder_chosen);
   }
 
   private static void collect(ContentResolver cr, Uri treeUri, String docId,

@@ -219,7 +219,7 @@ public class HomeScreen extends Activity {
         return result;
       }
     });
-    optionsButton.setText("Options");
+    optionsButton.setText(R.string.options);
     optionsButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
     optionsButton.setWidth((int) (optionsButton.getTextSize() * 9));
     optionsButton.setTypeface(null, Typeface.BOLD);
@@ -270,7 +270,7 @@ public class HomeScreen extends Activity {
         return result;
       }
     });
-    continueButton.setText("Saved Game");
+    continueButton.setText(R.string.home_saved_game);
     continueButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
     continueButton.setWidth((int) (continueButton.getTextSize() * 9));
     continueButton.setTypeface(null, Typeface.BOLD);
@@ -325,7 +325,7 @@ public class HomeScreen extends Activity {
         return false;
       }
     });
-    start2pGameButton.setText("2 Player");
+    start2pGameButton.setText(R.string.home_2player);
     start2pGameButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
     start2pGameButton.setWidth((int) (start2pGameButton.getTextSize() * 9));
     start2pGameButton.setTypeface(null, Typeface.BOLD);
@@ -365,7 +365,7 @@ public class HomeScreen extends Activity {
         return false;
       }
     });
-    start1pGameButton.setText("Puzzle");
+    start1pGameButton.setText(R.string.home_puzzle);
     start1pGameButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
     start1pGameButton.setWidth((int) (start1pGameButton.getTextSize() * 9));
     start1pGameButton.setTypeface(null, Typeface.BOLD);
@@ -409,7 +409,7 @@ public class HomeScreen extends Activity {
         return false;
       }
     });
-    startArcadeGameButton.setText("Arcade");
+    startArcadeGameButton.setText(R.string.home_arcade);
     startArcadeGameButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
     startArcadeGameButton.setWidth((int) (startArcadeGameButton.getTextSize() * 9));
     startArcadeGameButton.setTypeface(null, Typeface.BOLD);
@@ -452,7 +452,7 @@ public class HomeScreen extends Activity {
         return false;
       }
     });
-    gameExtrasButton.setText("Options");
+    gameExtrasButton.setText(R.string.options);
     gameExtrasButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
     gameExtrasButton.setWidth((int) (gameExtrasButton.getTextSize() * 9));
     gameExtrasButton.setTypeface(null, Typeface.BOLD);
@@ -688,7 +688,7 @@ public class HomeScreen extends Activity {
         return false;
       }
     });
-    startWiFiGameButton.setText("WiFi");
+    startWiFiGameButton.setText(R.string.home_wifi);
     startWiFiGameButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
     startWiFiGameButton.setWidth((int) (startWiFiGameButton.getTextSize() * 9));
     startWiFiGameButton.setTypeface(null, Typeface.BOLD);
@@ -725,7 +725,7 @@ public class HomeScreen extends Activity {
         return false;
       }
     });
-    startBluetoothGameButton.setText("Bluetooth");
+    startBluetoothGameButton.setText(R.string.home_bluetooth);
     startBluetoothGameButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
     startBluetoothGameButton.setWidth((int) (startBluetoothGameButton.getTextSize() * 9));
     startBluetoothGameButton.setTypeface(null, Typeface.BOLD);
@@ -775,7 +775,7 @@ public class HomeScreen extends Activity {
         return false;
       }
     });
-    startCPUGameButton.setText("Player vs. CPU");
+    startCPUGameButton.setText(R.string.home_vs_cpu);
     startCPUGameButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
     startCPUGameButton.setWidth((int) (startCPUGameButton.getTextSize() * 9));
     startCPUGameButton.setTypeface(null, Typeface.BOLD);
@@ -828,7 +828,7 @@ public class HomeScreen extends Activity {
         return false;
       }
     });
-    startLocal2PlayerGameButton.setText("Local");
+    startLocal2PlayerGameButton.setText(R.string.home_local);
     startLocal2PlayerGameButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
     startLocal2PlayerGameButton.setWidth((int) (startLocal2PlayerGameButton.getTextSize() * 9));
     startLocal2PlayerGameButton.setTypeface(null, Typeface.BOLD);
@@ -890,7 +890,7 @@ public class HomeScreen extends Activity {
         return false;
       }
     });
-    player2Button.setText("Player 2");
+    player2Button.setText(R.string.home_player2);
     player2Button.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
     player2Button.setWidth((int) (player2Button.getTextSize() * 9));
     player2Button.setTypeface(null, Typeface.BOLD);
@@ -939,7 +939,7 @@ public class HomeScreen extends Activity {
         return false;
       }
     });
-    player1Button.setText("Player 1");
+    player1Button.setText(R.string.home_player1);
     player1Button.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
     player1Button.setWidth((int) (player1Button.getTextSize() * 9));
     player1Button.setTypeface(null, Typeface.BOLD);
@@ -983,6 +983,20 @@ public class HomeScreen extends Activity {
       cleanUp();
       finish();
     }
+  }
+
+  /** The language this screen was created in (see LocaleHelper). */
+  private String shownLanguage = "";
+
+  private void reloadForLanguage() {
+    finished = true;
+    cleanUp();
+    Intent intent = new Intent(this, HomeScreen.class);
+    intent.putExtra("startHomeScreen", true);
+    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+    startActivity(intent);
+    finish();
+    overridePendingTransition(0, 0);
   }
 
   private void cleanUp() {
@@ -1089,9 +1103,8 @@ public class HomeScreen extends Activity {
     new AlertDialog.Builder(HomeScreen.this)
     .setIcon(R.drawable.bluetooth)
     .setTitle(R.string.menu_bluetooth_device)
-    .setMessage("No paired devices found. Pair the other phone in " +
-                "Android's Bluetooth settings first, then try again.")
-    .setPositiveButton("Bluetooth Settings",
+    .setMessage(R.string.bt_no_paired)
+    .setPositiveButton(R.string.bt_settings,
                        new DialogInterface.OnClickListener() {
       @Override
       public void onClick(DialogInterface dialog, int which) {
@@ -1119,7 +1132,7 @@ public class HomeScreen extends Activity {
       }
       else {
         android.widget.Toast.makeText(this,
-            "Bluetooth permission is needed for Bluetooth play.",
+            R.string.bt_permission_needed,
             android.widget.Toast.LENGTH_LONG).show();
       }
     }
@@ -1212,11 +1225,12 @@ public class HomeScreen extends Activity {
     /*
      * Set the dialog title.
      */
-    builder.setTitle("Input Not Found");
+    builder.setTitle(R.string.input_not_found);
     /*
      * Set the dialog message.
      */
-    builder.setMessage(numGamepads + " gamepads found, 1 or more needed.")
+    builder.setMessage(getResources().getQuantityString(
+        R.plurals.gamepads_found, numGamepads, numGamepads))
     /*
      * Set the action buttons.
      */
@@ -1285,8 +1299,15 @@ public class HomeScreen extends Activity {
    * Called when the activity is first created.
    */
   @Override
+  protected void attachBaseContext(android.content.Context base) {
+    // Show the language chosen in Options (or the phone's).
+    super.attachBaseContext(com.efortin.frozenbubble.LocaleHelper.wrap(base));
+  }
+
+  @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    shownLanguage = LocaleHelper.getLanguage(this);
     finished = false;
     restoreGamePrefs();
     /*
@@ -1371,6 +1392,11 @@ public class HomeScreen extends Activity {
   @Override
   public void onResume() {
     super.onResume();
+    if (!LocaleHelper.getLanguage(this).equals(shownLanguage)) {
+      // The language was changed in Options: reload the menu in it.
+      reloadForLanguage();
+      return;
+    }
     if (myModPlayer != null) {
       restoreGamePrefs();
       // Apply a change made in Options, then resume (if music is on).

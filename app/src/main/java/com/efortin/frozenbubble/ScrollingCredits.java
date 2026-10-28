@@ -83,6 +83,12 @@ public class ScrollingCredits extends Activity implements Runnable {
   private ModPlayer myModPlayer = null;
 
   @Override
+  protected void attachBaseContext(android.content.Context base) {
+    // Show the language chosen in Options (or the phone's).
+    super.attachBaseContext(com.efortin.frozenbubble.LocaleHelper.wrap(base));
+  }
+
+  @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     // Configure the window presentation and layout.

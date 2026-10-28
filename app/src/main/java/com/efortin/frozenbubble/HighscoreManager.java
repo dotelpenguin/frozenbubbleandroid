@@ -54,6 +54,8 @@
 
 package com.efortin.frozenbubble;
 
+import org.jfedor.frozenbubble.R;
+
 import java.util.List;
 
 import android.content.Context;
@@ -112,10 +114,10 @@ public class HighscoreManager {
     //
     //
     AlertDialog.Builder alert = new AlertDialog.Builder(ctx);
-    alert.setTitle("Highscore name"); alert.setMessage("Set your name:");
+    alert.setTitle(R.string.hs_name_title); alert.setMessage(R.string.hs_name_message);
     final EditText input = new EditText(ctx); input.setText(name);
     alert.setView(input);
-    alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+    alert.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
       public void onClick(DialogInterface dialog, int whichButton) {
         SharedPreferences sp =
           ctx.getSharedPreferences(FrozenBubble.PREFS_NAME,

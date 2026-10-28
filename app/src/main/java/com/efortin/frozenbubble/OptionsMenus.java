@@ -95,6 +95,16 @@ public class OptionsMenus {
     this.sp       = PreferenceManager.getDefaultSharedPreferences(activity);
   }
 
+  /** Close the open category popup (e.g. before the screen reloads). */
+  public void closeOpenMenu() {
+    if (openMenu != null) {
+      openMenu.setOnDismissListener(null);
+      openMenu.dismiss();
+      openMenu = null;
+      refreshOpenMenu = null;
+    }
+  }
+
   /** Relabel the open popup's buttons, e.g. after the folder picker. */
   public void refresh() {
     if (refreshOpenMenu != null)
@@ -166,6 +176,34 @@ public class OptionsMenus {
                R.string.opt_difficulty_value, R.string.opt_difficulty_help),
         toggle(R.string.opt_hurry, KEY_RUSH_ME, true, null),
         toggle(R.string.opt_compressor, KEY_COMPRESSOR, false, null));
+  }
+
+  /**
+   * Options &rarr; Language: the phone's language, or one the game is
+   * translated into, each named in its own language.  The current choice
+   * is marked.
+   */
+  public void showLanguageMenu(Runnable onClose) {
+    Item[] items = new Item[LocaleHelper.TAGS.length];
+    for (int i = 0; i < items.length; i++) {
+      final String tag  = LocaleHelper.TAGS[i];
+      final String name = LocaleHelper.NAMES[i];
+      items[i] = new Item() {
+        public String label() {
+          String text = (name != null) ? name
+                                       : activity.getString(R.string.lang_system);
+          return tag.equals(LocaleHelper.getLanguage(activity)) ?
+              "\u25CF " + text : text;
+        }
+        public void onTap() {
+          if (!tag.equals(LocaleHelper.getLanguage(activity))) {
+            LocaleHelper.setLanguage(activity, tag);
+            host.onSettingChanged(LocaleHelper.KEY_LANGUAGE);
+          }
+        }
+      };
+    }
+    showMenu(onClose, items);
   }
 
   public void showEffectsMenu(Runnable onClose) {

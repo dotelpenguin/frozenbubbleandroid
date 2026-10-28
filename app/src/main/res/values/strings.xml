@@ -123,7 +123,7 @@
   <string name="opt_colorblind">Colorblind Mode</string>
   <string name="opt_targeting">Targeting</string>
   <string name="opt_sensitivity">Sensitivity</string>
-  <string name="opt_sensitivity_value">%1$d</string>
+  <string name="opt_sensitivity_value" translatable="false">%1$d</string>
   <string name="opt_sensitivity_help">Higher: shots stick to bubbles from farther away.</string>
   <string name="opt_difficulty">Difficulty</string>
   <string name="opt_difficulty_value">%1$d colors</string>
@@ -151,4 +151,33 @@
   <string name="fx_guide">Aiming Guide</string>
   <string name="fx_vibrate">Vibration</string>
   <string name="opt_compressor">2P Compressor</string>
+  <string name="home_saved_game">Saved Game</string>
+  <string name="home_2player">2 Player</string>
+  <string name="home_puzzle">Puzzle</string>
+  <string name="home_arcade">Arcade</string>
+  <string name="home_wifi">Wi-Fi</string>
+  <string name="home_bluetooth">Bluetooth</string>
+  <string name="home_vs_cpu">Player vs. CPU</string>
+  <string name="home_local">Local</string>
+  <string name="home_player1">Player 1</string>
+  <string name="home_player2">Player 2</string>
+  <string name="bt_no_paired">No paired devices found. Pair the other phone in Android\'s Bluetooth settings first, then try again.</string>
+  <string name="bt_settings">Bluetooth Settings</string>
+  <string name="bt_permission_needed">Bluetooth permission is needed for Bluetooth play.</string>
+  <string name="input_not_found">Input Not Found</string>
+  <plurals name="gamepads_found">
+    <item quantity="one">%d gamepad found, 1 or more needed.</item>
+    <item quantity="other">%d gamepads found, 1 or more needed.</item>
+  </plurals>
+  <string name="hs_name_title">High Score Name</string>
+  <string name="hs_name_message">Enter your name:</string>
+  <string name="music_no_songs">%1$s: no .mod/.xm/.it/.s3m songs found. Built-in music will play.</string>
+  <plurals name="music_songs_found">
+    <item quantity="one">%1$s: %2$d song found.</item>
+    <item quantity="other">%1$s: %2$d songs found.</item>
+  </plurals>
+  <string name="folder_unavailable">Folder unavailable – choose it again</string>
+  <string name="folder_chosen">Chosen folder</string>
+  <string name="opt_language">Language</string>
+  <string name="lang_system">System Default</string>
 </resources>
