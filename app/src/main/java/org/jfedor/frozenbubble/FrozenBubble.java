@@ -172,6 +172,80 @@ public class FrozenBubble extends Activity
   public final static String SAVED_MODE_ARCADE  = "arcade";
   public final static String SAVED_MODE_PUZZLE  = "puzzle";
   public final static String SAVED_MODE_2PLAYER = "2player";
+
+  /*
+   * Saved games: one per mode (Arcade, Puzzle, 2 Player), so starting
+   * one kind of game never replaces another's save.  SAVED_GAME_MODE
+   * remembers the mode saved most recently.
+   */
+  private final static String SAVED_DETAIL = "savedGameDetail_";
+
+  /** The file holding a mode's saved game. */
+  public static String saveFileName(String slot) {
+    return "FrozenBubble-" + slot + ".save";
+  }
+
+  /** <code>true</code> if the mode (a SAVED_MODE_ value) has a save. */
+  public static boolean hasSavedGame(Context context, String slot) {
+    return context.getFileStreamPath(saveFileName(slot)).exists();
+  }
+
+  public static boolean hasAnySavedGame(Context context) {
+    return hasSavedGame(context, SAVED_MODE_ARCADE) ||
+           hasSavedGame(context, SAVED_MODE_PUZZLE) ||
+           hasSavedGame(context, SAVED_MODE_2PLAYER);
+  }
+
+  /**
+   * Where a saved game left off, for the Continue popup, e.g.
+   * "Puzzle - Level 23".
+   */
+  public static String savedGameTitle(Context context, String slot) {
+    int detail = PreferenceManager.getDefaultSharedPreferences(context)
+        .getInt(SAVED_DETAIL + slot, -1);
+    if (SAVED_MODE_PUZZLE.equals(slot)) {
+      return (detail > 0) ?
+          context.getString(R.string.save_title_puzzle_level, detail) :
+          context.getString(R.string.save_title_puzzle);
+    }
+    if (SAVED_MODE_ARCADE.equals(slot)) {
+      return (detail > 0) ?
+          context.getString(R.string.save_title_arcade_colors, detail) :
+          context.getString(R.string.save_title_arcade);
+    }
+    return context.getString((detail == CPU) ? R.string.save_title_2p_cpu :
+                                               R.string.save_title_2p);
+  }
+
+  /**
+   * Older versions kept one save for every mode: move it to its mode's
+   * slot, once.
+   */
+  public static void migrateSavedGame(Context context) {
+    java.io.File old = context.getFileStreamPath(SAVE_GAME);
+    if (!old.exists()) {
+      return;
+    }
+    String slot = PreferenceManager.getDefaultSharedPreferences(context)
+        .getString(SAVED_GAME_MODE, SAVED_MODE_PUZZLE);
+    if (!SAVED_MODE_ARCADE.equals(slot) && !SAVED_MODE_2PLAYER.equals(slot)) {
+      slot = SAVED_MODE_PUZZLE;
+    }
+    java.io.File slotFile = context.getFileStreamPath(saveFileName(slot));
+    if (slotFile.exists() || !old.renameTo(slotFile)) {
+      old.delete();
+    }
+    PreferenceManager.getDefaultSharedPreferences(context).edit()
+        .putString(SAVED_GAME_MODE, slot)
+        .putBoolean("playerSave", hasAnySavedGame(context))
+        .commit();
+  }
+
+  /** The save slot of the game being played. */
+  private static String currentSlot() {
+    return (numPlayers > 1) ? SAVED_MODE_2PLAYER :
+           (arcadeGame ? SAVED_MODE_ARCADE : SAVED_MODE_PUZZLE);
+  }
   public final static String TAG          = "FrozenBubble.java";
 
   private boolean    activityCustomStarted = false;
@@ -431,13 +505,18 @@ public class FrozenBubble extends Activity
     saveGame(null);
   }
 
-  /** Delete the saved game, so the home screen offers no Continue. */
+  /** Delete this mode's saved game (the others are kept). */
   private void clearSavedGame() {
-    deleteFile(SAVE_GAME);
-    PreferenceManager.getDefaultSharedPreferences(this).edit()
-        .putBoolean("playerSave", false)
-        .remove(SAVED_GAME_MODE)
-        .commit();
+    String slot = currentSlot();
+    deleteFile(saveFileName(slot));
+    SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+    Editor editor = sp.edit()
+        .putBoolean("playerSave", hasAnySavedGame(this))
+        .remove(SAVED_DETAIL + slot);
+    if (slot.equals(sp.getString(SAVED_GAME_MODE, null))) {
+      editor.remove(SAVED_GAME_MODE);
+    }
+    editor.commit();
   }
 
   @Override
@@ -1237,12 +1316,12 @@ public class FrozenBubble extends Activity
    * <code>Parcel</code> object is not guaranteed to be compatible
    * amongst disparate versions of the Android OS.
    */
-  private Bundle restoreSavedGame() {
+  private Bundle restoreSavedGame(String slot) {
     Bundle inState = null;
     Parcel parcel  = Parcel.obtain();
 
     try {
-      FileInputStream fis = openFileInput(SAVE_GAME);
+      FileInputStream fis = openFileInput(saveFileName(slot));
       byte[] array = new byte[(int) fis.getChannel().size()];
       fis.read(array, 0, array.length);
       fis.close();
@@ -1299,7 +1378,9 @@ public class FrozenBubble extends Activity
     }
 
     try {
-      FileOutputStream fos = openFileOutput(SAVE_GAME, Context.MODE_PRIVATE);
+      String slot = currentSlot();
+      FileOutputStream fos = openFileOutput(saveFileName(slot),
+                                            Context.MODE_PRIVATE);
       outState.writeToParcel(parcel, 0);
       fos.write(parcel.marshall());
       fos.flush();
@@ -1310,9 +1391,20 @@ public class FrozenBubble extends Activity
       Editor editor =
           PreferenceManager.getDefaultSharedPreferences(this).edit();
       editor.putBoolean("playerSave", true);
-      editor.putString(SAVED_GAME_MODE,
-                       (numPlayers > 1) ? SAVED_MODE_2PLAYER :
-                       (arcadeGame ? SAVED_MODE_ARCADE : SAVED_MODE_PUZZLE));
+      editor.putString(SAVED_GAME_MODE, slot);
+      // Where it left off, for the home screen's Continue popup.
+      int detail;
+      if (SAVED_MODE_PUZZLE.equals(slot)) {
+        detail = (mGameThread != null) ?
+            mGameThread.getCurrentLevelIndex() + 1 : -1;
+      }
+      else if (SAVED_MODE_ARCADE.equals(slot)) {
+        detail = getDifficulty();
+      }
+      else {
+        detail = opponentId;
+      }
+      editor.putInt(SAVED_DETAIL + slot, detail);
       editor.commit();
     } catch (FileNotFoundException fnfe) {
       /*
@@ -1612,7 +1704,14 @@ public class FrozenBubble extends Activity
     initGameOptions();
 
     if (playerSave) {
-      newGameView(restoreSavedGame());
+      // Which mode to continue: chosen on the home screen, else the
+      // most recently saved one.
+      String slot = (intent != null) ? intent.getStringExtra("saveSlot") : null;
+      if (slot == null) {
+        slot = PreferenceManager.getDefaultSharedPreferences(this)
+            .getString(SAVED_GAME_MODE, SAVED_MODE_PUZZLE);
+      }
+      newGameView(restoreSavedGame(slot));
     }
     else {
       newGameView(savedInstanceState);

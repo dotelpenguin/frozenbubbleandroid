@@ -74,9 +74,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.Gravity;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 
@@ -311,7 +314,8 @@ public class HomeScreen extends Activity {
         /*
          * Display the 2 player mode buttons page.
          */
-        displayPage(2);
+        startOrAskToContinue(FrozenBubble.SAVED_MODE_2PLAYER, () ->
+            displayPage(2));
       }
     });
     start2pGameButton.setOnTouchListener(new Button.OnTouchListener(){
@@ -349,11 +353,12 @@ public class HomeScreen extends Activity {
         buttonSelPage1 = BTN2_ID;
         mSoundManager.playSound("stick", R.raw.stick);
         /*
-         * Process the button tap and start/resume a 1 player game.
+         * Start a Puzzle game, or ask whether to continue the saved one.
          */
-        startFrozenBubble(VirtualInput.PLAYER1, 1,
-                          FrozenBubble.HUMAN,
-                          FrozenBubble.LOCALE_LOCAL, false, false);
+        startOrAskToContinue(FrozenBubble.SAVED_MODE_PUZZLE, () ->
+            startFrozenBubble(VirtualInput.PLAYER1, 1,
+                              FrozenBubble.HUMAN,
+                              FrozenBubble.LOCALE_LOCAL, false, false));
       }
     });
     start1pGameButton.setOnTouchListener(new Button.OnTouchListener(){
@@ -363,7 +368,7 @@ public class HomeScreen extends Activity {
         return false;
       }
     });
-    start1pGameButton.setText(playerSave ? "New Puzzle" : "Puzzle");
+    start1pGameButton.setText("Puzzle");
     start1pGameButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
     start1pGameButton.setWidth((int) (start1pGameButton.getTextSize() * 9));
     start1pGameButton.setTypeface(null, Typeface.BOLD);
@@ -392,12 +397,12 @@ public class HomeScreen extends Activity {
         buttonSelPage1 = BTN1_ID;
         mSoundManager.playSound("stick", R.raw.stick);
         /*
-         * Process the button tap and start/resume a 1 player arcade
-         * game.
+         * Start an Arcade game, or ask whether to continue the saved one.
          */
-        startFrozenBubble(VirtualInput.PLAYER1, 1,
-                          FrozenBubble.HUMAN,
-                          FrozenBubble.LOCALE_LOCAL, true, false);
+        startOrAskToContinue(FrozenBubble.SAVED_MODE_ARCADE, () ->
+            startFrozenBubble(VirtualInput.PLAYER1, 1,
+                              FrozenBubble.HUMAN,
+                              FrozenBubble.LOCALE_LOCAL, true, false));
       }
     });
     startArcadeGameButton.setOnTouchListener(new Button.OnTouchListener(){
@@ -407,7 +412,7 @@ public class HomeScreen extends Activity {
         return false;
       }
     });
-    startArcadeGameButton.setText(playerSave ? "New Arcade" : "Arcade");
+    startArcadeGameButton.setText("Arcade");
     startArcadeGameButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
     startArcadeGameButton.setWidth((int) (startArcadeGameButton.getTextSize() * 9));
     startArcadeGameButton.setTypeface(null, Typeface.BOLD);
@@ -473,75 +478,118 @@ public class HomeScreen extends Activity {
     /*
      * With a saved game, offer to continue it at the top of the menu.
      */
-    if (playerSave) {
-      addContinueButton(startArcadeGameButton);
-    }
+    // Saved games are offered by each mode's button (see
+    // startOrAskToContinue()), not by a separate Continue button.
   }
 
   /**
-   * "Continue Arcade" / "Continue Puzzle" button above the others, which
-   * resumes the saved game (its own mode, players and board).
+   * Start a new game of a mode, or, if that mode has a saved game, ask
+   * first: Continue / New Game / Back.
+   * @param slot - the mode (FrozenBubble.SAVED_MODE_...).
+   * @param startNew - starts a new game of the mode.
    */
-  private void addContinueButton(Button below) {
-    String mode = PreferenceManager.getDefaultSharedPreferences(this)
-        .getString(FrozenBubble.SAVED_GAME_MODE, "");
-    String label;
-    if (FrozenBubble.SAVED_MODE_ARCADE.equals(mode)) {
-      label = "Continue Arcade";
+  private void startOrAskToContinue(final String slot,
+                                    final Runnable startNew) {
+    if (!FrozenBubble.hasSavedGame(this, slot)) {
+      startNew.run();
+      return;
     }
-    else if (FrozenBubble.SAVED_MODE_PUZZLE.equals(mode)) {
-      label = "Continue Puzzle";
+    final AlertDialog dialog = new AlertDialog.Builder(HomeScreen.this).create();
+    TextView title = new TextView(this);
+    OptionsMenus.styleText(title, 22);
+    title.setText(FrozenBubble.savedGameTitle(this, slot));
+    Button cont = MenuButtons.create(this, R.string.save_continue, v -> {
+      dialog.dismiss();
+      mSoundManager.playSound("stick", R.raw.stick);
+      startSavedGame(slot);
+    });
+    Button fresh = MenuButtons.create(this, R.string.save_new_game, v -> {
+      dialog.dismiss();
+      mSoundManager.playSound("stick", R.raw.stick);
+      startNew.run();
+    });
+    Button back = MenuButtons.create(this, R.string.back, v -> {
+      dialog.dismiss();
+      mSoundManager.playSound("stick", R.raw.stick);
+    });
+    LinearLayout box = new LinearLayout(this);
+    box.setOrientation(LinearLayout.VERTICAL);
+    box.setGravity(Gravity.CENTER_HORIZONTAL);
+    box.addView(title);
+    box.addView(MenuButtons.column(this, cont, fresh, back));
+    dialog.setView(box);
+    showOverDimmedMenu(dialog);
+  }
+
+  /*
+   * Popups over the home screen (Continue / New Game, CPU skill): like
+   * the in-game menus, the menu behind is hidden and the screen dimmed,
+   * so only the popup's buttons show.
+   */
+  private static final int MENU_DIM_COLOR = 0xA6000000; // 65% black
+  private View dimOverlay = null;
+  private final java.util.List<View> hiddenForPopup =
+      new java.util.ArrayList<View>();
+
+  private void showOverDimmedMenu(AlertDialog dialog) {
+    android.view.Window window = dialog.getWindow();
+    if (window != null) {
+      // No dialog box: the buttons float over the dimmed screen.
+      window.setBackgroundDrawable(
+          new android.graphics.drawable.ColorDrawable(
+              android.graphics.Color.TRANSPARENT));
+      // We dim the screen ourselves; don't let the window dim it twice.
+      window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
     }
-    else if (FrozenBubble.SAVED_MODE_2PLAYER.equals(mode)) {
-      label = "Continue 2 Player";
+    setMenuDimmed(true);
+    dialog.setOnDismissListener(d -> setMenuDimmed(false));
+    dialog.show();
+  }
+
+  private void setMenuDimmed(boolean dimmed) {
+    if (myLayout == null) {
+      return;
+    }
+    if (dimmed) {
+      // Hide the menu buttons (not the background art).
+      for (int i = 0; i < myLayout.getChildCount(); i++) {
+        View child = myLayout.getChildAt(i);
+        if ((child != myImageView) && (child != dimOverlay) &&
+            (child.getVisibility() == View.VISIBLE)) {
+          child.setVisibility(View.INVISIBLE);
+          hiddenForPopup.add(child);
+        }
+      }
+      if (dimOverlay == null) {
+        dimOverlay = new View(this);
+        dimOverlay.setBackgroundColor(MENU_DIM_COLOR);
+      }
+      if (dimOverlay.getParent() == null) {
+        myLayout.addView(dimOverlay, new LayoutParams(
+            LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+      }
     }
     else {
-      label = "Continue"; // Saved before the mode was recorded.
-    }
-    Button continueButton = new Button(this);
-    continueButton.setOnClickListener(new Button.OnClickListener(){
-      public void onClick(View v){
-        buttonSelPage1 = BTN13_ID;
-        mSoundManager.playSound("stick", R.raw.stick);
-        /*
-         * Load the saved game; its saved mode replaces these settings.
-         */
-        startFrozenBubble(VirtualInput.PLAYER1, 1,
-                          FrozenBubble.HUMAN,
-                          FrozenBubble.LOCALE_LOCAL, false, true);
+      for (View child : hiddenForPopup) {
+        child.setVisibility(View.VISIBLE);
       }
-    });
-    continueButton.setOnTouchListener(new Button.OnTouchListener(){
-      public boolean onTouch(View v, MotionEvent event){
-        if (event.getAction() == MotionEvent.ACTION_DOWN)
-          v.requestFocus();
-        return false;
-      }
-    });
-    continueButton.setText(label);
-    MenuButtons.style(continueButton);
-    continueButton.setId(BTN13_ID);
-    continueButton.setFocusable(true);
-    continueButton.setFocusableInTouchMode(true);
-    LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT,
-                                           LayoutParams.WRAP_CONTENT);
-    params.addRule(RelativeLayout.CENTER_IN_PARENT);
-    params.addRule(RelativeLayout.ABOVE, below.getId());
-    params.topMargin    = 15;
-    params.bottomMargin = 15;
-    myLayout.addView(continueButton, params);
-    /*
-     * "Continue Puzzle" is longer than the other labels: widen the whole
-     * menu a little so every label stays on one line.
-     */
-    for (int id : new int[] { BTN13_ID, BTN1_ID, BTN2_ID, BTN3_ID, BTN4_ID }) {
-      View view = myLayout.findViewById(id);
-      if (view instanceof Button) {
-        Button b = (Button) view;
-        b.setWidth((int) (b.getTextSize() * 10.5f));
+      hiddenForPopup.clear();
+      if ((dimOverlay != null) && (dimOverlay.getParent() != null)) {
+        myLayout.removeView(dimOverlay);
       }
     }
   }
+
+  /** The mode whose saved game to continue (passed to the game). */
+  private String continueSlot = null;
+
+  private void startSavedGame(String slot) {
+    continueSlot = slot;
+    startFrozenBubble(VirtualInput.PLAYER1, 1,
+                      FrozenBubble.HUMAN,
+                      FrozenBubble.LOCALE_LOCAL, false, true);
+  }
+
 
   /**
    * Given that we are using a relative layout for the home screen in
@@ -910,13 +958,7 @@ public class HomeScreen extends Activity {
     buttons[labels.length] = MenuButtons.create(this, R.string.cancel,
                                                 v -> dialog.dismiss());
     dialog.setView(MenuButtons.column(this, buttons));
-    if (dialog.getWindow() != null) {
-      // No dialog box: the buttons float over the menu.
-      dialog.getWindow().setBackgroundDrawable(
-          new android.graphics.drawable.ColorDrawable(
-              android.graphics.Color.TRANSPARENT));
-    }
-    dialog.show();
+    showOverDimmedMenu(dialog);
   }
 
   private static final int REQUEST_BLUETOOTH_CONNECT = 1001;
@@ -1193,9 +1235,10 @@ public class HomeScreen extends Activity {
     /*
      * Restore the player saved and system save flags.
      */
+    FrozenBubble.migrateSavedGame(this);
     SharedPreferences mConfig =
         PreferenceManager.getDefaultSharedPreferences(this);
-    playerSave         = mConfig.getBoolean("playerSave", false );
+    playerSave         = FrozenBubble.hasAnySavedGame(this);
     boolean systemSave = mConfig.getBoolean("systemSave", false );
 
     if (FrozenBubble.numPlayers != 0)
@@ -1424,6 +1467,9 @@ public class HomeScreen extends Activity {
     intent.putExtra("gameLocale", (int)     gameLocale);
     intent.putExtra("arcadeGame", (boolean) arcadeGame);
     intent.putExtra("playerSave", (boolean) playerSave);
+    if (playerSave && (continueSlot != null)) {
+      intent.putExtra("saveSlot", continueSlot);
+    }
     startActivity(intent);
     /*
      * Terminate the splash screen activity.
