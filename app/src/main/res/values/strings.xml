@@ -117,7 +117,9 @@
   <string name="opt_fullscreen">Fullscreen</string>
   <string name="opt_gpu">GPU Rendering</string>
   <string name="opt_original_art">Original Art</string>
-  <string name="opt_original_art_note">Applies from the next game.</string>
+  <string name="opt_next_game_note">Applies from the next game.</string>
+  <string name="opt_folder_from_home">Choose a music folder in Options on the home screen.</string>
+  <string name="opt_new_game_q">Start a new game?</string>
   <string name="opt_colorblind">Colorblind Mode</string>
   <string name="opt_targeting">Targeting</string>
   <string name="opt_sensitivity">Sensitivity</string>

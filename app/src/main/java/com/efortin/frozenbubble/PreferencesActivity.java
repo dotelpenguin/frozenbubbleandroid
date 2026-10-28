@@ -52,6 +52,8 @@
 
 package com.efortin.frozenbubble;
 
+import static com.efortin.frozenbubble.OptionsMenus.*;
+
 import org.jfedor.frozenbubble.BubbleSprite;
 import org.jfedor.frozenbubble.FrozenBubble;
 import org.jfedor.frozenbubble.GameView;
@@ -60,73 +62,42 @@ import org.jfedor.frozenbubble.R;
 import org.jfedor.frozenbubble.SoundManager;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
-import android.widget.SeekBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 /**
  * The Options screen, in the style of the home screen menu: a short
  * menu of categories, each opening a see-through popup of bubble
- * buttons that show and change their setting.  Sliders (difficulty,
- * bubble sensitivity) open their own popup.
+ * buttons that show and change their setting (see {@link OptionsMenus},
+ * shared with the in-game Options menu).
  * <p>Settings are stored in the same shared preferences, under the same
  * keys, as the old settings list, so existing settings carry over.
  */
-public class PreferencesActivity extends Activity {
-
-  private static final String KEY_COLLISION   = "collision_option";
-  private static final String KEY_COMPRESSOR  = "compressor_option";
-  private static final String KEY_DIFFICULTY  = "difficulty_option";
-  private static final String KEY_RUSH_ME     = "rush_me_option";
-  private static final String KEY_FULLSCREEN  = "fullscreen_option";
-  private static final String KEY_COLORBLIND  = "colorblind_option";
-  private static final String KEY_MUSIC       = "play_music_option";
-  private static final String KEY_SOUND       = "sound_effects_option";
-  private static final String KEY_TARGETING   = "targeting_option";
-  private static final String KEY_GPU         = "gpu_rendering_option";
-  private static final String KEY_ORIGINAL    = "original_art_option";
-
-  private static final int COLLISION_MAX  = 29;
-  private static final int DIFFICULTY_MAX = 8;
+public class PreferencesActivity extends Activity
+    implements OptionsMenus.Host {
 
   private static final int REQUEST_MUSIC_FOLDER = 2001;
 
   private SharedPreferences sp;
   private SoundManager      mSoundManager;
-  /** Refreshes the button labels of the open category popup, if any. */
-  private Runnable          refreshOpenMenu = null;
-  /** The open category popup, hidden while a slider popup is open. */
-  private AlertDialog       openMenu        = null;
+  private OptionsMenus      menus;
   /** The main Options menu, hidden while a category popup is open. */
-  private View              mainMenu        = null;
-
-  /** One button in a category popup. */
-  private interface Item {
-    String label();
-    void   onTap();
-  }
+  private View              mainMenu = null;
 
   public static Preferences getDefaultPrefs(SharedPreferences sp) {
     Preferences prefs = new Preferences();
@@ -170,6 +141,7 @@ public class PreferencesActivity extends Activity {
 
     mSoundManager = new SoundManager(this);
     mSoundManager.loadSound("stick", R.raw.stick);
+    menus = new OptionsMenus(this, this);
 
     // The home screen art behind the menu, as on the home screen.
     FrameLayout root = new FrameLayout(this);
@@ -181,15 +153,16 @@ public class PreferencesActivity extends Activity {
         FrameLayout.LayoutParams.MATCH_PARENT,
         FrameLayout.LayoutParams.MATCH_PARENT));
 
+    final Runnable backToMain = () -> mainMenu.setVisibility(View.VISIBLE);
     LinearLayout menu = MenuButtons.column(this,
         MenuButtons.create(this, R.string.opt_music_sound,
-                           v -> { click(); showMusicMenu(); }),
+                           v -> { openCategory(); menus.showMusicMenu(backToMain); }),
         MenuButtons.create(this, R.string.opt_display,
-                           v -> { click(); showDisplayMenu(); }),
+                           v -> { openCategory(); menus.showDisplayMenu(backToMain); }),
         MenuButtons.create(this, R.string.opt_controls,
-                           v -> { click(); showControlsMenu(); }),
+                           v -> { openCategory(); menus.showControlsMenu(backToMain); }),
         MenuButtons.create(this, R.string.opt_gameplay,
-                           v -> { click(); showGameplayMenu(); }),
+                           v -> { openCategory(); menus.showGameplayMenu(backToMain); }),
         MenuButtons.create(this, R.string.credits,
                            v -> { click(); showCredits(); }),
         MenuButtons.create(this, R.string.back,
@@ -208,6 +181,12 @@ public class PreferencesActivity extends Activity {
         FrameLayout.LayoutParams.MATCH_PARENT,
         FrameLayout.LayoutParams.MATCH_PARENT));
     setContentView(root);
+  }
+
+  /** Only the category popup shows, not the main menu behind it. */
+  private void openCategory() {
+    click();
+    mainMenu.setVisibility(View.INVISIBLE);
   }
 
   @Override
@@ -245,13 +224,8 @@ public class PreferencesActivity extends Activity {
 
   /** Apply the chosen options and return to the previous screen. */
   private void closeOptions() {
-    applyPrefs();
-    finish();
-  }
-
-  /** Make the game use the current settings straight away. */
-  private void applyPrefs() {
     FrozenBubble.setPrefs(getDefaultPrefs(sp));
+    finish();
   }
 
   private void applyFullscreen() {
@@ -267,265 +241,36 @@ public class PreferencesActivity extends Activity {
     SystemUi.apply(this, fullscreen);
   }
 
-  private void click() {
+  /*
+   * OptionsMenus.Host
+   */
+
+  @Override
+  public void click() {
     if (mSoundManager != null)
       mSoundManager.playSound("stick", R.raw.stick);
   }
 
-  /*
-   * Category popups.
-   */
-
-  private void showMusicMenu() {
-    showMenu(
-        toggle(R.string.opt_music, KEY_MUSIC, true, null),
-        toggle(R.string.opt_sound, KEY_SOUND, true, null),
-        toggle(R.string.opt_my_music, CustomMusic.KEY_ON, false, () -> {
-          // Turned on with no folder yet: go straight to the picker.
-          if (sp.getBoolean(CustomMusic.KEY_ON, false) &&
-              (CustomMusic.getFolder(this) == null)) {
-            pickMusicFolder();
-          }
-        }),
-        action(R.string.opt_choose_folder, this::pickMusicFolder));
+  @Override
+  public void onSettingChanged(String key) {
+    if (KEY_FULLSCREEN.equals(key))
+      applyFullscreen();
   }
 
-  private void showDisplayMenu() {
-    showMenu(
-        toggle(R.string.opt_fullscreen, KEY_FULLSCREEN, true,
-               this::applyFullscreen),
-        toggle(R.string.opt_gpu, KEY_GPU, true, null),
-        toggle(R.string.opt_original_art, KEY_ORIGINAL, false, () ->
-            Toast.makeText(this, R.string.opt_original_art_note,
-                           Toast.LENGTH_SHORT).show()),
-        toggle(R.string.opt_colorblind, KEY_COLORBLIND,
-               FrozenBubble.GAME_COLORBLIND, null));
-  }
-
-  private void showControlsMenu() {
-    final String[] modes = getResources().getStringArray(R.array.shoot_mode_array);
-    showMenu(
-        new Item() {
-          public String label() {
-            int mode = targetMode();
-            String name = ((mode >= 0) && (mode < modes.length)) ?
-                modes[mode] : modes[FrozenBubble.POINT_TO_SHOOT];
-            return getString(R.string.opt_targeting) + ": " + name;
-          }
-          public void onTap() {
-            int mode = (targetMode() + 1) % modes.length;
-            sp.edit().putString(KEY_TARGETING, Integer.toString(mode)).apply();
-          }
-        },
-        slider(R.string.opt_sensitivity, KEY_COLLISION,
-               BubbleSprite.MIN_PIX, COLLISION_MAX, BubbleSprite.MIN_PIX,
-               R.string.opt_sensitivity_value, R.string.opt_sensitivity_help));
-  }
-
-  private void showGameplayMenu() {
-    showMenu(
-        slider(R.string.opt_difficulty, KEY_DIFFICULTY,
-               LevelManager.EASY, DIFFICULTY_MAX, LevelManager.NORMAL,
-               R.string.opt_difficulty_value, R.string.opt_difficulty_help),
-        toggle(R.string.opt_hurry, KEY_RUSH_ME, true, null),
-        toggle(R.string.opt_compressor, KEY_COMPRESSOR, false, null));
-  }
-
-  private int targetMode() {
+  @Override
+  public boolean pickMusicFolder() {
+    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
     try {
-      return Integer.parseInt(sp.getString(KEY_TARGETING,
-          Integer.toString(FrozenBubble.POINT_TO_SHOOT)));
-    } catch (NumberFormatException e) {
-      return FrozenBubble.POINT_TO_SHOOT;
+      startActivityForResult(intent, REQUEST_MUSIC_FOLDER);
+    } catch (ActivityNotFoundException e) {
+      Toast.makeText(this, R.string.opt_no_picker, Toast.LENGTH_LONG).show();
     }
+    return true;
   }
 
-  /**
-   * A see-through popup with one bubble button per item, plus Back.
-   * Tapping an item changes its setting and relabels the buttons; the
-   * popup stays open until Back.
-   */
-  private void showMenu(final Item... items) {
-    final AlertDialog dialog = new AlertDialog.Builder(this).create();
-    final Button[] buttons = new Button[items.length + 1];
-    final Runnable refresh = () -> {
-      for (int i = 0; i < items.length; i++)
-        buttons[i].setText(items[i].label());
-    };
-    for (int i = 0; i < items.length; i++) {
-      final Item item = items[i];
-      buttons[i] = MenuButtons.create(this, item.label(), v -> {
-        click();
-        item.onTap();
-        applyPrefs();
-        refresh.run();
-      });
-      widen(buttons[i]);
-    }
-    buttons[items.length] = MenuButtons.create(this, R.string.back, v -> {
-      click();
-      dialog.dismiss();
-    });
-    widen(buttons[items.length]);
-    dialog.setView(scrolling(MenuButtons.column(this, buttons)));
-    dialog.setOnDismissListener(d -> {
-      if (refreshOpenMenu == refresh)
-        refreshOpenMenu = null;
-      if (openMenu == dialog)
-        openMenu = null;
-      // Back to the main Options menu.
-      if (mainMenu != null)
-        mainMenu.setVisibility(View.VISIBLE);
-    });
-    refreshOpenMenu = refresh;
-    openMenu        = dialog;
-    // Only the category popup shows, not the main menu behind it.
-    if (mainMenu != null)
-      mainMenu.setVisibility(View.INVISIBLE);
-    showSeeThrough(dialog);
-  }
-
-  /** Lets a popup scroll when it is taller than the screen (landscape). */
-  private View scrolling(View content) {
-    ScrollView scroll = new ScrollView(this);
-    scroll.addView(content);
-    return scroll;
-  }
-
-  /** Setting buttons show a value too, so they are wider. */
-  private static void widen(Button button) {
-    button.setWidth((int) (button.getTextSize() * 13));
-  }
-
-  private static void showSeeThrough(AlertDialog dialog) {
-    if (dialog.getWindow() != null) {
-      // No dialog box: the buttons float over the menu.
-      dialog.getWindow().setBackgroundDrawable(
-          new ColorDrawable(Color.TRANSPARENT));
-    }
-    dialog.show();
-  }
-
-  private Item toggle(final int nameId, final String key,
-                      final boolean def, final Runnable after) {
-    return new Item() {
-      public String label() {
-        return getString(nameId) + ": " +
-            getString(sp.getBoolean(key, def) ? R.string.opt_on
-                                              : R.string.opt_off);
-      }
-      public void onTap() {
-        sp.edit().putBoolean(key, !sp.getBoolean(key, def)).apply();
-        if (after != null)
-          after.run();
-      }
-    };
-  }
-
-  private Item action(final int nameId, final Runnable run) {
-    return new Item() {
-      public String label() { return getString(nameId); }
-      public void   onTap() { run.run(); }
-    };
-  }
-
-  /** A button showing a number setting, which opens a slider popup. */
-  private Item slider(final int nameId, final String key, final int min,
-                      final int max, final int def, final int valueFmtId,
-                      final int helpId) {
-    return new Item() {
-      public String label() {
-        return getString(nameId) + ": " +
-            getString(valueFmtId, clamp(sp.getInt(key, def), min, max));
-      }
-      public void onTap() {
-        showSlider(nameId, key, min, max, def, valueFmtId, helpId);
-      }
-    };
-  }
-
-  private static int clamp(int v, int min, int max) {
-    return Math.max(min, Math.min(max, v));
-  }
-
-  /**
-   * A see-through popup with a slider, its value above it, and Done /
-   * Cancel.  The setting only changes on Done.
-   */
-  private void showSlider(int nameId, final String key, final int min,
-                          int max, int def, final int valueFmtId,
-                          int helpId) {
-    final AlertDialog dialog = new AlertDialog.Builder(this).create();
-    final float dp = getResources().getDisplayMetrics().density;
-    final String name = getString(nameId);
-
-    final TextView value = new TextView(this);
-    styleText(value, 22);
-    final TextView help = new TextView(this);
-    styleText(help, 14);
-    help.setTypeface(null, Typeface.NORMAL);
-    help.setText(helpId);
-
-    // A thick, high-contrast slider (res/layout/options_slider.xml).
-    final SeekBar bar = (SeekBar) getLayoutInflater()
-        .inflate(R.layout.options_slider, null);
-    bar.setMax(max - min);
-    bar.setProgress(clamp(sp.getInt(key, def), min, max) - min);
-    value.setText(name + ": " + getString(valueFmtId, bar.getProgress() + min));
-    bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-      public void onProgressChanged(SeekBar s, int progress, boolean user) {
-        value.setText(name + ": " + getString(valueFmtId, progress + min));
-      }
-      public void onStartTrackingTouch(SeekBar s) {}
-      public void onStopTrackingTouch(SeekBar s) {}
-    });
-
-    Button done = MenuButtons.create(this, R.string.opt_done, v -> {
-      click();
-      sp.edit().putInt(key, bar.getProgress() + min).apply();
-      applyPrefs();
-      dialog.dismiss();
-    });
-    Button cancel = MenuButtons.create(this, R.string.cancel, v -> {
-      click();
-      dialog.dismiss();
-    });
-
-    LinearLayout box = new LinearLayout(this);
-    box.setOrientation(LinearLayout.VERTICAL);
-    box.setGravity(Gravity.CENTER_HORIZONTAL);
-    int pad = (int) (12 * dp);
-    box.setPadding(pad, pad, pad, 0);
-    box.addView(value);
-    LinearLayout.LayoutParams barParams = new LinearLayout.LayoutParams(
-        (int) (300 * dp), LinearLayout.LayoutParams.WRAP_CONTENT);
-    barParams.topMargin    = (int) (16 * dp);
-    barParams.bottomMargin = (int) (8 * dp);
-    box.addView(bar, barParams);
-    box.addView(help);
-    box.addView(MenuButtons.column(this, done, cancel));
-    dialog.setView(scrolling(box));
-    // Only the slider popup shows; its category popup comes back after.
-    final AlertDialog under = openMenu;
-    if (under != null)
-      under.hide();
-    dialog.setOnDismissListener(d -> {
-      if ((under != null) && (openMenu == under)) {
-        if (refreshOpenMenu != null)
-          refreshOpenMenu.run();
-        under.show();
-      }
-    });
-    showSeeThrough(dialog);
-  }
-
-  /** White, bold, shadowed text, readable over the home screen art. */
-  private static void styleText(TextView text, int sizeDp) {
-    text.setTextSize(TypedValue.COMPLEX_UNIT_DIP, sizeDp);
-    text.setTypeface(null, Typeface.BOLD);
-    text.setTextColor(Color.WHITE);
-    text.setShadowLayer(6, 2, 2, Color.BLACK);
-    text.setGravity(Gravity.CENTER_HORIZONTAL);
+  @Override
+  public void placePopup(Window window) {
+    // Centered on the screen.
   }
 
   /*
@@ -541,15 +286,6 @@ public class PreferencesActivity extends Activity {
   /*
    * Custom music folder.
    */
-
-  private void pickMusicFolder() {
-    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-    try {
-      startActivityForResult(intent, REQUEST_MUSIC_FOLDER);
-    } catch (ActivityNotFoundException e) {
-      Toast.makeText(this, R.string.opt_no_picker, Toast.LENGTH_LONG).show();
-    }
-  }
 
   @Override
   protected void onActivityResult(int requestCode, int resultCode,
@@ -573,7 +309,6 @@ public class PreferencesActivity extends Activity {
       // Picker cancelled and there is still no folder: switch back off.
       sp.edit().putBoolean(CustomMusic.KEY_ON, false).apply();
     }
-    if (refreshOpenMenu != null)
-      refreshOpenMenu.run();
+    menus.refresh();
   }
 }

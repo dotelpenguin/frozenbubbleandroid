@@ -327,7 +327,7 @@ public class FrozenBubble extends Activity
 
     switch (itemId) {
       case MENU_NEW_GAME:
-        newGameDialog();
+        newGameDialog(null);
         return true;
       case MENU_COLORBLIND_ON:
         prefs.colorMode = GAME_COLORBLIND;
@@ -643,60 +643,83 @@ public class FrozenBubble extends Activity
     finish();
   }
 
+  /** The shared bubble-style option popups, created on first use. */
+  private com.efortin.frozenbubble.OptionsMenus optionsMenus = null;
+
+  private com.efortin.frozenbubble.OptionsMenus getOptionsMenus() {
+    if (optionsMenus == null) {
+      optionsMenus = new com.efortin.frozenbubble.OptionsMenus(this,
+          new com.efortin.frozenbubble.OptionsMenus.Host() {
+        @Override
+        public void click() {
+          // The in-game menus are silent, like the Exit menu.
+        }
+        @Override
+        public void onSettingChanged(String key) {
+          // The settings are already applied; update what is on screen.
+          if (com.efortin.frozenbubble.OptionsMenus.KEY_FULLSCREEN.equals(key)) {
+            setFullscreen();
+          }
+          else if (com.efortin.frozenbubble.OptionsMenus.KEY_TARGETING.equals(key)) {
+            setTargetModeOrientation();
+          }
+          else if (com.efortin.frozenbubble.OptionsMenus.KEY_MUSIC.equals(key)) {
+            if (myModPlayer != null) {
+              myModPlayer.setMusicOn(getMusicOn());
+            }
+          }
+        }
+        @Override
+        public boolean pickMusicFolder() {
+          // The folder is chosen in Options on the home screen.
+          return false;
+        }
+        @Override
+        public void placePopup(android.view.Window window) {
+          positionBelowPausePanel(window);
+        }
+      });
+    }
+    return optionsMenus;
+  }
+
   /**
-   * The in-game menu as a list, with each on/off option showing the
-   * choice that would change the current setting (as the old options
-   * menu did).
+   * The in-game Options menu, in the home screen menu style: the same
+   * option categories as the Options screen, plus the game actions.
+   * Back returns to the Exit menu.
    */
   private void gameOptionsDialog() {
-    final java.util.List<Integer> ids    = new java.util.ArrayList<Integer>();
-    final java.util.List<String>  labels = new java.util.ArrayList<String>();
-    int[][] entries = {
-      (prefs.colorMode == GAME_NORMAL) ?
-          new int[] { MENU_COLORBLIND_ON,  R.string.menu_colorblind_on  } :
-          new int[] { MENU_COLORBLIND_OFF, R.string.menu_colorblind_off },
-      prefs.fullscreen ?
-          new int[] { MENU_FULLSCREEN_OFF, R.string.menu_fullscreen_off } :
-          new int[] { MENU_FULLSCREEN_ON,  R.string.menu_fullscreen_on  },
-      { MENU_SOUND_OPTIONS, R.string.menu_sound_options },
-      { MENU_TARGET_MODE,   R.string.menu_target_mode   },
-      prefs.dontRushMe ?
-          new int[] { MENU_RUSH_ME,      R.string.menu_rush_me      } :
-          new int[] { MENU_DONT_RUSH_ME, R.string.menu_dont_rush_me },
-      { MENU_ABOUT,    R.string.menu_about    },
-      { MENU_NEW_GAME, R.string.menu_new_game },
-      { MENU_EDITOR,   R.string.menu_editor   },
+    final com.efortin.frozenbubble.OptionsMenus menus = getOptionsMenus();
+    final AlertDialog menu = new AlertDialog.Builder(FrozenBubble.this).create();
+    // Category popups hide this menu, and show it again when closed.
+    final Runnable backHere = () -> menu.show();
+    Button[] buttons = {
+      com.efortin.frozenbubble.MenuButtons.create(this, R.string.opt_music_sound,
+          v -> { menu.hide(); menus.showMusicMenu(backHere); }),
+      com.efortin.frozenbubble.MenuButtons.create(this, R.string.opt_display,
+          v -> { menu.hide(); menus.showDisplayMenu(backHere); }),
+      com.efortin.frozenbubble.MenuButtons.create(this, R.string.opt_controls,
+          v -> { menu.hide(); menus.showControlsMenu(backHere); }),
+      com.efortin.frozenbubble.MenuButtons.create(this, R.string.opt_gameplay,
+          v -> { menu.hide(); menus.showGameplayMenu(backHere); }),
+      com.efortin.frozenbubble.MenuButtons.create(this, R.string.menu_new_game,
+          v -> { menu.hide(); newGameDialog(backHere); }),
+      com.efortin.frozenbubble.MenuButtons.create(this, R.string.menu_about,
+          v -> { menu.dismiss(); handleMenuAction(MENU_ABOUT); }),
+      com.efortin.frozenbubble.MenuButtons.create(this, R.string.menu_editor,
+          v -> { menu.dismiss(); handleMenuAction(MENU_EDITOR); }),
+      com.efortin.frozenbubble.MenuButtons.create(this, R.string.back,
+          v -> { menu.dismiss(); exitGameDialog(); }),
     };
-    for (int[] entry : entries) {
-      ids.add(entry[0]);
-      labels.add(getString(entry[1]));
+    for (Button b : buttons) {
+      com.efortin.frozenbubble.OptionsMenus.widen(b);
     }
-    new AlertDialog.Builder(FrozenBubble.this)
-    .setTitle(R.string.game_options)
-    .setItems(labels.toArray(new String[0]),
-              new DialogInterface.OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        handleMenuAction(ids.get(which));
-      }
-    })
-    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int id) {
-        if (mGameThread != null) {
-          mGameThread.resumeGame();
-        }
-      }
-    })
-    .setOnCancelListener(new DialogInterface.OnCancelListener() {
-      @Override
-      public void onCancel(DialogInterface dialog) {
-        if (mGameThread != null) {
-          mGameThread.resumeGame();
-        }
-      }
-    })
-    .show();
+    android.widget.ScrollView scroll = new android.widget.ScrollView(this);
+    scroll.addView(com.efortin.frozenbubble.MenuButtons.column(this, buttons));
+    menu.setView(scroll);
+    // The system Back gesture or a tap outside also goes back.
+    menu.setOnCancelListener(d -> exitGameDialog());
+    menus.showSeeThrough(menu);
   }
 
   /**
@@ -901,30 +924,38 @@ public class FrozenBubble extends Activity
     playMusic(false);
   }
 
-  private void newGameDialog() {
-    AlertDialog.Builder builder = new AlertDialog.Builder(FrozenBubble.this);
-    /*
-     * Set the dialog title.
-     */
-    builder.setTitle(R.string.menu_new_game)
-    /*
-     * Set the action buttons.
-     */
-    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int id) {
-        // User clicked OK.  Start a new game.
-        newGame();
-      }
-    })
-    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int id) {
-        // User clicked Cancel.  Do nothing.
-      }
+  /**
+   * Ask before starting a new game, in the home screen menu style.
+   * @param onCancel - run if the player decides not to (back to the
+   * menu that asked).
+   */
+  private void newGameDialog(final Runnable onCancel) {
+    final AlertDialog dialog = new AlertDialog.Builder(FrozenBubble.this).create();
+    final boolean[] starting = { false };
+    android.widget.TextView question = new android.widget.TextView(this);
+    com.efortin.frozenbubble.OptionsMenus.styleText(question, 22);
+    question.setText(R.string.opt_new_game_q);
+    Button yes = com.efortin.frozenbubble.MenuButtons.create(this,
+        R.string.menu_new_game, v -> {
+      starting[0] = true;
+      dialog.dismiss();
+      newGame();
     });
-    builder.create();
-    builder.show();
+    Button no = com.efortin.frozenbubble.MenuButtons.create(this,
+        R.string.cancel, v -> dialog.dismiss());
+    com.efortin.frozenbubble.OptionsMenus.widen(yes);
+    com.efortin.frozenbubble.OptionsMenus.widen(no);
+    android.widget.LinearLayout box = new android.widget.LinearLayout(this);
+    box.setOrientation(android.widget.LinearLayout.VERTICAL);
+    box.setGravity(android.view.Gravity.CENTER_HORIZONTAL);
+    box.addView(question);
+    box.addView(com.efortin.frozenbubble.MenuButtons.column(this, yes, no));
+    dialog.setView(box);
+    dialog.setOnDismissListener(d -> {
+      if (!starting[0] && (onCancel != null))
+        onCancel.run();
+    });
+    getOptionsMenus().showSeeThrough(dialog);
   }
 
   private void newGameView(Bundle map) {
