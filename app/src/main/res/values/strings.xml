@@ -138,6 +138,11 @@
   <string name="save_title_arcade_colors">Arcade – %1$d colors</string>
   <string name="save_title_2p">2 Player</string>
   <string name="save_title_2p_cpu">2 Player – vs CPU</string>
+  <string name="level_select_title">Choose Level</string>
+  <string name="level_select_page">Page %1$d of %2$d</string>
+  <string name="level_select_play">Play Level %1$d</string>
+  <string name="level_select_best">Level %1$d – best: %2$d shots, %3$s</string>
+  <string name="level_select_not_done">Level %1$d – not completed yet</string>
   <string name="fx_pop">Pop Sparkles</string>
   <string name="fx_fade">Falling Fade</string>
   <string name="fx_wobble">Impact Wobble</string>

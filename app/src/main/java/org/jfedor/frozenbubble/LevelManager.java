@@ -178,6 +178,11 @@ public class LevelManager {
    * @return <code>true</code> if it is a sensible size, holds at least
    * one level, and every level has at least one bubble.
    */
+  /** The number of levels in the level set. */
+  public int getNumLevels() {
+    return levelList.size();
+  }
+
   public static boolean isValidLevelData(byte[] levels) {
     if ((levels == null) || (levels.length == 0) ||
         (levels.length > MAX_LEVEL_DATA)) {

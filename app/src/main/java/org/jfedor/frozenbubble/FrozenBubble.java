@@ -241,6 +241,56 @@ public class FrozenBubble extends Activity
         .commit();
   }
 
+  /*
+   * Puzzle progress: "level" is the level New Game starts at, and
+   * "levelMax" the highest level reached (for level select; replaying an
+   * earlier level never lowers it).  Both are 0-based.
+   */
+  private final static String LEVEL_KEY     = "level";
+  private final static String LEVEL_MAX_KEY = "levelMax";
+
+  /** The Puzzle level New Game starts at (0-based). */
+  public static int getPuzzleLevel(Context context) {
+    return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        .getInt(LEVEL_KEY, 0);
+  }
+
+  /**
+   * The highest Puzzle level reached (0-based).  Older versions didn't
+   * record it, so it is also worked out from the current level and the
+   * levels with a best score (completed).
+   * @param bestCompleted - the highest completed level, or -1.
+   */
+  public static int getHighestPuzzleLevel(Context context, int bestCompleted) {
+    SharedPreferences sp =
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+    return Math.max(Math.max(sp.getInt(LEVEL_MAX_KEY, 0),
+                             sp.getInt(LEVEL_KEY, 0)),
+                    bestCompleted + 1);
+  }
+
+  /**
+   * Choose the Puzzle level to play next: New Game starts there, and the
+   * saved Puzzle game (if any) is replaced.
+   */
+  public static void selectPuzzleLevel(Context context, int level) {
+    SharedPreferences sp =
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+    sp.edit()
+      .putInt(LEVEL_KEY, level)
+      .putInt(LEVEL_MAX_KEY, Math.max(level, sp.getInt(LEVEL_MAX_KEY, 0)))
+      .commit();
+    context.deleteFile(saveFileName(SAVED_MODE_PUZZLE));
+    SharedPreferences dp = PreferenceManager.getDefaultSharedPreferences(context);
+    Editor editor = dp.edit()
+        .putBoolean("playerSave", hasAnySavedGame(context))
+        .remove(SAVED_DETAIL + SAVED_MODE_PUZZLE);
+    if (SAVED_MODE_PUZZLE.equals(dp.getString(SAVED_GAME_MODE, null))) {
+      editor.remove(SAVED_GAME_MODE);
+    }
+    editor.commit();
+  }
+
   /** The save slot of the game being played. */
   private static String currentSlot() {
     return (numPlayers > 1) ? SAVED_MODE_2PLAYER :
@@ -1438,7 +1488,10 @@ public class FrozenBubble extends Activity
        */
       Intent i = getIntent();
       if ((null == i) || !activityCustomStarted) {
-        editor.putInt("level", mGameThread.getCurrentLevelIndex());
+        int level = mGameThread.getCurrentLevelIndex();
+        editor.putInt(LEVEL_KEY, level);
+        editor.putInt(LEVEL_MAX_KEY, Math.max(level,
+                                              sp.getInt(LEVEL_MAX_KEY, 0)));
       }
       else {
         /*

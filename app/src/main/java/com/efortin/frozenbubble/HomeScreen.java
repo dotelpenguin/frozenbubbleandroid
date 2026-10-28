@@ -353,12 +353,9 @@ public class HomeScreen extends Activity {
         buttonSelPage1 = BTN2_ID;
         mSoundManager.playSound("stick", R.raw.stick);
         /*
-         * Start a Puzzle game, or ask whether to continue the saved one.
+         * Puzzle menu: Continue (with a save), New Game, Choose Level.
          */
-        startOrAskToContinue(FrozenBubble.SAVED_MODE_PUZZLE, () ->
-            startFrozenBubble(VirtualInput.PLAYER1, 1,
-                              FrozenBubble.HUMAN,
-                              FrozenBubble.LOCALE_LOCAL, false, false));
+        showPuzzleMenu();
       }
     });
     start1pGameButton.setOnTouchListener(new Button.OnTouchListener(){
@@ -494,21 +491,79 @@ public class HomeScreen extends Activity {
       startNew.run();
       return;
     }
+    showModeMenu(FrozenBubble.savedGameTitle(this, slot),
+        R.string.save_continue, (Runnable) () -> startSavedGame(slot),
+        R.string.save_new_game, startNew);
+  }
+
+  /**
+   * The Puzzle menu: Continue (when a Puzzle game is saved), New Game
+   * (at the current level) and Choose Level.
+   */
+  private void showPuzzleMenu() {
+    final String slot = FrozenBubble.SAVED_MODE_PUZZLE;
+    final Runnable newGame = () ->
+        startFrozenBubble(VirtualInput.PLAYER1, 1, FrozenBubble.HUMAN,
+                          FrozenBubble.LOCALE_LOCAL, false, false);
+    final Runnable chooseLevel = this::showLevelSelect;
+    if (FrozenBubble.hasSavedGame(this, slot)) {
+      showModeMenu(FrozenBubble.savedGameTitle(this, slot),
+          R.string.save_continue,      (Runnable) () -> startSavedGame(slot),
+          R.string.save_new_game,      newGame,
+          R.string.level_select_title, chooseLevel);
+    }
+    else {
+      showModeMenu(getString(R.string.save_title_puzzle_level,
+                             FrozenBubble.getPuzzleLevel(this) + 1),
+          R.string.save_new_game,      newGame,
+          R.string.level_select_title, chooseLevel);
+    }
+  }
+
+  private void showLevelSelect() {
+    new LevelSelect(this, new LevelSelect.Host() {
+      @Override
+      public void click() {
+        mSoundManager.playSound("stick", R.raw.stick);
+      }
+      @Override
+      public void showPopup(AlertDialog dialog) {
+        showOverDimmedMenu(dialog);
+      }
+      @Override
+      public void play(int level) {
+        FrozenBubble.selectPuzzleLevel(HomeScreen.this, level);
+        startFrozenBubble(VirtualInput.PLAYER1, 1, FrozenBubble.HUMAN,
+                          FrozenBubble.LOCALE_LOCAL, false, false);
+      }
+      @Override
+      public void back() {
+        showPuzzleMenu();
+      }
+    }).show();
+  }
+
+  /**
+   * A mode popup: a title, then a button per (label, action) pair, then
+   * Back.
+   */
+  private void showModeMenu(String titleText, Object... labelsAndActions) {
     final AlertDialog dialog = new AlertDialog.Builder(HomeScreen.this).create();
     TextView title = new TextView(this);
     OptionsMenus.styleText(title, 22);
-    title.setText(FrozenBubble.savedGameTitle(this, slot));
-    Button cont = MenuButtons.create(this, R.string.save_continue, v -> {
-      dialog.dismiss();
-      mSoundManager.playSound("stick", R.raw.stick);
-      startSavedGame(slot);
-    });
-    Button fresh = MenuButtons.create(this, R.string.save_new_game, v -> {
-      dialog.dismiss();
-      mSoundManager.playSound("stick", R.raw.stick);
-      startNew.run();
-    });
-    Button back = MenuButtons.create(this, R.string.back, v -> {
+    title.setText(titleText);
+    int n = labelsAndActions.length / 2;
+    Button[] buttons = new Button[n + 1];
+    for (int i = 0; i < n; i++) {
+      final int      label  = (Integer)  labelsAndActions[2 * i];
+      final Runnable action = (Runnable) labelsAndActions[(2 * i) + 1];
+      buttons[i] = MenuButtons.create(this, label, v -> {
+        dialog.dismiss();
+        mSoundManager.playSound("stick", R.raw.stick);
+        action.run();
+      });
+    }
+    buttons[n] = MenuButtons.create(this, R.string.back, v -> {
       dialog.dismiss();
       mSoundManager.playSound("stick", R.raw.stick);
     });
@@ -516,7 +571,7 @@ public class HomeScreen extends Activity {
     box.setOrientation(LinearLayout.VERTICAL);
     box.setGravity(Gravity.CENTER_HORIZONTAL);
     box.addView(title);
-    box.addView(MenuButtons.column(this, cont, fresh, back));
+    box.addView(MenuButtons.column(this, buttons));
     dialog.setView(box);
     showOverDimmedMenu(dialog);
   }
@@ -528,6 +583,7 @@ public class HomeScreen extends Activity {
    */
   private static final int MENU_DIM_COLOR = 0xA6000000; // 65% black
   private View dimOverlay = null;
+  private int  openPopups = 0;
   private final java.util.List<View> hiddenForPopup =
       new java.util.ArrayList<View>();
 
@@ -541,8 +597,15 @@ public class HomeScreen extends Activity {
       // We dim the screen ourselves; don't let the window dim it twice.
       window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
     }
+    openPopups++;
     setMenuDimmed(true);
-    dialog.setOnDismissListener(d -> setMenuDimmed(false));
+    dialog.setOnDismissListener(d -> {
+      openPopups = Math.max(0, openPopups - 1);
+      // Another popup may have opened from this one: stay dimmed.
+      if (openPopups == 0) {
+        setMenuDimmed(false);
+      }
+    });
     dialog.show();
   }
 
@@ -551,6 +614,9 @@ public class HomeScreen extends Activity {
       return;
     }
     if (dimmed) {
+      if (!hiddenForPopup.isEmpty()) {
+        return; // Already dimmed.
+      }
       // Hide the menu buttons (not the background art).
       for (int i = 0; i < myLayout.getChildCount(); i++) {
         View child = myLayout.getChildAt(i);
