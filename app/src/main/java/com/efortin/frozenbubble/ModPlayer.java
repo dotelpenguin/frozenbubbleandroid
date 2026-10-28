@@ -67,6 +67,17 @@ public class ModPlayer {
    * phone call (#60).
    */
   private boolean musicOn = true;
+  /*
+   * The native player (libmodplug) holds one song for the whole app, so
+   * a second player, such as the credits, replaces the song of the
+   * screen underneath it, and unloads it when closed.  Each player
+   * remembers its own song, and reloads it when it resumes if another
+   * player has used the native player in the meantime.  Without this,
+   * the screen underneath replayed its last sound buffer in a loop.
+   */
+  private static ModPlayer sOwner = null;
+  private int songId  = 0;
+  private Uri songUri = null;
 
   public ModPlayer(Context context,
                    int songId,
@@ -85,6 +96,35 @@ public class ModPlayer {
         resPlayer.stopAndClose();
         resPlayer = null;
       }
+      synchronized(ModPlayer.class) {
+        if (sOwner == this)
+          sOwner = null;
+      }
+    }
+  }
+
+  /** Mark this player as the one whose song is in the native player. */
+  private void takeOwnership() {
+    synchronized(ModPlayer.class) {
+      sOwner = this;
+    }
+  }
+
+  /** Reload this player's song if another player replaced it. */
+  private void reloadIfReplaced() {
+    boolean replaced;
+    synchronized(ModPlayer.class) {
+      replaced = (sOwner != this);
+    }
+    if (!replaced || (resPlayer == null))
+      return;
+    if (songUri != null && resPlayer.loadModuleUri(songUri)) {
+      takeOwnership();
+    }
+    else if (songId != 0) {
+      songUri = null;
+      resPlayer.loadModuleResource(songId);
+      takeOwnership();
     }
   }
 
@@ -101,6 +141,9 @@ public class ModPlayer {
       resPlayer.pausePlay(true);
       // Load the current MOD into the player.
       resPlayer.loadModuleResource(songId);
+      this.songId  = songId;
+      this.songUri = null;
+      takeOwnership();
       if (startPlaying && musicOn)
         resPlayer.unPausePlay();
     }
@@ -117,6 +160,10 @@ public class ModPlayer {
     }
     resPlayer.pausePlay(true);
     boolean ok = resPlayer.loadModuleUri(songUri);
+    if (ok) {
+      this.songUri = songUri;
+      takeOwnership();
+    }
     if (ok && startPlaying && musicOn)
       resPlayer.unPausePlay();
     return ok;
@@ -142,6 +189,8 @@ public class ModPlayer {
     resPlayer = new MODResourcePlayer(context);
     // Load the MOD file.
     resPlayer.loadModuleResource(songId);
+    this.songId = songId;
+    takeOwnership();
     // Loop the song forever.
     resPlayer.setLoopCount(loopCount);
     // Turn the music on or off.
@@ -182,7 +231,9 @@ public class ModPlayer {
   }
 
   public void unPausePlay() {
-    if ((resPlayer != null) && musicOn)
+    if ((resPlayer != null) && musicOn) {
+      reloadIfReplaced();
       resPlayer.unPausePlay();
+    }
   }
 }

@@ -73,6 +73,12 @@ import com.peculiargames.andmodplug.PlayerThread;
 
 public class ScrollingCredits extends Activity implements Runnable {
   private boolean victoryScreenShown = false;
+  /**
+   * Intent extra: the credits were opened from the Options screen, so
+   * they return there when done instead of going back into a game.
+   */
+  public static final String EXTRA_FROM_OPTIONS = "from_options";
+
   private ScrollingTextView credits;
   private ModPlayer myModPlayer = null;
 
@@ -220,6 +226,10 @@ public class ScrollingCredits extends Activity implements Runnable {
      * destroy the current player.
      */
     cleanUp();
+    if (getIntent().getBooleanExtra(EXTRA_FROM_OPTIONS, false)) {
+      finish();
+      return;
+    }
     /*
      * Create an intent to launch the game activity.  Since it was
      * running in the background while this activity was running, it

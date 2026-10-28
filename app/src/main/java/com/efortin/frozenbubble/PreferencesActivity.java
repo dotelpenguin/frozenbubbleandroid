@@ -103,6 +103,7 @@ public class PreferencesActivity extends PreferenceActivity{
      collisionSlider  = (SeekBarPreference) findPreference("collision_option" );
      difficultySlider = (SeekBarPreference) findPreference("difficulty_option");
      setupCustomMusic();
+     setupCredits();
      addBackButton();
      SystemUi.apply(this, PreferenceManager.getDefaultSharedPreferences(this)
          .getBoolean("fullscreen_option", true));
@@ -138,6 +139,20 @@ public class PreferencesActivity extends PreferenceActivity{
   }
 
   private static final String KEY_FOLDER_PICK      = "custom_music_folder_pick";
+  private static final String KEY_CREDITS          = "credits_pick";
+
+  /**
+   * The "Credits" row plays the scrolling end-of-game credits, then
+   * returns here.
+   */
+  private void setupCredits() {
+    findPreference(KEY_CREDITS).setOnPreferenceClickListener(p -> {
+      Intent intent = new Intent(this, ScrollingCredits.class);
+      intent.putExtra(ScrollingCredits.EXTRA_FROM_OPTIONS, true);
+      startActivity(intent);
+      return true;
+    });
+  }
   private static final int    REQUEST_MUSIC_FOLDER = 2001;
 
   /**

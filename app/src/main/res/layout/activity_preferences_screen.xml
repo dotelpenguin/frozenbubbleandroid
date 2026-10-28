@@ -113,4 +113,12 @@
     android:title="Compressor Option" />
   </PreferenceCategory>
 
+  <PreferenceCategory
+    android:title="@string/about" >
+  <Preference
+    android:key="credits_pick"
+    android:summary="@string/credits_summary"
+    android:title="@string/credits" />
+  </PreferenceCategory>
+
 </PreferenceScreen>
