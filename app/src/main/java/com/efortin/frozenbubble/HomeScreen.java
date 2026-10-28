@@ -649,11 +649,9 @@ public class HomeScreen extends Activity {
         buttonSelPage2 = BTN5_ID;
         mSoundManager.playSound("stick", R.raw.stick);
         /*
-         * Process the button tap and start a 2 player game.
+         * Ask for the CPU skill, then start the 2 player game.
          */
-        startFrozenBubble(VirtualInput.PLAYER1, 2,
-                          FrozenBubble.CPU,
-                          FrozenBubble.LOCALE_LOCAL, false, false);
+        showCpuSkillMenu();
       }
     });
     startCPUGameButton.setOnTouchListener(new Button.OnTouchListener(){
@@ -882,6 +880,43 @@ public class HomeScreen extends Activity {
       myModPlayer.destroyMusicPlayer();
     }
     myModPlayer = null;
+  }
+
+  /**
+   * Easy / Normal / Hard / Expert / Cancel, as bubble-style menu buttons, shown
+   * when Player vs. CPU is chosen.  The choice is remembered and used by
+   * the CPU (including when a saved game is continued).
+   */
+  private void showCpuSkillMenu() {
+    final AlertDialog dialog = new AlertDialog.Builder(HomeScreen.this).create();
+    final int[] labels = { R.string.cpu_easy, R.string.cpu_normal,
+                           R.string.cpu_hard, R.string.cpu_expert };
+    final int[] skills = { org.gsanson.frozenbubble.Freile.SKILL_EASY,
+                           org.gsanson.frozenbubble.Freile.SKILL_NORMAL,
+                           org.gsanson.frozenbubble.Freile.SKILL_HARD,
+                           org.gsanson.frozenbubble.Freile.SKILL_EXPERT };
+    Button[] buttons = new Button[labels.length + 1];
+    for (int i = 0; i < labels.length; i++) {
+      final int skill = skills[i];
+      buttons[i] = MenuButtons.create(this, labels[i], v -> {
+        dialog.dismiss();
+        mSoundManager.playSound("stick", R.raw.stick);
+        ComputerAI.setSkill(HomeScreen.this, skill);
+        startFrozenBubble(VirtualInput.PLAYER1, 2,
+                          FrozenBubble.CPU,
+                          FrozenBubble.LOCALE_LOCAL, false, false);
+      });
+    }
+    buttons[labels.length] = MenuButtons.create(this, R.string.cancel,
+                                                v -> dialog.dismiss());
+    dialog.setView(MenuButtons.column(this, buttons));
+    if (dialog.getWindow() != null) {
+      // No dialog box: the buttons float over the menu.
+      dialog.getWindow().setBackgroundDrawable(
+          new android.graphics.drawable.ColorDrawable(
+              android.graphics.Color.TRANSPARENT));
+    }
+    dialog.show();
   }
 
   private static final int REQUEST_BLUETOOTH_CONNECT = 1001;

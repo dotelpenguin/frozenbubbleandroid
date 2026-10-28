@@ -73,6 +73,24 @@ public class Freile implements Opponent, Runnable {
   private static final int BONUS_SAME_COLOR           = 4;
   private static final int BONUS_DETACHED             = 6;
 
+  /*
+   * Skill levels (see ComputerAI).  Easy ignores bubbles a shot would
+   * drop, never swaps bubbles and aims a little off; Normal and Hard
+   * search the same way (Normal reacts more slowly, in ComputerAI).
+   * Expert is Hard with a correct swap check: the original reused the
+   * current bubble's cached scores when trying the next bubble, so it
+   * rarely saw a better swap.
+   */
+  public static final int SKILL_EASY   = 0;
+  public static final int SKILL_NORMAL = 1;
+  public static final int SKILL_HARD   = 2;
+  public static final int SKILL_EXPERT = 3;
+  /* Easy: maximum aim error either way, in radians (about 6 degrees). */
+  private static final double EASY_AIM_ERROR = 0.10;
+
+  private final int skill;
+  private final java.util.Random random = new java.util.Random();
+
   /* Default option values */
   private static final int[][] BACKGROUND_GRID = 
   {{0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -136,6 +154,11 @@ public class Freile implements Opponent, Runnable {
   private int[][] toCheck = {{0, 0}, {0, 0}, {0, 0}, {0, 0}};
 
   public Freile(BubbleSprite[][] grid) {
+    this(grid, SKILL_HARD);
+  }
+
+  public Freile(BubbleSprite[][] grid, int skill) {
+    this.skill        = skill;
     this.grid         = grid;
     gridOptions       = new int[LevelManager.NUM_COLS][LevelManager.NUM_ROWS];
     outGrid           = new int[LevelManager.NUM_COLS][LevelManager.NUM_ROWS];
@@ -173,10 +196,10 @@ public class Freile implements Opponent, Runnable {
                 option += BONUS_POTENTIAL_SAME_COLOR;
                 break;
               case CollisionHelper.STATE_DETACHED:
-                option += BONUS_DETACHED;
+                option += (skill == SKILL_EASY) ? 0 : BONUS_DETACHED;
                 break;
               case CollisionHelper.STATE_POTENTIAL_DETACHED:
-                option += BONUS_POTENTIAL_DETACHED;
+                option += (skill == SKILL_EASY) ? 0 : BONUS_POTENTIAL_DETACHED;
                 break;
             }
           }
@@ -345,7 +368,15 @@ public class Freile implements Opponent, Runnable {
             bestLocation[1] = position[1];
           }
         }
-        if (color != nextColor) {
+        if ((color != nextColor) && (skill != SKILL_EASY)) {
+          if (skill == SKILL_EXPERT) {
+            // Score every landing spot afresh for the next bubble.
+            for (int i = 0; i < LevelManager.NUM_COLS; i++) {
+              for (int j = 0; j < LevelManager.NUM_ROWS; j++) {
+                gridOptions[i][j] = 0;
+              }
+            }
+          }
           for (double direction = 0.;
                direction < MAX_LAUNCHER;
                direction += LAUNCHER_ROTATION) {
@@ -373,6 +404,19 @@ public class Freile implements Opponent, Runnable {
               bestLocation[1] = position[1];
               colorSwap       = true;
             }
+          }
+        }
+        /*
+         * Easy: aim a little off the best shot (both while turning the
+         * launcher and when firing).
+         */
+        if (skill == SKILL_EASY) {
+          bestDirection += (random.nextDouble() * 2. - 1.) * EASY_AIM_ERROR;
+          if (bestDirection < MIN_LAUNCHER) {
+            bestDirection = MIN_LAUNCHER;
+          }
+          else if (bestDirection > MAX_LAUNCHER) {
+            bestDirection = MAX_LAUNCHER;
           }
         }
       }

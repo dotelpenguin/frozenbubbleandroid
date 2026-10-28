@@ -2894,10 +2894,11 @@ public class GameView extends SurfaceView
         mOpponent = null;
       }
       if ((numPlayers > 1) && mRemoteInput.isCPU) {
+        int skill = ComputerAI.getSkill(mContext);
         if (mRemoteInput.playerID == VirtualInput.PLAYER2)
-          mOpponent = new ComputerAI(mFrozenGame2, mRemoteInput);
+          mOpponent = new ComputerAI(mFrozenGame2, mRemoteInput, skill);
         else
-          mOpponent = new ComputerAI(mFrozenGame1, mRemoteInput);
+          mOpponent = new ComputerAI(mFrozenGame1, mRemoteInput, skill);
         mOpponent.start();
       }
     }

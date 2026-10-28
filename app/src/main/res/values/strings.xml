@@ -5,6 +5,10 @@
   <string name="game_options">Game Options</string>
   <string name="options">Options</string>
   <string name="back">Back</string>
+  <string name="cpu_easy">Easy</string>
+  <string name="cpu_normal">Normal</string>
+  <string name="cpu_hard">Hard</string>
+  <string name="cpu_expert">Expert</string>
   <string name="install_editor">Redirecting you to the Market to download the Frozen Bubble Level Editor…</string>
   <string name="market_missing">Cannot find Android Market! Please install Frozen Bubble Level Editor manually.</string>
   <string name="menu_bluetooth_device">Bluetooth Device</string>

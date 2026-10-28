@@ -66,6 +66,40 @@ public class ComputerAI extends Thread implements Freile.OpponentListener {
   private FrozenGame myFrozenGame;
   private Freile cpuOpponent;
   private VirtualInput myPlayerInput;
+  /* CPU skill level: Freile.SKILL_EASY, SKILL_NORMAL or SKILL_HARD. */
+  private final int skill;
+  private final java.util.Random random = new java.util.Random();
+
+  /** Options key holding the CPU skill chosen for Player vs. CPU. */
+  public static final String KEY_CPU_SKILL = "cpu_skill_option";
+
+  /** @return the CPU skill last chosen (Normal by default). */
+  public static int getSkill(android.content.Context context) {
+    return android.preference.PreferenceManager
+        .getDefaultSharedPreferences(context)
+        .getInt(KEY_CPU_SKILL, Freile.SKILL_NORMAL);
+  }
+
+  public static void setSkill(android.content.Context context, int skill) {
+    android.preference.PreferenceManager.getDefaultSharedPreferences(context)
+        .edit().putInt(KEY_CPU_SKILL, skill).apply();
+  }
+
+  /**
+   * Pause before the CPU starts lining up each shot, in milliseconds.
+   * Easy reacts slowly and unevenly, Normal a little slower than Hard;
+   * Hard and Expert react immediately.
+   */
+  private long reactionDelay() {
+    switch (skill) {
+      case Freile.SKILL_EASY:
+        return 900 + random.nextInt(700);
+      case Freile.SKILL_NORMAL:
+        return 300 + random.nextInt(250);
+      default:
+        return 0;
+    }
+  }
 
   /**
    * Game AI thread class constructor.
@@ -73,9 +107,14 @@ public class ComputerAI extends Thread implements Freile.OpponentListener {
    * this player.
    */
   public ComputerAI(FrozenGame gameRef, VirtualInput inputRef) {
+    this(gameRef, inputRef, Freile.SKILL_HARD);
+  }
+
+  public ComputerAI(FrozenGame gameRef, VirtualInput inputRef, int skill) {
+    this.skill = skill;
     myFrozenGame = gameRef;
     myPlayerInput = inputRef;
-    cpuOpponent = new Freile(myFrozenGame.getGrid());
+    cpuOpponent = new Freile(myFrozenGame.getGrid(), skill);
     cpuOpponent.setOpponentListener(this);
     action = 0;
     running = true;
@@ -181,6 +220,10 @@ public class ComputerAI extends Thread implements Freile.OpponentListener {
            * Initialize a timeout interval to force a bubble launch if
            * the CPU opponent takes too long to compute an action.
            */
+          long delay = reactionDelay();
+          if (running && (delay > 0)) {
+            sleep(delay);
+          }
           long timeout = System.currentTimeMillis() + 10000;
 
           /*
