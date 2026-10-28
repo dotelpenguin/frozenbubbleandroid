@@ -951,6 +951,11 @@ public class FrozenBubble extends Activity
     mGameThread = mGameView.getThread();
     mGameThread.restoreState(map);
     mGameView.requestFocus();
+    /*
+     * A restored game may be a different mode (e.g. Continue 2 Player),
+     * so apply its screen orientation now that it is known.
+     */
+    setTargetModeOrientation();
   }
 
   @Override
@@ -1344,36 +1349,46 @@ public class FrozenBubble extends Activity
   }
 
   private void setTargetModeOrientation() {
-    if ((prefs.targetMode == ROTATE_TO_SHOOT) &&
-        AccelerometerManager.isSupported(getApplicationContext())) {
+    boolean rotateToShoot = (prefs.targetMode == ROTATE_TO_SHOOT) &&
+        AccelerometerManager.isSupported(getApplicationContext());
+    /*
+     * The accelerometer is only needed for "rotate to shoot" aiming.
+     */
+    if (rotateToShoot) {
       AccelerometerManager.startListening(getApplicationContext(),this);
-      /*
-       * In API level 9, SCREEN_ORIENTATION_SENSOR_PORTRAIT and
-       * SCREEN_ORIENTATION_SENSOR_LANDSCAPE were added to ActivityInfo.
-       * This application is developed in API level 4, but using these
-       * values will be supported correctly in devices with a native API
-       * level that implements this functionality.
-       *
-       * These modes allow the device to display the screen in either
-       * normal or reverse portrait mode based on the device orientation
-       * reported by the accelerometer hardware.
-       *
-       * For multiplayer games using rotate to shoot, set the
-       * orientation to sensor landscape, and for single player games,
-       * set the orientation to sensor portrait.
-       */
-      if (numPlayers > 1) {
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-      }
-      else {
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
-      }
     }
-
-    if ((prefs.targetMode != ROTATE_TO_SHOOT) &&
-        AccelerometerManager.isListening()) {
+    else if (AccelerometerManager.isListening()) {
       AccelerometerManager.stopListening();
-      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+    }
+    /*
+     * Screen orientation:
+     * - Local 2 player games (vs CPU or two players on one phone) always
+     *   run in landscape (either way up), even if the system rotation is
+     *   locked to portrait, so both playfields are shown side by side.
+     * - Network 2 player games (Wi-Fi, Bluetooth) follow the system
+     *   setting: in portrait each phone shows just its own playfield.
+     *   With "rotate to shoot" they use landscape, as before.
+     * - 1 player "rotate to shoot" stays in portrait (either way up),
+     *   since tilting the phone aims.
+     * - Otherwise follow the system rotation setting.  (This used to be
+     *   "sensor", which ignored the user's rotation lock.)
+     * This only affects the game screen: the menus follow the system
+     * setting, so leaving a 2 player game returns to portrait when
+     * rotation is locked.
+     */
+    int orientation;
+    if ((numPlayers > 1) &&
+        ((gameLocale == LOCALE_LOCAL) || rotateToShoot)) {
+      orientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE;
+    }
+    else if ((numPlayers <= 1) && rotateToShoot) {
+      orientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT;
+    }
+    else {
+      orientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+    }
+    if (getRequestedOrientation() != orientation) {
+      setRequestedOrientation(orientation);
     }
   }
 

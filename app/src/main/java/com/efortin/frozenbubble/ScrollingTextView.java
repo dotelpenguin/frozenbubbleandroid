@@ -114,7 +114,7 @@ public class ScrollingTextView extends TextView implements Runnable {
     else {
       y_distance -= scroller.getCurrY() - y_offset;
       y_offset = scroller.getCurrY();
-      duration = (int) (Math.abs(y_distance) * speed);
+      duration = scrollDuration(y_distance);
       /**
        * Revert any animation currently in progress.
        */
@@ -127,6 +127,20 @@ public class ScrollingTextView extends TextView implements Runnable {
      * Invalidate the view to request a redraw.
      */
     invalidate();
+  }
+
+  /**
+   * Scroll time for a distance in pixels.  The speed is milliseconds per
+   * density-independent pixel, so text scrolls at the same pace on every
+   * screen (it used to be per physical pixel, which made the credits
+   * about three times slower on modern high-density phones).
+   */
+  private int scrollDuration(int pixels) {
+    float density = getResources().getDisplayMetrics().density;
+    if (density <= 0f) {
+      density = 1f;
+    }
+    return (int) ((Math.abs(pixels) / density) * speed);
   }
 
   private void setup(Context context) {
@@ -148,7 +162,7 @@ public class ScrollingTextView extends TextView implements Runnable {
       y_distance = -(visibleHeight + ((getLineCount() + 1) * lineHeight));
     }
 
-    duration = (int) (Math.abs(y_distance) * speed);
+    duration = scrollDuration(y_distance);
     scroller.startScroll(0, y_offset, 0, y_distance, duration);
 
     if (scrollCount != 0) {

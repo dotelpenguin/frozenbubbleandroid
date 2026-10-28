@@ -584,6 +584,14 @@ public class GameView extends SurfaceView
     public static final int    NEXT_SONG_1P_Y             = 0;
     public static final int    NEXT_SONG_TOUCH_X          = 178;
     public static final int    NEXT_SONG_TOUCH_Y          = 15;
+    /*
+     * 2 player: drawn over the local player's penguin badge (player 1
+     * top left, player 2 top right of the 2 player background).  Touch
+     * coordinates in 2 player games are background coordinates + 160.
+     */
+    public static final int    NEXT_SONG_2P_P1_X          = 0;
+    public static final int    NEXT_SONG_2P_P2_X          = 606;
+    public static final int    NEXT_SONG_2P_Y             = 0;
     public static final int    PAUSE_TOUCH_X              = 183;
     public static final int    PAUSE_TOUCH_Y              = 460;
     public static final double TRACKBALL_COEFFICIENT      = 5;
@@ -752,8 +760,7 @@ public class GameView extends SurfaceView
           res, art(R.drawable.back_button_hd, R.drawable.back_button), options);
       mNextSongButtonOrig = BitmapFactory.decodeResource(
           res, art(R.drawable.next_song_button_hd, R.drawable.next_song_button), options);
-      mBackgroundOrig = BitmapFactory.decodeResource(
-        res, R.drawable.background2, options);
+      mBackgroundOrig = loadArt(res, R.drawable.background2_hd, R.drawable.background2, options);
       mBubblesOrig = new Bitmap[8];
       mBubblesOrig[0] = BitmapFactory.decodeResource(
         res, art(R.drawable.bubble_1_hd, R.drawable.bubble_1), options);
@@ -1510,13 +1517,15 @@ public class GameView extends SurfaceView
       }
 
       /*
-       * Check for a next song button press (single player, while
-       * playing).  Shots fire on touch down, so returning here also
-       * keeps this tap from launching a bubble.
+       * Check for a next song button press (while playing).  Shots fire
+       * on touch down, so returning here also keeps this tap from
+       * launching a bubble.
        */
-      if ((numPlayers == 1) && (mMode == stateEnum.RUNNING) &&
+      int nextSongTouchX = (numPlayers > 1) ? (nextSong2pX() + 16 + 160)
+                                            : NEXT_SONG_TOUCH_X;
+      if ((mMode == stateEnum.RUNNING) &&
           (event.getAction() == MotionEvent.ACTION_DOWN) &&
-          (Math.abs(x - NEXT_SONG_TOUCH_X) <= TOUCH_BUTTON_THRESHOLD) &&
+          (Math.abs(x - nextSongTouchX) <= TOUCH_BUTTON_THRESHOLD) &&
           (Math.abs(y - NEXT_SONG_TOUCH_Y) <= TOUCH_BUTTON_THRESHOLD)) {
         if (mGameListener != null) {
           mGameListener.onGameEvent(eventEnum.NEXT_SONG);
@@ -1773,6 +1782,8 @@ public class GameView extends SurfaceView
                        mDisplayScale, mDisplayDX, mDisplayDY);
       if (numPlayers > 1) {
         Sprite.drawImage(mBackButton, BACK_2P_X, BACK_2P_Y, c,
+                         mDisplayScale, mDisplayDX, mDisplayDY);
+        Sprite.drawImage(mNextSongButton, nextSong2pX(), NEXT_SONG_2P_Y, c,
                          mDisplayScale, mDisplayDX, mDisplayDY);
       }
       else {
@@ -2775,6 +2786,15 @@ public class GameView extends SurfaceView
 
     public int gameToViewY(double gameY) {
       return (int) (mDisplayDY + (gameY * mDisplayScale));
+    }
+
+    /**
+     * @return where the next song button goes in a 2 player game: over
+     * the local player's penguin badge.
+     */
+    private int nextSong2pX() {
+      return (mLocalInput.playerID == VirtualInput.PLAYER2) ?
+          NEXT_SONG_2P_P2_X : NEXT_SONG_2P_P1_X;
     }
 
     /** Start of a logic step for each game's sprites. */

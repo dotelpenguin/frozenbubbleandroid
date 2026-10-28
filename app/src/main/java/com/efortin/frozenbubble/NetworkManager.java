@@ -1225,10 +1225,16 @@ public class NetworkManager extends Thread
   {
     BluetoothAdapter myAdapter = BluetoothAdapter.getDefaultAdapter();
     if (myAdapter != null) {
-      if (!myAdapter.isEnabled()) {
-        myAdapter.enable();
+      /*
+       * Apps can no longer switch Bluetooth on themselves (Android 13+
+       * ignores enable(), and Android 12+ throws without the Bluetooth
+       * permission); the home screen asks the player to turn it on.
+       */
+      try {
+        return myAdapter.isEnabled();
+      } catch (SecurityException se) {
+        return false;
       }
-      return true;
     }
     return false;
   }

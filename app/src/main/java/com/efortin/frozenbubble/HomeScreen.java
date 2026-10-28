@@ -621,7 +621,13 @@ public class HomeScreen extends Activity {
     startBluetoothGameButton.setId(BTN6_ID);
     startBluetoothGameButton.setFocusable(true);
     startBluetoothGameButton.setFocusableInTouchMode(true);
-    if (BluetoothManager.getPairedDevices() == null) {
+    /*
+     * Only disable Bluetooth play on phones with no Bluetooth.  (The
+     * paired device list can't be read until the permission is granted
+     * on Android 12+, and the permission is requested from this button,
+     * so checking the list here disabled the button for good.)
+     */
+    if (android.bluetooth.BluetoothAdapter.getDefaultAdapter() == null) {
       startBluetoothGameButton.setEnabled(false);
     }
     myParams = new LayoutParams(LayoutParams.WRAP_CONTENT,
@@ -879,6 +885,7 @@ public class HomeScreen extends Activity {
   }
 
   private static final int REQUEST_BLUETOOTH_CONNECT = 1001;
+  private static final int REQUEST_ENABLE_BLUETOOTH  = 1002;
 
   /**
    * Android 12+ requires the BLUETOOTH_CONNECT runtime permission before
@@ -893,7 +900,68 @@ public class HomeScreen extends Activity {
           REQUEST_BLUETOOTH_CONNECT);
       return;
     }
+    enableBluetoothThenShowDevices();
+  }
+
+  /**
+   * If Bluetooth is switched off, ask the player to turn it on (apps
+   * can no longer switch it on themselves), then list paired devices.
+   */
+  private void enableBluetoothThenShowDevices() {
+    android.bluetooth.BluetoothAdapter adapter =
+        android.bluetooth.BluetoothAdapter.getDefaultAdapter();
+    boolean enabled;
+    try {
+      enabled = (adapter != null) && adapter.isEnabled();
+    } catch (SecurityException se) {
+      enabled = false;
+    }
+    if ((adapter != null) && !enabled) {
+      try {
+        startActivityForResult(
+            new Intent(android.bluetooth.BluetoothAdapter.ACTION_REQUEST_ENABLE),
+            REQUEST_ENABLE_BLUETOOTH);
+        return;
+      } catch (RuntimeException e) {
+        // No system prompt available: fall through to the device list.
+      }
+    }
     displayBluetoothDevicesList();
+  }
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode,
+                                  Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if ((requestCode == REQUEST_ENABLE_BLUETOOTH) && (resultCode == RESULT_OK)) {
+      displayBluetoothDevicesList();
+    }
+  }
+
+  /**
+   * Explain that the other phone must be paired first, with a shortcut
+   * to Android's Bluetooth settings.
+   */
+  private void showNoPairedDevices() {
+    new AlertDialog.Builder(HomeScreen.this)
+    .setIcon(R.drawable.bluetooth)
+    .setTitle(R.string.menu_bluetooth_device)
+    .setMessage("No paired devices found. Pair the other phone in " +
+                "Android's Bluetooth settings first, then try again.")
+    .setPositiveButton("Bluetooth Settings",
+                       new DialogInterface.OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        try {
+          startActivity(new Intent(
+              android.provider.Settings.ACTION_BLUETOOTH_SETTINGS));
+        } catch (RuntimeException e) {
+          // No settings screen available.
+        }
+      }
+    })
+    .setNegativeButton(R.string.cancel, null)
+    .show();
   }
 
   @Override
@@ -904,7 +972,7 @@ public class HomeScreen extends Activity {
     if (requestCode == REQUEST_BLUETOOTH_CONNECT) {
       if ((grantResults.length > 0) &&
           (grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED)) {
-        displayBluetoothDevicesList();
+        enableBluetoothThenShowDevices();
       }
       else {
         android.widget.Toast.makeText(this,
@@ -925,10 +993,18 @@ public class HomeScreen extends Activity {
                                  android.R.layout.select_dialog_singlechoice);
 
     BluetoothDevice[] devices = BluetoothManager.getPairedDevices();
-    if (devices != null) {
-      for (int index = 0; index < devices.length; index++) {
-        arrayAdapter.add(devices[index].getName());
+    if ((devices == null) || (devices.length == 0)) {
+      showNoPairedDevices();
+      return;
+    }
+    for (int index = 0; index < devices.length; index++) {
+      String name;
+      try {
+        name = devices[index].getName();
+      } catch (SecurityException se) {
+        name = null;
       }
+      arrayAdapter.add((name != null) ? name : devices[index].getAddress());
     }
 
     builderSingle.setNegativeButton(R.string.cancel,
@@ -1150,11 +1226,12 @@ public class HomeScreen extends Activity {
 
   @Override
   public void onResume() {
-    super.onPause();
+    super.onResume();
     if (myModPlayer != null) {
       restoreGamePrefs();
-      if (myPreferences.musicOn)
-        myModPlayer.unPausePlay();
+      // Apply a change made in Options, then resume (if music is on).
+      myModPlayer.setMusicOn(myPreferences.musicOn);
+      myModPlayer.unPausePlay();
     }
   }
 
@@ -1194,6 +1271,13 @@ public class HomeScreen extends Activity {
     SharedPreferences sp =
         PreferenceManager.getDefaultSharedPreferences(this);
     myPreferences = PreferencesActivity.getDefaultPrefs(sp);
+    /*
+     * Also apply them app-wide right away.  Sound effects check the
+     * app-wide settings, which otherwise keep their defaults (sound on)
+     * until a game or the Options screen loads them, so the first
+     * button tap after launch played a sound even with sound off (#61).
+     */
+    FrozenBubble.setPrefs(myPreferences);
   }
 
   private void selectInitialButton(int initialButton) {

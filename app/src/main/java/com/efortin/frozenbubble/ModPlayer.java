@@ -60,6 +60,13 @@ import com.peculiargames.andmodplug.PlayerThread.PlayerListener;
 
 public class ModPlayer {
   private MODResourcePlayer resPlayer = null;
+  /*
+   * When music is off the player is kept paused, not just muted: a muted
+   * song kept playing in the background (wasting battery), and could be
+   * heard briefly when audio came back after an interruption such as a
+   * phone call (#60).
+   */
+  private boolean musicOn = true;
 
   public ModPlayer(Context context,
                    int songId,
@@ -94,7 +101,7 @@ public class ModPlayer {
       resPlayer.pausePlay(true);
       // Load the current MOD into the player.
       resPlayer.loadModuleResource(songId);
-      if (startPlaying)
+      if (startPlaying && musicOn)
         resPlayer.unPausePlay();
     }
   }
@@ -110,7 +117,7 @@ public class ModPlayer {
     }
     resPlayer.pausePlay(true);
     boolean ok = resPlayer.loadModuleUri(songUri);
-    if (ok && startPlaying)
+    if (ok && startPlaying && musicOn)
       resPlayer.unPausePlay();
     return ok;
   }
@@ -139,8 +146,8 @@ public class ModPlayer {
     resPlayer.setLoopCount(loopCount);
     // Turn the music on or off.
     setMusicOn(musicOn);
-    // Start the music thread.
-    resPlayer.startPaused(startPaused);
+    // Start the music thread (paused when music is off).
+    resPlayer.startPaused(startPaused || !musicOn);
     resPlayer.start();
   }
 
@@ -149,12 +156,22 @@ public class ModPlayer {
       resPlayer.pausePlay(false);
   }
 
+  /**
+   * Turn music on or off.  Turning it off pauses the song; turning it
+   * on lets it play again the next time the player is unpaused (when
+   * the game or menu resumes), so it never starts behind a pause screen.
+   */
   public void setMusicOn(boolean musicOn) {
+    this.musicOn = musicOn;
+    if (resPlayer == null) {
+      return;
+    }
     if (musicOn) {
       resPlayer.setVolume(255);
     }
     else {
       resPlayer.setVolume(0);
+      resPlayer.pausePlay(true);
     }
   }
 
@@ -165,7 +182,7 @@ public class ModPlayer {
   }
 
   public void unPausePlay() {
-    if (resPlayer != null)
+    if ((resPlayer != null) && musicOn)
       resPlayer.unPausePlay();
   }
 }

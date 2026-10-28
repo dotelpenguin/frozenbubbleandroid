@@ -85,9 +85,13 @@ public class ScrollingCredits extends Activity implements Runnable {
     credits = (ScrollingTextView)findViewById(R.id.scrolling_credits);
     // Configure the credits text presentation.
     credits.setScrollRepeatLimit(0);
-    credits.setSpeed(50.0f);
+    // 20 ms per dp: the full credits take about 80 seconds (#64).
+    credits.setSpeed(20.0f);
     credits.setScrollDirection(ScrollingTextView.SCROLL_UP);
     credits.setTextSize(18.0f);
+    // White on the black background; the default text colour on current
+    // Android versions is dark, which made the credits unreadable.
+    credits.setTextColor(Color.WHITE);
     // Start the credits music.
     myModPlayer = new ModPlayer(this,
                                 R.raw.worldofpeace,
