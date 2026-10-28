@@ -167,10 +167,51 @@ public class LevelManager {
       }
     }
 
-    if (currentLevel >= levelList.size()) {
+    if ((currentLevel < 0) || (currentLevel >= levelList.size())) {
       currentLevel = 0;
     }
   }
+
+  /**
+   * Check level data sent by another app (a level editor) before using
+   * it.
+   * @return <code>true</code> if it is a sensible size, holds at least
+   * one level, and every level has at least one bubble.
+   */
+  public static boolean isValidLevelData(byte[] levels) {
+    if ((levels == null) || (levels.length == 0) ||
+        (levels.length > MAX_LEVEL_DATA)) {
+      return false;
+    }
+    try {
+      Vector<byte[][]> list = new LevelManager(levels, 0).levelList;
+      if (list.isEmpty()) {
+        return false;
+      }
+      for (byte[][] level : list) {
+        if (!hasBubble(level)) {
+          return false;
+        }
+      }
+      return true;
+    } catch (RuntimeException e) {
+      return false;
+    }
+  }
+
+  private static boolean hasBubble(byte[][] level) {
+    for (byte[] column : level) {
+      for (byte cell : column) {
+        if (cell >= 0) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /** Largest level pack accepted from another app (about 7000 levels). */
+  private static final int MAX_LEVEL_DATA = 1024 * 1024;
 
   private byte[][] getLevel(String data) {
     byte[][] temp = new byte[NUM_COLS][NUM_ROWS - 1];

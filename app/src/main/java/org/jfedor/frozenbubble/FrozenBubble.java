@@ -239,8 +239,12 @@ public class FrozenBubble extends Activity
         startDefaultGame(intent, savedInstanceState);
       else
         startCustomGame(intent);
-    } catch (NullPointerException npe) {
-      startDefaultGame(intent, savedInstanceState);
+    } catch (RuntimeException e) {
+      /*
+       * This screen can be opened by other apps (level editors), so a
+       * malformed request must not crash it: start a normal game.
+       */
+      startDefaultGame(null, savedInstanceState);
     }
   }
 
@@ -299,7 +303,11 @@ public class FrozenBubble extends Activity
     if (null != intent) {
       if (EDITORACTION.equals(intent.getAction())) {
         cleanUpGameView();
-        startCustomGame(intent);
+        try {
+          startCustomGame(intent);
+        } catch (RuntimeException e) {
+          startDefaultGame(null, null);
+        }
       }
       else if ((numPlayers != 0) && intent.hasExtra("numPlayers")) {
         int newNumPlayers = intent.getIntExtra("numPlayers", 1);
@@ -1512,6 +1520,15 @@ public class FrozenBubble extends Activity
    * activity, which contains the custom level data.
    */
   private void startCustomGame(Intent intent) {
+    /*
+     * The levels come from another app (a level editor): check them, and
+     * play the normal game instead if they are missing or malformed.
+     */
+    byte[] levels = intent.getByteArrayExtra("levels");
+    if (!LevelManager.isValidLevelData(levels)) {
+      startDefaultGame(null, null);
+      return;
+    }
     activityCustomStarted = true;
     numPlayers = 1;
     initGameOptions();
@@ -1524,9 +1541,8 @@ public class FrozenBubble extends Activity
     int startingLevelIntent = intent.getIntExtra("startingLevel", -2);
     startingLevel =
       (startingLevelIntent == -2) ? startingLevel : startingLevelIntent;
-    mGameView = new GameView(this,
-                             intent.getExtras().getByteArray("levels"),
-                             startingLevel);
+    // An out-of-range level starts at the first one (LevelManager).
+    mGameView = new GameView(this, levels, startingLevel);
     setContentView(mGameView);
     mGameView.setGameListener(this);
     mGameThread = mGameView.getThread();
@@ -1577,6 +1593,21 @@ public class FrozenBubble extends Activity
       if (intent.hasExtra("playerSave"))
         playerSave = intent.getBooleanExtra("playerSave", false);
     }
+    /*
+     * This screen can be opened by other apps, so only accept values the
+     * game supports.
+     */
+    if ((numPlayers != 1) && (numPlayers != 2))
+      numPlayers = 1;
+    if ((myPlayerId != VirtualInput.PLAYER1) &&
+        (myPlayerId != VirtualInput.PLAYER2))
+      myPlayerId = VirtualInput.PLAYER1;
+    if ((opponentId != CPU) && (opponentId != HUMAN))
+      opponentId = CPU;
+    if ((numPlayers == 1) ||
+        ((gameLocale != LOCALE_LOCAL) && (gameLocale != LOCALE_WIFI) &&
+         (gameLocale != LOCALE_BLUETOOTH)))
+      gameLocale = LOCALE_LOCAL;
 
     initGameOptions();
 

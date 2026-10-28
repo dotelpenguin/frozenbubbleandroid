@@ -42,9 +42,9 @@ public final class CustomMusic {
 
   /** Tracker formats libmodplug can play. */
   private static final Set<String> EXTENSIONS = new HashSet<String>(
-      Arrays.asList("mod", "xm", "it", "s3m", "669", "amf", "ams", "dbm",
-                    "dmf", "dsm", "far", "j2b", "mdl", "med", "mt2", "mtm",
-                    "okt", "psm", "ptm", "stm", "ult", "umx"));
+      // Only the formats the music engine is built with (see
+      // cpp/CMakeLists.txt): the rarer readers were left out for safety.
+      Arrays.asList("mod", "xm", "it", "s3m"));
 
   private static final int MAX_DEPTH = 3;    // subfolder levels scanned
   private static final int MAX_SONGS = 1000;

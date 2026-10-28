@@ -9,7 +9,11 @@
 #include <libmodplug/stdafx.h>
 #include <libmodplug/sndfile.h>
 
+// Packed-module support (MMCMP/PP20) is left out of the Android build
+// (MODPLUG_NO_MMCMP): it is rarely needed and parses untrusted data.
+#ifndef MODPLUG_NO_MMCMP
 #define MMCMP_SUPPORT
+#endif
 
 #ifdef MMCMP_SUPPORT
 extern BOOL MMCMP_Unpack(LPCBYTE *ppMemFile, LPDWORD pdwMemLength);
@@ -138,8 +142,8 @@ BOOL CSoundFile::Create(LPCBYTE lpStream, DWORD dwMemLength)
 		if ((!ReadXM(lpStream, dwMemLength))
 		 && (!ReadS3M(lpStream, dwMemLength))
 		 && (!ReadIT(lpStream, dwMemLength))
-		 && (!ReadWav(lpStream, dwMemLength))
 #ifndef MODPLUG_BASIC_SUPPORT
+		 && (!ReadWav(lpStream, dwMemLength))
 /* Sequencer File Format Support */
 		 && (!ReadABC(lpStream, dwMemLength))
 		 && (!ReadMID(lpStream, dwMemLength))
