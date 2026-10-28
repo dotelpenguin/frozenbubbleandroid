@@ -86,15 +86,18 @@ public class BluetoothManager {
    * BluetoothManager class member variables.
    */
   private boolean                      isServer;
-  private boolean                      paused;
-  private boolean                      running;
+  /* Read by the Bluetooth threads, written by the game: volatile. */
+  private volatile boolean             paused;
+  private volatile boolean             running;
   private int                          deviceIndex;
   private ArrayList<byte[]>            txList         = null;
   private ArrayList<BluetoothListener> listenerList   = null;
   private BluetoothAdapter             myAdapter      = null;
-  private BluetoothSocket              mySocket       = null;
-  private InputStream                  myInputStream  = null;
-  private OutputStream                 myOutputStream = null;
+  private volatile BluetoothSocket     mySocket       = null;
+  /* While hosting: waiting for the other phone; closed to stop waiting. */
+  private volatile BluetoothServerSocket myServer     = null;
+  private volatile InputStream         myInputStream  = null;
+  private volatile OutputStream        myOutputStream = null;
   private String                       remoteName     = null;
   private Thread                       myRxThread     = null;
   private Thread                       myTxThread     = null;
@@ -155,22 +158,23 @@ public class BluetoothManager {
       listenerList.clear();
     }
     listenerList = null;
-    stopThread();
-    if (mySocket != null) {
-      try {
-        mySocket.close();
-      } catch (IOException e) {
-        // Auto-generated catch block
-        e.printStackTrace();
-      }
-    }
+    running = false;
+    paused  = false;
+    /*
+     * Close the connection before stopping the threads.  A thread waiting
+     * for the other phone (to join, to answer, or to send data) only
+     * wakes up when its connection is closed; stopping the threads first
+     * used to wait for them forever and froze the app, e.g. when backing
+     * out of hosting a game before the other phone joined.
+     */
+    closeServer();
+    closeQuietly(mySocket);
     mySocket = null;
     if (myInputStream != null) {
       try {
         myInputStream.close();
       } catch (IOException e) {
-        // Auto-generated catch block
-        e.printStackTrace();
+        // Already closed.
       }
     }
     myInputStream = null;
@@ -178,75 +182,116 @@ public class BluetoothManager {
       try {
         myOutputStream.close();
       } catch (IOException e) {
-        // Auto-generated catch block
-        e.printStackTrace();
+        // Already closed.
       }
     }
     myOutputStream = null;
+    stopThread();
     if (txList != null) {
       txList.clear();
     }
     txList = null;
   }
 
+  private void closeServer() {
+    BluetoothServerSocket server = myServer;
+    myServer = null;
+    if (server != null) {
+      try {
+        server.close();
+      } catch (IOException e) {
+        // Already closed.
+      }
+    }
+  }
+
+  private static void closeQuietly(BluetoothSocket socket) {
+    if (socket != null) {
+      try {
+        socket.close();
+      } catch (IOException e) {
+        // Already closed.
+      }
+    }
+  }
+
   /**
-   * Configure the Bluetooth socket settings.
+   * Stop any Bluetooth device search before connecting (it slows the
+   * connection down).  On Android 12+ that needs the "Bluetooth scan"
+   * permission, which this game doesn't ask for since it never searches
+   * itself; without it Android throws an error, which used to crash the
+   * game as a Bluetooth game started.  So only try, and carry on.
    */
+  private void cancelDiscovery() {
+    try {
+      myAdapter.cancelDiscovery();
+    } catch (RuntimeException e) {
+      // No permission (Android 12+) or Bluetooth off: nothing to cancel.
+    }
+  }
+
+  /** Wait a moment before trying to connect again. */
+  private void pauseBeforeRetry() {
+    if (running) {
+      try {
+        Thread.sleep(RETRY_MS);
+      } catch (InterruptedException e) {
+        // Stopping.
+      }
+    }
+  }
+
+  private static final long RETRY_MS = 500;
+
   private void configureBluetoothSocket() {
+    BluetoothSocket socket = null;
     mySocket  = null;
     myAdapter = BluetoothAdapter.getDefaultAdapter();
 
-    if (myAdapter != null) {
+    if (myAdapter == null) {
+      pauseBeforeRetry();
+      return;
+    }
+    try {
       if (isServer) {
-        try {
-          BluetoothServerSocket myServer =
-              myAdapter.listenUsingInsecureRfcommWithServiceRecord(getLocalName(),
-                                                                   SPP_UUID);
-          myAdapter.cancelDiscovery();
-          mySocket   = myServer.accept();
-          myServer .close();
-          remoteName = mySocket.getRemoteDevice().getName();
-        } catch (IOException e) {
-          // Auto-generated catch block
-          e.printStackTrace();
-          mySocket = null;
-        } catch (NullPointerException e) {
-          e.printStackTrace();
-          mySocket = null;
-        }
+        myServer = myAdapter.listenUsingInsecureRfcommWithServiceRecord(
+            getLocalName(), SPP_UUID);
+        cancelDiscovery();
+        /*
+         * Wait for the other phone to join.  cleanUp() closes the server
+         * socket to stop waiting.
+         */
+        socket = myServer.accept();
+        remoteName = socket.getRemoteDevice().getName();
       }
       else {
         BluetoothDevice device = getPairedDevice(deviceIndex);
+        if (device == null) {
+          // The chosen phone is no longer paired.
+          pauseBeforeRetry();
+          return;
+        }
         remoteName = device.getName();
-        try {
-          mySocket = device.createInsecureRfcommSocketToServiceRecord(SPP_UUID);
-          myAdapter.cancelDiscovery();
-          mySocket .connect();
-        } catch (IOException e) {
-          // Auto-generated catch block
-          e.printStackTrace();
-          mySocket = null;
-        } catch (NullPointerException e) {
-          e.printStackTrace();
-          mySocket = null;
-        }
+        socket = device.createInsecureRfcommSocketToServiceRecord(SPP_UUID);
+        // Visible to cleanUp(), so leaving the game can stop connect().
+        mySocket = socket;
+        cancelDiscovery();
+        socket.connect();
       }
-
-      if (mySocket != null) {
-        try {
-          myInputStream  = mySocket.getInputStream();
-          myOutputStream = mySocket.getOutputStream();
-        } catch (IOException e) {
-          // Auto-generated catch block
-          e.printStackTrace();
-          try {
-            mySocket.close();
-          } catch (IOException ioe) {
-            ioe.printStackTrace();
-          }
-          mySocket = null;
-        }
+      if (!running) {
+        throw new IOException("stopped");
       }
+      myInputStream  = socket.getInputStream();
+      myOutputStream = socket.getOutputStream();
+      mySocket       = socket;
+    } catch (IOException | RuntimeException e) {
+      // Not connected (or stopping): RuntimeException covers a missing
+      // permission or Bluetooth being switched off.
+      closeQuietly(socket);
+      mySocket = null;
+      pauseBeforeRetry();
+    } finally {
+      closeServer();
     }
   }
 
@@ -443,8 +488,13 @@ public class BluetoothManager {
      */
     private void receiveDatagram() {
       if (!paused && running) try {
-        if (myInputStream != null) {
-          myInputStream.read(rxBuffer, 0, rxBuffer.length);
+        InputStream in = myInputStream;
+        if (in != null) {
+          if (in.read(rxBuffer, 0, rxBuffer.length) < 0) {
+            // The other phone closed the connection.
+            pauseBeforeRetry();
+            return;
+          }
           byte[] buffer  = rxBuffer.clone();
           int    length  = rxBuffer.length;
   
@@ -464,7 +514,8 @@ public class BluetoothManager {
          * Receive timeout.  This is expected behavior.
          */
       } catch (IOException ioe) {
-        ioe.printStackTrace();
+        // Connection lost: don't spin on the error.
+        pauseBeforeRetry();
       }
     }
 
@@ -523,10 +574,25 @@ public class BluetoothManager {
              */
           }
   
-          if (!paused && running) {
-            sendDatagram();
+          if (!paused && running && !sendDatagram()) {
+            idle();
           }
         }
+        else {
+          idle();
+        }
+      }
+    }
+
+    /*
+     * Nothing to send: wait a few milliseconds instead of looping flat
+     * out (which kept a processor core busy for the whole game).
+     */
+    private void idle() {
+      try {
+        Thread.sleep(TX_IDLE_MS);
+      } catch (InterruptedException ie) {
+        // Woken up (unpaused or stopping).
       }
     }
 
@@ -534,7 +600,8 @@ public class BluetoothManager {
      * Extract the next buffer from the FIFO transmit list and send it
      * as a Bluetooth OutputStream message.
      */
-    private void sendDatagram() {
+    /** @return <code>true</code> if something was sent. */
+    private boolean sendDatagram() {
       if (!paused && running && (txList != null) && txList.size() > 0) try {
         byte[] bytes;
         synchronized(txList) {
@@ -547,12 +614,14 @@ public class BluetoothManager {
           synchronized(txList) {
             txList.remove(0);
           }
+          return true;
         }
       } catch (NullPointerException npe) {
         npe.printStackTrace();
       } catch (IOException ioe) {
         ioe.printStackTrace();
       }
+      return false;
     }
   }
 
@@ -579,39 +648,27 @@ public class BluetoothManager {
       }
     }
     /*
-     * Close and join() the Bluetooth thread.
+     * Wait for the threads to finish, but never for long: this runs on
+     * the screen thread, and Android closes an app that stops responding.
+     * The connections are already closed, so they end quickly.
      */
-    boolean retry = true;
-    while (retry && (myRxThread != null)) {
+    joinQuietly(myRxThread);
+    joinQuietly(myTxThread);
+  }
+
+  private static final long JOIN_MS    = 1000;
+  private static final long TX_IDLE_MS = 5;
+
+  private static void joinQuietly(Thread thread) {
+    if ((thread != null) && (thread != Thread.currentThread())) {
       try {
-        myRxThread.join();
-        retry = false;
+        thread.join(JOIN_MS);
       } catch (InterruptedException e) {
-        /*
-         * Keep trying to close the Bluetooth thread.
-         */
-      }
-    }
-    retry = true;
-    while (retry && (myTxThread != null)) {
-      try {
-        myTxThread.join();
-        retry = false;
-      } catch (InterruptedException e) {
-        /*
-         * Keep trying to close the Bluetooth thread.
-         */
+        Thread.currentThread().interrupt();
       }
     }
   }
 
-  /**
-   * Send the desired byte buffer as a UDP datagram packet.
-   * @param buffer - the byte buffer to transmit.
-   * @return <code>true</code> if the buffer was successfully added to
-   * the outgoing datagram transmit list, <code>false</code> if the the
-   * buffer was unable to be added to the transmit list.
-   */
   public boolean transmit(byte[] buffer) {
     if ((mySocket != null) && (myTxThread != null) && running) {
       synchronized(txList) {
