@@ -602,7 +602,8 @@ public class GameView extends SurfaceView
     public static final double ATS_TOUCH_FIRE_Y_THRESHOLD = 350;
 
     private boolean mImagesReady = false;
-    private boolean mRun         = false;
+    // Read by the game thread, written by the UI thread.
+    private volatile boolean mRun = false;
     private boolean mShowNetwork = false;
     private boolean mShowScores  = false;
     private boolean mSurfaceOK   = false;
@@ -2716,6 +2717,24 @@ public class GameView extends SurfaceView
       mRun = b;
     }
 
+    /**
+     * Stop the game loop and wait briefly for it to finish its current
+     * frame, so nothing is drawn with the bitmaps cleanUp() releases.
+     * Must not be called from the game thread itself.
+     */
+    public void stopAndWait() {
+      mRun = false;
+      if (Thread.currentThread() == this) {
+        return;
+      }
+      interrupt();
+      try {
+        join(1000);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
+    }
+
     public void setState(stateEnum newMode) {
       synchronized(mSurfaceHolder) {
         /*
@@ -3334,6 +3353,13 @@ public class GameView extends SurfaceView
       mOpponent.stopThread();
     mOpponent = null;
 
+    /*
+     * Stop the game thread first.  It used to be stopped only when the
+     * player chose Exit, so when Android closed the game screen any other
+     * way (dark mode or language change, split screen, low memory), the
+     * old thread kept looping in the background for good.
+     */
+    mGameThread.stopAndWait();
     mGameThread.cleanUp();
   }
 

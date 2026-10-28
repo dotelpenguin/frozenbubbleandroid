@@ -159,10 +159,14 @@ public class PlayerThread extends Thread {
                                                 0.5f, 0.625f, 0.75f, 1.0f};
 
   /*
-   * Object for lock on ReadData call (to prevent UI thread messing
-   * with player thread's GetSoundData() calls).
+   * Lock for every call into libmodplug.  The native library holds one
+   * song for the whole app, shared by every player (the menu music, the
+   * game music, the credits music), so the lock must be shared too: a
+   * per-player lock let one player unload or replace the song while
+   * another player's thread was reading sound data from it, which could
+   * crash in native code.
    */
-  private Object sRDlock;
+  private static final Object sRDlock = new Object();
 
   /*
    * Private audio playback control flags.
@@ -310,15 +314,13 @@ public class PlayerThread extends Thread {
     playerStarted = false;
 
     /*
-     * Get lock object for synchronizing access to GetSoundData() call.
+     * Try to get the audio track.  This also sets the native player's
+     * sample rate, so it is done under the shared native lock.
      */
-    sRDlock = new Object();
-
-    /*
-     * Try to get the audio track.
-     */
-    if (!getAndroidAudioTrack(desiredRate)) {
-      return;
+    synchronized(sRDlock) {
+      if (!getAndroidAudioTrack(desiredRate)) {
+        return;
+      }
     }
   }
 
@@ -342,7 +344,6 @@ public class PlayerThread extends Thread {
 
   private void cleanUp() {
     mModname = null;
-    sRDlock  = null;
     /*
      * Release the audio track resources.
      */
@@ -358,8 +359,11 @@ public class PlayerThread extends Thread {
    * deallocate any resources.
    */
   public void closeLibModPlug() {
-    ModPlug_JUnload();
-    ModPlug_CloseDown();
+    synchronized(sRDlock) {
+      mLoadOk = false;
+      ModPlug_JUnload();
+      ModPlug_CloseDown();
+    }
   }
 
   /**
@@ -475,13 +479,19 @@ public class PlayerThread extends Thread {
    * @param modData - A byte[] array containing the MOD file data.
    */
   public void loadModuleData(byte[] modData) {
-    unLoadMod();
-
     /*
-     * Load the module file (data) into libmodplug and initialize module
-     * information variables.
+     * Unload the old song and load the new one in one step, so no other
+     * player's thread reads from the native song in between.
      */
-    loadModuleInfo(modData);
+    synchronized(sRDlock) {
+      unLoadMod();
+
+      /*
+       * Load the module file (data) into libmodplug and initialize
+       * module information variables.
+       */
+      loadModuleInfo(modData);
+    }
 
     /*
      * Re-init this flag so that an event will be passed to the
@@ -499,14 +509,16 @@ public class PlayerThread extends Thread {
    * and number of tracks, track playback location, etc.).
    */
   private void loadModuleInfo(byte[] modData) {
-    mLoadOk = ModPlug_JLoad(modData, modData.length);
+    synchronized(sRDlock) {
+      mLoadOk = ModPlug_JLoad(modData, modData.length);
 
-    if (mLoadOk) {
-      mModname        = ModPlug_JGetName();
-      mNumChannels    = ModPlug_JNumChannels();
-      posWas          = 0;
-      songFinished    = false;
-      songFinishedWas = false;
+      if (mLoadOk) {
+        mModname        = ModPlug_JGetName();
+        mNumChannels    = ModPlug_JNumChannels();
+        posWas          = 0;
+        songFinished    = false;
+        songFinishedWas = false;
+      }
     }
   }
 

@@ -32,7 +32,7 @@ public final class MenuButtons {
     button.setTypeface(null, Typeface.BOLD);
     button.setHorizontalFadingEdgeEnabled(true);
     button.setFadingEdgeLength(5);
-    button.setShadowLayer(5, 5, 5, R.color.black);
+    button.setShadowLayer(5, 5, 5, android.graphics.Color.BLACK);
   }
 
   /** A home-screen-style menu button. */
