@@ -391,7 +391,6 @@ public class FrozenBubble extends Activity
     menu.add(0, MENU_RUSH_ME,        0, R.string.menu_rush_me);
     menu.add(0, MENU_ABOUT,          0, R.string.menu_about);
     menu.add(0, MENU_NEW_GAME,       0, R.string.menu_new_game);
-    menu.add(0, MENU_EDITOR,         0, R.string.menu_editor);
     return true;
   }
 
@@ -504,7 +503,7 @@ public class FrozenBubble extends Activity
         prefsUpdated = true;
         break;
       case MENU_EDITOR:
-        startEditor();
+        // The level editor apps are gone; nothing to open.
         return true;
     }
 
@@ -851,8 +850,6 @@ public class FrozenBubble extends Activity
           v -> { menu.hide(); newGameDialog(backHere); }),
       com.efortin.frozenbubble.MenuButtons.create(this, R.string.menu_about,
           v -> { menu.dismiss(); handleMenuAction(MENU_ABOUT); }),
-      com.efortin.frozenbubble.MenuButtons.create(this, R.string.menu_editor,
-          v -> { menu.dismiss(); handleMenuAction(MENU_EDITOR); }),
       com.efortin.frozenbubble.MenuButtons.create(this, R.string.back,
           v -> { menu.dismiss(); exitGameDialog(); }),
     };
@@ -1778,51 +1775,6 @@ public class FrozenBubble extends Activity
 
     setFullscreen();
     playMusic(false);
-  }
-
-  /**
-   * Starts editor / market with editor's download.
-   */
-  private void startEditor() {
-    Intent i = new Intent();
-    /*
-     * First try to run the plus version of the level editor.
-     */
-    i.setClassName("sk.halmi.fbeditplus", 
-                   "sk.halmi.fbeditplus.EditorActivity");
-    try {
-      startActivity(i);
-      finish();
-    } catch (ActivityNotFoundException e) {
-      /*
-       * If not found, try to run the normal version.
-       */
-      i.setClassName("sk.halmi.fbedit", 
-                     "sk.halmi.fbedit.EditorActivity");
-      try {
-        startActivity(i);
-        finish();
-      } catch (ActivityNotFoundException ex) {
-        /*
-         * If the user doesn't have the Frozen Bubble Level Editor, take
-         * him to the application market.
-         */
-        try {
-          Toast.makeText(FrozenBubble.this,
-                         R.string.install_editor, Toast.LENGTH_SHORT).show();
-          i = new Intent(Intent.ACTION_VIEW,
-                         Uri.parse(
-                         "market://search?q=frozen bubble level editor"));
-          startActivity(i);
-        } catch (Exception exc) {
-          /*
-           * Damn, you don't have market?
-           */
-          Toast.makeText(FrozenBubble.this,
-                         R.string.market_missing, Toast.LENGTH_SHORT).show();
-        }
-      }
-    }
   }
 
   private void targetOptionsDialog() {

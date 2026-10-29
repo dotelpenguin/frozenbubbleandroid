@@ -107,7 +107,7 @@ public class PreferencesActivity extends Activity
     prefs.difficulty =  sp.getInt(KEY_DIFFICULTY, LevelManager.NORMAL);
     prefs.dontRushMe = !sp.getBoolean(KEY_RUSH_ME, true);
     prefs.fullscreen =  sp.getBoolean(KEY_FULLSCREEN, true);
-    prefs.colorMode  =  sp.getBoolean(KEY_COLORBLIND, FrozenBubble.GAME_COLORBLIND);
+    prefs.colorMode  =  sp.getBoolean(KEY_COLORBLIND, FrozenBubble.GAME_NORMAL);
     prefs.musicOn    =  sp.getBoolean(KEY_MUSIC, true);
     prefs.soundOn    =  sp.getBoolean(KEY_SOUND, true);
     prefs.targetMode =  Integer.valueOf(sp.getString(KEY_TARGETING,

@@ -110,6 +110,7 @@ public class HomeScreen extends Activity {
   private final static int BTN11_ID  = 112;
   private final static int BTN12_ID  = 113;
   private final static int BTN13_ID  = 114;
+  private final static int BTN14_ID  = 115;  // Exit / Back
 
   private static int buttonSelPage1 = BTN1_ID;
   private static int buttonSelPage2 = BTN5_ID;
@@ -128,55 +129,37 @@ public class HomeScreen extends Activity {
   private Thread         splashThread  = null;
 
   /**
-   * Given that we are using a relative layout for the home screen in
-   * order to display the background image and various buttons, this
-   * function programmatically adds an on-screen back button to the
-   * layout.
+   * The last button of each menu page, in the same bubble style as the
+   * others: Exit on the main menu (closes the game), Back on the 2
+   * Player pages (returns to the previous page).  It does the same as
+   * the phone's Back.  (This replaces a round arrow button in the
+   * corner.)
+   * @param belowId - the button it goes under.
    */
-  private void addBackButton() {
-    /*
-     * Construct the back button.
-     */
-    Button backButton = new Button(this);
-    backButton.setOnClickListener(new Button.OnClickListener(){
-      public void onClick(View v){
-        mSoundManager.playSound("stick", R.raw.stick);
-        backKeyPress();
-      }
+  private void addExitOrBackButton(int belowId) {
+    Button button = new Button(this);
+    button.setText((pageSelected <= 1) ? R.string.exit : R.string.back);
+    MenuButtons.style(button);
+    button.setId(BTN14_ID);
+    button.setFocusable(true);
+    button.setFocusableInTouchMode(true);
+    button.setOnClickListener(v -> {
+      mSoundManager.playSound("stick", R.raw.stick);
+      backKeyPress();
     });
-    backButton.setOnTouchListener(new Button.OnTouchListener(){
-      public boolean onTouch(View v, MotionEvent event){
-        if (event.getAction() == MotionEvent.ACTION_DOWN)
-          v.requestFocus();
-        return false;
-      }
+    button.setOnTouchListener((v, event) -> {
+      // Take focus on touch so the first tap also clicks.
+      if (event.getAction() == MotionEvent.ACTION_DOWN)
+        v.requestFocus();
+      return false;
     });
-    /*
-     * Set the back button text to the following Unicode character:
-     * Anticlockwise Top Semicircle Arrow
-     * http://en.wikipedia.org/wiki/Arrow_(symbol)
-     */
-    backButton.setText("\u21B6");
-    backButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 30);
-    backButton.setMinimumHeight(0);
-    backButton.setMinimumWidth(0);
-    backButton.setHeight((int) backButton.getTextSize() * 2);
-    backButton.setWidth((int) backButton.getTextSize() * 2);
-    backButton.setTypeface(null, Typeface.BOLD);
-    backButton.setBackgroundResource(R.drawable.round_button);
-    backButton.setId(BACK_ID);
-    backButton.setFocusable(true);
-    backButton.setFocusableInTouchMode(true);
-    LayoutParams myParams = new LayoutParams(LayoutParams.WRAP_CONTENT,
-                                             LayoutParams.WRAP_CONTENT);
-    myParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-    myParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-    myParams.topMargin   = 0;
-    myParams.rightMargin = 0;
-    /*
-     * Add view to layout.
-     */
-    myLayout.addView(backButton, myParams);
+    LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT,
+                                           LayoutParams.WRAP_CONTENT);
+    params.addRule(RelativeLayout.CENTER_IN_PARENT);
+    params.addRule(RelativeLayout.BELOW, belowId);
+    params.topMargin    = 15;
+    params.bottomMargin = 15;
+    myLayout.addView(button, params);
   }
 
   /**
@@ -472,6 +455,7 @@ public class HomeScreen extends Activity {
      * Add view to layout.
      */
     myLayout.addView(gameExtrasButton, myParams);
+    addExitOrBackButton(gameExtrasButton.getId());
     /*
      * With a saved game, offer to continue it at the top of the menu.
      */
@@ -848,6 +832,7 @@ public class HomeScreen extends Activity {
      * Add view to layout.
      */
     myLayout.addView(startLocal2PlayerGameButton, myParams);
+    addExitOrBackButton(startLocal2PlayerGameButton.getId());
   }
 
   /**
@@ -959,6 +944,7 @@ public class HomeScreen extends Activity {
      * Add view to layout.
      */
     myLayout.addView(player1Button, myParams);
+    addExitOrBackButton(player2Button.getId());
   }
 
   private void backKeyPress() {
@@ -1281,6 +1267,7 @@ public class HomeScreen extends Activity {
     removeViewByID(BTN11_ID);
     removeViewByID(BTN12_ID);
     removeViewByID(BTN13_ID);
+    removeViewByID(BTN14_ID);
   }
 
   @Override
@@ -1600,7 +1587,6 @@ public class HomeScreen extends Activity {
       myLayout.setFocusable(true);
       myLayout.setFocusableInTouchMode(true);
       myLayout.requestFocus();
-      addBackButton();
       displayPage(pageSelected);
 
       /*

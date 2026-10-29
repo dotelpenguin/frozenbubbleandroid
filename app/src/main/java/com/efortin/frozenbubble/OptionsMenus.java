@@ -144,7 +144,7 @@ public class OptionsMenus {
         toggle(R.string.opt_original_art, GameView.KEY_ORIGINAL_ART, false, () ->
             toast(R.string.opt_next_game_note)),
         toggle(R.string.opt_colorblind, KEY_COLORBLIND,
-               FrozenBubble.GAME_COLORBLIND, null));
+               FrozenBubble.GAME_NORMAL, null));
   }
 
   public void showControlsMenu(Runnable onClose) {

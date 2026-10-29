@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!--
+    Android 12+ shows a launch screen (the app icon on a colour) while the
+    game starts: use the icon's icy blue instead of plain white.  The icon
+    is the adaptive app icon.
+  -->
+  <style name="Theme.FrozenBubble.Home"
+         parent="@android:style/Theme.DeviceDefault.Light.DarkActionBar">
+    <item name="android:windowSplashScreenBackground">@color/launch_background</item>
+  </style>
+</resources>

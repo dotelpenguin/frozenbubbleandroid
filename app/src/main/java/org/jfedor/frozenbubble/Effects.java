@@ -44,9 +44,9 @@ public class Effects {
   public static final boolean DEF_POP     = true;
   public static final boolean DEF_FADE    = true;
   public static final boolean DEF_WOBBLE  = true;
-  public static final boolean DEF_SHAKE   = true;
+  public static final boolean DEF_SHAKE   = false;
   public static final boolean DEF_GUIDE   = false;
-  public static final boolean DEF_TRAIL   = true;
+  public static final boolean DEF_TRAIL   = false;
   public static final boolean DEF_VIBRATE = false;
 
   static volatile boolean popSparkles  = DEF_POP;

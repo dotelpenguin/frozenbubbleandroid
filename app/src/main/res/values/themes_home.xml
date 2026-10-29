@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!--
+    The home screen's theme.  Its parent is the default theme the app has
+    always used, so the menus look the same; values-v31 adds the Android
+    12+ launch screen colours.
+  -->
+  <style name="Theme.FrozenBubble.Home"
+         parent="@android:style/Theme.DeviceDefault.Light.DarkActionBar" />
+
+  <!-- The icy blue of the app icon's background. -->
+  <color name="launch_background">#3E5DB0</color>
+</resources>
