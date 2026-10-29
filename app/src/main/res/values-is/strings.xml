@@ -134,6 +134,9 @@
   <string name="save_title_2p">2 leikmenn</string>
   <string name="save_title_2p_cpu">2 leikmenn – gegn tölvu</string>
   <string name="level_select_title">Velja borð</string>
+  <string name="level_select_title_cheat">Velja borð – öll opin</string>
+  <string name="cheat_on">Öll borð opnuð</string>
+  <string name="cheat_off">Borðum læst aftur</string>
   <string name="level_select_page">Síða %1$d af %2$d</string>
   <string name="level_select_play">Spila borð %1$d</string>
   <string name="level_select_best">Borð %1$d – best: %2$d skot, %3$s</string>

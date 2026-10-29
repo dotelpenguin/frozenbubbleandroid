@@ -138,6 +138,9 @@
   <string name="save_title_2p">2 joueurs</string>
   <string name="save_title_2p_cpu">2 joueurs – contre l\'ordinateur</string>
   <string name="level_select_title">Choisir un niveau</string>
+  <string name="level_select_title_cheat">Choisir un niveau – tous ouverts</string>
+  <string name="cheat_on">Tous les niveaux débloqués</string>
+  <string name="cheat_off">Niveaux de nouveau verrouillés</string>
   <string name="level_select_page">Page %1$d sur %2$d</string>
   <string name="level_select_play">Jouer le niveau %1$d</string>
   <string name="level_select_best">Niveau %1$d – record : %2$d tirs, %3$s</string>

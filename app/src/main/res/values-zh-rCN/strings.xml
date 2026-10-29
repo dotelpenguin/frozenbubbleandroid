@@ -138,6 +138,9 @@
   <string name="save_title_2p">双人</string>
   <string name="save_title_2p_cpu">双人 – 对战电脑</string>
   <string name="level_select_title">选择关卡</string>
+  <string name="level_select_title_cheat">选择关卡 – 全部解锁</string>
+  <string name="cheat_on">已解锁全部关卡</string>
+  <string name="cheat_off">关卡已重新锁定</string>
   <string name="level_select_page">第 %1$d 页，共 %2$d 页</string>
   <string name="level_select_play">开始第 %1$d 关</string>
   <string name="level_select_best">第 %1$d 关 – 最佳：%2$d 发，%3$s</string>

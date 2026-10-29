@@ -138,6 +138,9 @@
   <string name="save_title_2p">2 Spieler</string>
   <string name="save_title_2p_cpu">2 Spieler – gegen CPU</string>
   <string name="level_select_title">Level wählen</string>
+  <string name="level_select_title_cheat">Level wählen – alle offen</string>
+  <string name="cheat_on">Alle Level freigeschaltet</string>
+  <string name="cheat_off">Level wieder gesperrt</string>
   <string name="level_select_page">Seite %1$d von %2$d</string>
   <string name="level_select_play">Level %1$d spielen</string>
   <string name="level_select_best">Level %1$d – Bestwert: %2$d Schüsse, %3$s</string>

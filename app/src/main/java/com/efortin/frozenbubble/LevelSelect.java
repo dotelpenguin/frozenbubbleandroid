@@ -29,6 +29,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * Puzzle level select: a paged grid of level bubbles, 20 to a page.
@@ -39,6 +40,9 @@ import android.widget.TextView;
  * </ul>
  * Play starts the chosen level (replacing a saved Puzzle game, like New
  * Game does).
+ * <p>Cheat mode: tapping the title {@value #CHEAT_TAPS} times in a row
+ * unlocks every level (and the same again locks them).  Levels played
+ * meanwhile stay unlocked; Reset Level Progress turns cheat mode off.
  */
 public class LevelSelect {
 
@@ -56,6 +60,12 @@ public class LevelSelect {
   private static final int COLS     = 5;
   private static final int ROWS     = 4;
   private static final int PER_PAGE = COLS * ROWS;
+
+  /** Settings key: all levels unlocked. */
+  public static final String KEY_CHEAT = "cheat_all_levels";
+  private static final int  CHEAT_TAPS = 7;
+  /** Taps further apart than this start counting again. */
+  private static final long CHEAT_TAP_GAP_MS = 1500;
 
   private static final int[] BUBBLE_HD = {
     R.drawable.bubble_1_hd, R.drawable.bubble_2_hd, R.drawable.bubble_3_hd,
@@ -81,7 +91,8 @@ public class LevelSelect {
   private final Activity activity;
   private final Host     host;
   private final int      numLevels;
-  private final int      highest;   // highest level reached (0-based)
+  private final int      reached;   // highest level reached (0-based)
+  private int              highest;   // highest level that can be chosen
   /** Best score of each completed level (0-based level → score). */
   private final Map<Integer, HighscoreDO> best;
 
@@ -102,11 +113,22 @@ public class LevelSelect {
     for (int level : best.keySet()) {
       bestCompleted = Math.max(bestCompleted, level);
     }
-    this.highest  = Math.min(numLevels - 1,
+    this.reached  = Math.min(numLevels - 1,
         FrozenBubble.getHighestPuzzleLevel(activity, bestCompleted));
+    this.highest  = cheatOn(activity) ? numLevels - 1 : reached;
     this.selected = Math.max(0, Math.min(highest,
                                          FrozenBubble.getPuzzleLevel(activity)));
     this.page     = selected / PER_PAGE;
+  }
+
+  public static boolean cheatOn(android.content.Context context) {
+    return android.preference.PreferenceManager
+        .getDefaultSharedPreferences(context).getBoolean(KEY_CHEAT, false);
+  }
+
+  public static void setCheat(android.content.Context context, boolean on) {
+    android.preference.PreferenceManager.getDefaultSharedPreferences(context)
+        .edit().putBoolean(KEY_CHEAT, on).apply();
   }
 
   /** The number of Puzzle levels (100 in the built-in set). */
@@ -158,9 +180,21 @@ public class LevelSelect {
     int pad = (int) (8 * dp);
     box.setPadding(pad, pad, pad, pad);
 
-    TextView title = new TextView(activity);
+    final TextView title = new TextView(activity);
     OptionsMenus.styleText(title, 22);
-    title.setText(R.string.level_select_title);
+    setTitle(title);
+    // The hidden cheat-mode switch: tap the title several times.
+    final int[]  taps    = { 0 };
+    final long[] lastTap = { 0 };
+    title.setOnClickListener(v -> {
+      long now = android.os.SystemClock.uptimeMillis();
+      taps[0] = (now - lastTap[0] < CHEAT_TAP_GAP_MS) ? taps[0] + 1 : 1;
+      lastTap[0] = now;
+      if (taps[0] >= CHEAT_TAPS) {
+        taps[0] = 0;
+        toggleCheat(title);
+      }
+    });
     box.addView(title);
 
     // The grid of level bubbles.
@@ -236,6 +270,26 @@ public class LevelSelect {
     host.showPopup(dialog);
   }
 
+  private void setTitle(TextView title) {
+    title.setText(cheatOn(activity) ? R.string.level_select_title_cheat
+                                    : R.string.level_select_title);
+  }
+
+  private void toggleCheat(TextView title) {
+    boolean on = !cheatOn(activity);
+    setCheat(activity, on);
+    host.click();
+    highest = on ? numLevels - 1 : reached;
+    if (selected > highest) {
+      selected = highest;
+      page = selected / PER_PAGE;
+    }
+    setTitle(title);
+    render();
+    Toast.makeText(activity, on ? R.string.cheat_on : R.string.cheat_off,
+                   Toast.LENGTH_SHORT).show();
+  }
+
   private void choose(int level) {
     if ((level < numLevels) && (level <= highest)) {
       host.click();
@@ -264,14 +318,14 @@ public class LevelSelect {
       t.setVisibility(android.view.View.VISIBLE);
       t.setText(Integer.toString(level + 1));
       int color = level % BUBBLE.length;
-      boolean reached = level <= highest;
-      t.setBackgroundResource(reached ? (hd ? BUBBLE_HD[color] : BUBBLE[color])
-                                      : (hd ? FROZEN_HD[color] : FROZEN[color]));
-      t.setAlpha(reached ? 1f : 0.45f);
-      t.setEnabled(reached);
+      boolean open = level <= highest;
+      t.setBackgroundResource(open ? (hd ? BUBBLE_HD[color] : BUBBLE[color])
+                                   : (hd ? FROZEN_HD[color] : FROZEN[color]));
+      t.setAlpha(open ? 1f : 0.45f);
+      t.setEnabled(open);
       // Yellow: the highest level reached (not completed yet).
-      t.setTextColor((reached && !best.containsKey(level)) ? 0xFFFFE14D
-                                                           : Color.WHITE);
+      t.setTextColor((level == reached && !best.containsKey(level))
+                     ? 0xFFFFE14D : Color.WHITE);
       boolean isSelected = (level == selected);
       t.setScaleX(isSelected ? 1.22f : 1f);
       t.setScaleY(isSelected ? 1.22f : 1f);

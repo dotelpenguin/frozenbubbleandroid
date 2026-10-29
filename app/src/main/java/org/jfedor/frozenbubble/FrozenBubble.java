@@ -297,6 +297,7 @@ public class FrozenBubble extends Activity
    * select counts levels with a best score as completed).
    */
   public static void resetPuzzleProgress(Context context) {
+    com.efortin.frozenbubble.LevelSelect.setCheat(context, false);
     selectPuzzleLevel(context, 0);
     context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
         .putInt(LEVEL_MAX_KEY, 0).commit();
