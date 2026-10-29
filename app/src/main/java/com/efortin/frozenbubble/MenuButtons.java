@@ -32,17 +32,23 @@ public final class MenuButtons {
     button.setTypeface(null, Typeface.BOLD);
     button.setHorizontalFadingEdgeEnabled(true);
     button.setFadingEdgeLength(5);
-    crispText(button);
+    bubble(button);
   }
 
   /**
-   * Crisp button text: a sharp, faint white highlight just below the
-   * letters (a slight embossed look).  It replaces a large, blurred
-   * black shadow that made the dark text look fuzzy on the light buttons.
+   * The bubble look: a glossy blue bubble background (like the round
+   * in-game buttons), with light text and a dark outline-like shadow so
+   * it reads on the blue.
    */
-  public static void crispText(android.widget.TextView text) {
-    float dp = text.getResources().getDisplayMetrics().density;
-    text.setShadowLayer(0.01f, 0f, dp, 0x99FFFFFF);
+  public static void bubble(Button button) {
+    float dp = button.getResources().getDisplayMetrics().density;
+    button.setBackground(new BubbleButtonDrawable(dp));
+    button.setTextColor(new android.content.res.ColorStateList(
+        new int[][] { { -android.R.attr.state_enabled }, {} },
+        new int[]   { 0xFFC8D2DC, 0xFFF0FAFF }));
+    button.setShadowLayer(2.5f * dp, 0f, 0.8f * dp, 0xFF08183C);
+    button.setMinHeight((int) (46 * dp));
+    button.setMinimumHeight((int) (46 * dp));
   }
 
   /** A home-screen-style menu button. */
