@@ -111,6 +111,7 @@ public class HomeScreen extends Activity {
   private final static int BTN12_ID  = 113;
   private final static int BTN13_ID  = 114;
   private final static int BTN14_ID  = 115;  // Exit / Back
+  private final static int BTN15_ID  = 116;  // High Scores
 
   private static int buttonSelPage1 = BTN1_ID;
   private static int buttonSelPage2 = BTN5_ID;
@@ -413,6 +414,34 @@ public class HomeScreen extends Activity {
      */
     myLayout.addView(startArcadeGameButton, myParams);
     /*
+     * Construct the high scores button.
+     */
+    Button highScoresButton = new Button(this);
+    highScoresButton.setText(R.string.high_scores);
+    MenuButtons.style(highScoresButton);
+    highScoresButton.setId(BTN15_ID);
+    highScoresButton.setFocusable(true);
+    highScoresButton.setFocusableInTouchMode(true);
+    highScoresButton.setOnClickListener(v -> {
+      buttonSelPage1 = BTN15_ID;
+      mSoundManager.playSound("stick", R.raw.stick);
+      new HighScores(this, () -> mSoundManager.playSound("stick", R.raw.stick),
+                     this::showOverDimmedMenu).show(null);
+    });
+    highScoresButton.setOnTouchListener((v, event) -> {
+      // Take focus on touch so the first tap also clicks.
+      if (event.getAction() == MotionEvent.ACTION_DOWN)
+        v.requestFocus();
+      return false;
+    });
+    myParams = new LayoutParams(LayoutParams.WRAP_CONTENT,
+                                LayoutParams.WRAP_CONTENT);
+    myParams.addRule(RelativeLayout.CENTER_IN_PARENT);
+    myParams.addRule(RelativeLayout.BELOW, start2pGameButton.getId());
+    myParams.topMargin = 15;
+    myParams.bottomMargin = 15;
+    myLayout.addView(highScoresButton, myParams);
+    /*
      * Construct the game extras button.
      */
     Button gameExtrasButton = new Button(this);
@@ -448,7 +477,7 @@ public class HomeScreen extends Activity {
     myParams = new LayoutParams(LayoutParams.WRAP_CONTENT,
                                 LayoutParams.WRAP_CONTENT);
     myParams.addRule(RelativeLayout.CENTER_IN_PARENT);
-    myParams.addRule(RelativeLayout.BELOW, start2pGameButton.getId());
+    myParams.addRule(RelativeLayout.BELOW, BTN15_ID);
     myParams.topMargin = 15;
     myParams.bottomMargin = 15;
     /*
@@ -1268,6 +1297,7 @@ public class HomeScreen extends Activity {
     removeViewByID(BTN12_ID);
     removeViewByID(BTN13_ID);
     removeViewByID(BTN14_ID);
+    removeViewByID(BTN15_ID);
   }
 
   @Override

@@ -922,6 +922,8 @@ public class FrozenBubble extends Activity
           v -> { menu.hide(); menus.showGameplayMenu(backHere); }),
       com.efortin.frozenbubble.MenuButtons.create(this, R.string.opt_effects,
           v -> { menu.hide(); menus.showEffectsMenu(backHere); }),
+      com.efortin.frozenbubble.MenuButtons.create(this, R.string.high_scores,
+          v -> { menu.hide(); menus.showHighScores(backHere); }),
       com.efortin.frozenbubble.MenuButtons.create(this, R.string.menu_new_game,
           v -> { menu.hide(); newGameDialog(backHere); }),
       com.efortin.frozenbubble.MenuButtons.create(this, R.string.menu_about,

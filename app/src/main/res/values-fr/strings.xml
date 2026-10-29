@@ -125,7 +125,14 @@
   <string name="opt_sensitivity">Sensibilité</string>
   <string name="opt_sensitivity_help">Plus élevé : les tirs se collent aux bulles de plus loin.</string>
   <string name="opt_difficulty">Difficulté</string>
-  <string name="opt_difficulty_value">%1$d couleurs</string>
+  <string name="opt_difficulty_value">%1$s (%2$d couleurs)</string>
+  <string-array name="difficulty_names">
+    <item>Facile</item>
+    <item>Normal</item>
+    <item>Moyen</item>
+    <item>Difficile</item>
+    <item>Démentiel</item>
+  </string-array>
   <string name="opt_difficulty_help">Nombre de couleurs de bulles en Arcade et à 2 joueurs.</string>
   <string name="opt_hurry">Mode pressé</string>
   <string name="opt_effects">Effets</string>
@@ -143,7 +150,7 @@
   <string name="cheat_off">Niveaux de nouveau verrouillés</string>
   <string name="level_select_page">Page %1$d sur %2$d</string>
   <string name="level_select_play">Jouer le niveau %1$d</string>
-  <string name="level_select_best">Niveau %1$d – record : %2$d tirs, %3$s</string>
+  <string name="level_select_best">Niveau %1$d – record : %2$d tirs, %3$s (%4$s)</string>
   <string name="level_select_not_done">Niveau %1$d – pas encore terminé</string>
   <string name="fx_pop">Étincelles d\'éclatement</string>
   <string name="fx_fade">Fondu en tombant</string>
@@ -210,4 +217,13 @@
   <string name="restart_message">Cette option ne s\'applique qu\'à une nouvelle partie. La changer et recommencer la partie en cours maintenant ?</string>
   <string name="restart_button">Recommencer</string>
   <string name="restart_network">Impossible de la changer pendant une partie en réseau.</string>
+  <string name="high_scores">Meilleurs scores</string>
+  <string name="hs_tab_cpu">Contre CPU</string>
+  <string name="hs_col_shots">Tirs</string>
+  <string name="hs_col_time">Temps</string>
+  <string name="hs_col_player">Joueur</string>
+  <string name="hs_col_wins">Victoires</string>
+  <string name="hs_none">Pas encore de scores</string>
+  <string name="hs_best_ingame">Record : %1$d tirs · %2$s · %3$s</string>
+  <string name="opt_show_best">Afficher le record</string>
 </resources>

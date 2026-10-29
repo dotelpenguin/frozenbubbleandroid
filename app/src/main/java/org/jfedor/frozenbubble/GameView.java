@@ -582,6 +582,10 @@ public class GameView extends SurfaceView
     // Next song button, drawn over the penguin badge (single player).
     public static final int    NEXT_SONG_1P_X             = 162;
     public static final int    NEXT_SONG_1P_Y             = 0;
+    /* The "Best" line: centred over the launcher, above the danger line. */
+    public static final int    BEST_X                     = 318;
+    public static final int    BEST_Y                     = 374;
+    public static final int    BEST_TEXT_SIZE             = 13;
     public static final int    NEXT_SONG_TOUCH_X          = 178;
     public static final int    NEXT_SONG_TOUCH_Y          = 15;
     /*
@@ -728,6 +732,14 @@ public class GameView extends SurfaceView
     private BmpWrap mTomato;
 
     private BubbleFont    mFont;
+    /*
+     * The "Best: ..." line on a one player game's playfield, looked up
+     * again when the level or the latest score changes.
+     */
+    private final Paint mBestPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private String      mBestText    = null;
+    private int         mBestLevel   = -1;
+    private long        mBestScoreId = -2;
     private Drawable      mLauncher;  // drawable because we rotate it
     private FrozenGame    mFrozenGame1;
     private FrozenGame    mFrozenGame2;
@@ -1339,6 +1351,9 @@ public class GameView extends SurfaceView
       canvas.clipRect(mContentRect);
       applyScreenShake(canvas);
       drawBackground(canvas);
+      if (numPlayers == 1) {
+        drawBestScore(canvas);
+      }
       if (mFrozenGame1 != null) {
         mFrozenGame1.paint(canvas, mDisplayScale, mPlayer1DX, mDisplayDY);
       }
@@ -1825,6 +1840,58 @@ public class GameView extends SurfaceView
                          mDisplayScale, mDisplayDX, mDisplayDY);
         Sprite.drawImage(mNextSongButton, NEXT_SONG_1P_X, NEXT_SONG_1P_Y, c,
                          mDisplayScale, mDisplayDX, mDisplayDY);
+      }
+    }
+
+    /**
+     * A faint "Best: 14 shots · 1:32 · Drew" low on the playfield, under
+     * the bubbles: the best score of this Puzzle level, or of Arcade at
+     * this number of colours.  Off with Options > Gameplay > Show Best
+     * Score.
+     */
+    private void drawBestScore(Canvas canvas) {
+      if ((mHighScoreManager == null) ||
+          !android.preference.PreferenceManager
+              .getDefaultSharedPreferences(mContext)
+              .getBoolean(com.efortin.frozenbubble.OptionsMenus.KEY_SHOW_BEST,
+                          true)) {
+        return;
+      }
+      int  level  = mHighScoreManager.getLevel();
+      long lastId = mHighScoreManager.getLastScoreId();
+      if ((level != mBestLevel) || (lastId != mBestScoreId)) {
+        mBestLevel   = level;
+        mBestScoreId = lastId;
+        mBestText    = bestText(level);
+      }
+      if (mBestText == null) {
+        return;
+      }
+      mBestPaint.setTextAlign(Paint.Align.CENTER);
+      mBestPaint.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+      mBestPaint.setTextSize((float) (BEST_TEXT_SIZE * mDisplayScale));
+      mBestPaint.setColor(0xB4FFFFFF);
+      mBestPaint.setShadowLayer((float) (2 * mDisplayScale), 0, 0, 0xC0102050);
+      canvas.drawText(mBestText,
+                      (float) ((BEST_X * mDisplayScale) + mDisplayDX),
+                      (float) ((BEST_Y * mDisplayScale) + mDisplayDY),
+                      mBestPaint);
+    }
+
+    private String bestText(int level) {
+      try {
+        List<HighscoreDO> list = FrozenBubble.arcadeGame
+            ? mHighScoreManager.getLowScore(level, 1)    // most shots
+            : mHighScoreManager.getHighScore(level, 1);  // fewest shots
+        if (list.isEmpty()) {
+          return null;
+        }
+        HighscoreDO best = list.get(0);
+        return mContext.getString(R.string.hs_best_ingame, best.getShots(),
+            com.efortin.frozenbubble.HighScores.time(best.getTime()),
+            best.getName());
+      } catch (RuntimeException e) {
+        return null;
       }
     }
 

@@ -126,7 +126,14 @@
   <string name="opt_sensitivity_value" translatable="false">%1$d</string>
   <string name="opt_sensitivity_help">Higher: shots stick to bubbles from farther away.</string>
   <string name="opt_difficulty">Difficulty</string>
-  <string name="opt_difficulty_value">%1$d colors</string>
+  <string name="opt_difficulty_value">%1$s (%2$d colors)</string>
+  <string-array name="difficulty_names">
+    <item>Easy</item>
+    <item>Normal</item>
+    <item>Medium</item>
+    <item>Hard</item>
+    <item>Insane</item>
+  </string-array>
   <string name="opt_difficulty_help">Number of bubble colors in Arcade and 2 Player games.</string>
   <string name="opt_hurry">Hurry Mode</string>
   <string name="opt_effects">Effects</string>
@@ -144,7 +151,7 @@
   <string name="cheat_off">Levels locked again</string>
   <string name="level_select_page">Page %1$d of %2$d</string>
   <string name="level_select_play">Play Level %1$d</string>
-  <string name="level_select_best">Level %1$d – best: %2$d shots, %3$s</string>
+  <string name="level_select_best">Level %1$d – best: %2$d shots, %3$s (%4$s)</string>
   <string name="level_select_not_done">Level %1$d – not completed yet</string>
   <string name="fx_pop">Pop Sparkles</string>
   <string name="fx_fade">Falling Fade</string>
@@ -211,4 +218,13 @@
   <string name="restart_message">This option only takes effect in a new game. Change it and restart the current game now?</string>
   <string name="restart_button">Restart</string>
   <string name="restart_network">This can\'t be changed during a network game.</string>
+  <string name="high_scores">High Scores</string>
+  <string name="hs_tab_cpu">Vs CPU</string>
+  <string name="hs_col_shots">Shots</string>
+  <string name="hs_col_time">Time</string>
+  <string name="hs_col_player">Player</string>
+  <string name="hs_col_wins">Wins</string>
+  <string name="hs_none">No scores yet</string>
+  <string name="hs_best_ingame">Best: %1$d shots · %2$s · %3$s</string>
+  <string name="opt_show_best">Show Best Score</string>
 </resources>

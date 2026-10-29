@@ -125,7 +125,14 @@
   <string name="opt_sensitivity">Empfindlichkeit</string>
   <string name="opt_sensitivity_help">Höher: Schüsse haften schon aus größerer Entfernung an Blasen.</string>
   <string name="opt_difficulty">Schwierigkeit</string>
-  <string name="opt_difficulty_value">%1$d Farben</string>
+  <string name="opt_difficulty_value">%1$s (%2$d Farben)</string>
+  <string-array name="difficulty_names">
+    <item>Leicht</item>
+    <item>Normal</item>
+    <item>Mittel</item>
+    <item>Schwer</item>
+    <item>Wahnsinnig</item>
+  </string-array>
   <string name="opt_difficulty_help">Anzahl der Blasenfarben in Arcade- und 2-Spieler-Spielen.</string>
   <string name="opt_hurry">Eile-Modus</string>
   <string name="opt_effects">Effekte</string>
@@ -143,7 +150,7 @@
   <string name="cheat_off">Level wieder gesperrt</string>
   <string name="level_select_page">Seite %1$d von %2$d</string>
   <string name="level_select_play">Level %1$d spielen</string>
-  <string name="level_select_best">Level %1$d – Bestwert: %2$d Schüsse, %3$s</string>
+  <string name="level_select_best">Level %1$d – Bestwert: %2$d Schüsse, %3$s (%4$s)</string>
   <string name="level_select_not_done">Level %1$d – noch nicht geschafft</string>
   <string name="fx_pop">Platz-Funken</string>
   <string name="fx_fade">Ausblenden beim Fallen</string>
@@ -210,4 +217,13 @@
   <string name="restart_message">Diese Option wirkt erst in einem neuen Spiel. Jetzt ändern und das aktuelle Spiel neu starten?</string>
   <string name="restart_button">Neu starten</string>
   <string name="restart_network">Das kann während eines Netzwerkspiels nicht geändert werden.</string>
+  <string name="high_scores">Bestenliste</string>
+  <string name="hs_tab_cpu">Gegen CPU</string>
+  <string name="hs_col_shots">Schüsse</string>
+  <string name="hs_col_time">Zeit</string>
+  <string name="hs_col_player">Spieler</string>
+  <string name="hs_col_wins">Siege</string>
+  <string name="hs_none">Noch keine Ergebnisse</string>
+  <string name="hs_best_ingame">Rekord: %1$d Schüsse · %2$s · %3$s</string>
+  <string name="opt_show_best">Rekord anzeigen</string>
 </resources>

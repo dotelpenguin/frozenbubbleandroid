@@ -343,7 +343,8 @@ public class LevelSelect {
       long secs = score.getTime() / 1000;
       info.setText(activity.getString(R.string.level_select_best,
           selected + 1, score.getShots(),
-          String.format(java.util.Locale.ROOT, "%d:%02d", secs / 60, secs % 60)));
+          String.format(java.util.Locale.ROOT, "%d:%02d", secs / 60, secs % 60),
+          score.getName()));
     }
     else {
       info.setText(activity.getString(R.string.level_select_not_done,

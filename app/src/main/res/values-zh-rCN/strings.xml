@@ -125,7 +125,14 @@
   <string name="opt_sensitivity">灵敏度</string>
   <string name="opt_sensitivity_help">越高：射出的泡泡在越远处就会粘住。</string>
   <string name="opt_difficulty">难度</string>
-  <string name="opt_difficulty_value">%1$d 种颜色</string>
+  <string name="opt_difficulty_value">%1$s（%2$d 种颜色）</string>
+  <string-array name="difficulty_names">
+    <item>简单</item>
+    <item>普通</item>
+    <item>中等</item>
+    <item>困难</item>
+    <item>疯狂</item>
+  </string-array>
   <string name="opt_difficulty_help">街机和双人游戏中泡泡的颜色数量。</string>
   <string name="opt_hurry">催促模式</string>
   <string name="opt_effects">特效</string>
@@ -143,7 +150,7 @@
   <string name="cheat_off">关卡已重新锁定</string>
   <string name="level_select_page">第 %1$d 页，共 %2$d 页</string>
   <string name="level_select_play">开始第 %1$d 关</string>
-  <string name="level_select_best">第 %1$d 关 – 最佳：%2$d 发，%3$s</string>
+  <string name="level_select_best">第 %1$d 关 – 最佳：%2$d 发，%3$s (%4$s)</string>
   <string name="level_select_not_done">第 %1$d 关 – 尚未通关</string>
   <string name="fx_pop">爆破火花</string>
   <string name="fx_fade">下落淡出</string>
@@ -207,4 +214,13 @@
   <string name="restart_message">此选项仅在新游戏中生效。要更改并立即重新开始当前游戏吗？</string>
   <string name="restart_button">重新开始</string>
   <string name="restart_network">网络游戏中无法更改此项。</string>
+  <string name="high_scores">高分榜</string>
+  <string name="hs_tab_cpu">对战电脑</string>
+  <string name="hs_col_shots">发射</string>
+  <string name="hs_col_time">时间</string>
+  <string name="hs_col_player">玩家</string>
+  <string name="hs_col_wins">胜场</string>
+  <string name="hs_none">暂无记录</string>
+  <string name="hs_best_ingame">最佳：%1$d 发 · %2$s · %3$s</string>
+  <string name="opt_show_best">显示最佳成绩</string>
 </resources>

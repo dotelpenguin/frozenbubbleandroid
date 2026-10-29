@@ -52,6 +52,8 @@ public class OptionsMenus {
   public static final String KEY_MUSIC       = "play_music_option";
   public static final String KEY_SOUND       = "sound_effects_option";
   public static final String KEY_TARGETING   = "targeting_option";
+  /** Show the best score on a one player game's playfield. */
+  public static final String KEY_SHOW_BEST   = "show_best_option";
 
   private static final int COLLISION_MAX  = 29;
   private static final int DIFFICULTY_MAX = 8;
@@ -287,6 +289,11 @@ public class OptionsMenus {
                R.string.opt_sensitivity_value, R.string.opt_sensitivity_help));
   }
 
+  /** The High Scores popup (Puzzle, Arcade and Vs CPU tabs). */
+  public void showHighScores(Runnable onClose) {
+    new HighScores(activity, host::click, this::showSeeThrough).show(onClose);
+  }
+
   public void showGameplayMenu(Runnable onClose) {
     java.util.List<Item> items = new java.util.ArrayList<Item>();
     items.add(new Item() {
@@ -303,6 +310,7 @@ public class OptionsMenus {
                R.string.opt_difficulty_value, R.string.opt_difficulty_help));
     items.add(toggle(R.string.opt_hurry, KEY_RUSH_ME, true, null));
     items.add(toggle(R.string.opt_compressor, KEY_COMPRESSOR, false, null));
+    items.add(toggle(R.string.opt_show_best, KEY_SHOW_BEST, true, null));
     if (!host.inGame()) {
       // Not offered mid-game: the game being played would save its
       // level back over the reset.
@@ -584,13 +592,48 @@ public class OptionsMenus {
                       final int helpId) {
     return new Item() {
       public String label() {
+        int value = clamp(sp.getInt(key, def), min, max);
+        // The button shows just the difficulty's name; the slider popup
+        // adds the number of colours.
         return activity.getString(nameId) + ": " +
-            activity.getString(valueFmtId, clamp(sp.getInt(key, def), min, max));
+            ((valueFmtId == R.string.opt_difficulty_value)
+             ? difficultyName(activity, value) : valueText(valueFmtId, value));
       }
       public void onTap() {
         showSlider(nameId, key, min, max, def, valueFmtId, helpId);
       }
     };
+  }
+
+  /** A slider's value as shown, e.g. "Normal (5 colors)". */
+  private String valueText(int valueFmtId, int value) {
+    if (valueFmtId == R.string.opt_difficulty_value) {
+      return difficultyText(activity, value);
+    }
+    return activity.getString(valueFmtId, value);
+  }
+
+  /**
+   * A difficulty (number of colours) with the name the game shows for
+   * it: "Normal (5 colors)".
+   */
+  public static String difficultyText(android.content.Context context,
+                                      int colours) {
+    return context.getString(R.string.opt_difficulty_value,
+                             difficultyName(context, colours),
+                             clampDifficulty(colours));
+  }
+
+  /** A difficulty's name: "Normal". */
+  public static String difficultyName(android.content.Context context,
+                                      int colours) {
+    String[] names = context.getResources().getStringArray(R.array.difficulty_names);
+    int i = clampDifficulty(colours) - LevelManager.EASY;
+    return names[Math.min(names.length - 1, i)];
+  }
+
+  private static int clampDifficulty(int colours) {
+    return Math.max(LevelManager.EASY, Math.min(LevelManager.INSANE, colours));
   }
 
   private static int clamp(int v, int min, int max) {
@@ -621,11 +664,11 @@ public class OptionsMenus {
     bar.setMax(max - min);
     bar.setProgress(clamp(sp.getInt(key, def), min, max) - min);
     value.setText(name + ": " +
-                  activity.getString(valueFmtId, bar.getProgress() + min));
+                  valueText(valueFmtId, bar.getProgress() + min));
     bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
       public void onProgressChanged(SeekBar s, int progress, boolean user) {
         value.setText(name + ": " +
-                      activity.getString(valueFmtId, progress + min));
+                      valueText(valueFmtId, progress + min));
       }
       public void onStartTrackingTouch(SeekBar s) {}
       public void onStopTrackingTouch(SeekBar s) {}

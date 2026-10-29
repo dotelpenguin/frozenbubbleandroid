@@ -125,7 +125,14 @@
   <string name="opt_sensitivity">Sensibilidade</string>
   <string name="opt_sensitivity_help">Maior: os tiros grudam nas bolhas de mais longe.</string>
   <string name="opt_difficulty">Dificuldade</string>
-  <string name="opt_difficulty_value">%1$d cores</string>
+  <string name="opt_difficulty_value">%1$s (%2$d cores)</string>
+  <string-array name="difficulty_names">
+    <item>Fácil</item>
+    <item>Normal</item>
+    <item>Médio</item>
+    <item>Difícil</item>
+    <item>Insano</item>
+  </string-array>
   <string name="opt_difficulty_help">Número de cores de bolhas no Arcade e no modo 2 jogadores.</string>
   <string name="opt_hurry">Modo pressa</string>
   <string name="opt_effects">Efeitos</string>
@@ -143,7 +150,7 @@
   <string name="cheat_off">Níveis bloqueados de novo</string>
   <string name="level_select_page">Página %1$d de %2$d</string>
   <string name="level_select_play">Jogar nível %1$d</string>
-  <string name="level_select_best">Nível %1$d – recorde: %2$d tiros, %3$s</string>
+  <string name="level_select_best">Nível %1$d – recorde: %2$d tiros, %3$s (%4$s)</string>
   <string name="level_select_not_done">Nível %1$d – ainda não concluído</string>
   <string name="fx_pop">Faíscas ao estourar</string>
   <string name="fx_fade">Sumir ao cair</string>
@@ -210,4 +217,13 @@
   <string name="restart_message">Esta opção só vale em um jogo novo. Mudar e reiniciar o jogo atual agora?</string>
   <string name="restart_button">Reiniciar</string>
   <string name="restart_network">Isso não pode ser mudado durante um jogo em rede.</string>
+  <string name="high_scores">Recordes</string>
+  <string name="hs_tab_cpu">Contra CPU</string>
+  <string name="hs_col_shots">Tiros</string>
+  <string name="hs_col_time">Tempo</string>
+  <string name="hs_col_player">Jogador</string>
+  <string name="hs_col_wins">Vitórias</string>
+  <string name="hs_none">Nenhum recorde ainda</string>
+  <string name="hs_best_ingame">Recorde: %1$d tiros · %2$s · %3$s</string>
+  <string name="opt_show_best">Mostrar recorde</string>
 </resources>

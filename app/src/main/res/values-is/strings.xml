@@ -121,7 +121,14 @@
   <string name="opt_sensitivity">Næmni</string>
   <string name="opt_sensitivity_help">Hærra: skot festast við kúlur úr meiri fjarlægð.</string>
   <string name="opt_difficulty">Erfiðleikastig</string>
-  <string name="opt_difficulty_value">%1$d litir</string>
+  <string name="opt_difficulty_value">%1$s (%2$d litir)</string>
+  <string-array name="difficulty_names">
+    <item>Létt</item>
+    <item>Venjulegt</item>
+    <item>Miðlungs</item>
+    <item>Erfitt</item>
+    <item>Brjálað</item>
+  </string-array>
   <string name="opt_difficulty_help">Fjöldi kúlulita í Arcade og tveggja manna leikjum.</string>
   <string name="opt_hurry">Flýtistilling</string>
   <string name="opt_effects">Áhrif</string>
@@ -139,7 +146,7 @@
   <string name="cheat_off">Borðum læst aftur</string>
   <string name="level_select_page">Síða %1$d af %2$d</string>
   <string name="level_select_play">Spila borð %1$d</string>
-  <string name="level_select_best">Borð %1$d – best: %2$d skot, %3$s</string>
+  <string name="level_select_best">Borð %1$d – best: %2$d skot, %3$s (%4$s)</string>
   <string name="level_select_not_done">Borð %1$d – ekki lokið enn</string>
   <string name="fx_pop">Neistar við sprengingu</string>
   <string name="fx_fade">Dofna við fall</string>
@@ -210,4 +217,13 @@
   <string name="restart_message">Þessi stilling gildir aðeins í nýjum leik. Breyta henni og byrja núverandi leik aftur núna?</string>
   <string name="restart_button">Byrja aftur</string>
   <string name="restart_network">Ekki er hægt að breyta þessu í netleik.</string>
+  <string name="high_scores">Stigatafla</string>
+  <string name="hs_tab_cpu">Gegn tölvu</string>
+  <string name="hs_col_shots">Skot</string>
+  <string name="hs_col_time">Tími</string>
+  <string name="hs_col_player">Leikmaður</string>
+  <string name="hs_col_wins">Sigrar</string>
+  <string name="hs_none">Engin stig enn</string>
+  <string name="hs_best_ingame">Met: %1$d skot · %2$s · %3$s</string>
+  <string name="opt_show_best">Sýna met</string>
 </resources>
