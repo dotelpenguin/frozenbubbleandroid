@@ -72,15 +72,36 @@ public class Effects {
     loadSettings(context);
   }
 
+  /** <code>true</code> when GPU Rendering is on (and available). */
+  public static boolean gpuRendering(Context context) {
+    return (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) &&
+        PreferenceManager.getDefaultSharedPreferences(context)
+            .getBoolean(GameView.KEY_GPU_RENDERING, true);
+  }
+
+  /** <code>false</code> with Point To Shoot, where there's no aiming. */
+  public static boolean aimingUsed(Context context) {
+    String mode = PreferenceManager.getDefaultSharedPreferences(context)
+        .getString("targeting_option",
+                   Integer.toString(FrozenBubble.POINT_TO_SHOOT));
+    return !Integer.toString(FrozenBubble.POINT_TO_SHOOT).equals(mode);
+  }
+
   /** Re-read the effect settings (after a change in Options). */
   public static void loadSettings(Context context) {
     SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-    popSparkles  = sp.getBoolean(KEY_POP,     DEF_POP);
-    fallingFade  = sp.getBoolean(KEY_FADE,    DEF_FADE);
-    impactWobble = sp.getBoolean(KEY_WOBBLE,  DEF_WOBBLE);
-    screenShake  = sp.getBoolean(KEY_SHAKE,   DEF_SHAKE);
-    aimingGuide  = sp.getBoolean(KEY_GUIDE,   DEF_GUIDE);
-    shotTrail    = sp.getBoolean(KEY_TRAIL,   DEF_TRAIL);
+    /*
+     * The advanced effects need GPU Rendering (they rely on its smooth,
+     * scaled drawing); the aiming guide is no use with Point To Shoot.
+     * Their switches keep their setting for when those come back.
+     */
+    boolean gpu = gpuRendering(context);
+    popSparkles  = gpu && sp.getBoolean(KEY_POP,     DEF_POP);
+    fallingFade  = gpu && sp.getBoolean(KEY_FADE,    DEF_FADE);
+    impactWobble = gpu && sp.getBoolean(KEY_WOBBLE,  DEF_WOBBLE);
+    screenShake  = gpu && sp.getBoolean(KEY_SHAKE,   DEF_SHAKE);
+    aimingGuide  = aimingUsed(context) && sp.getBoolean(KEY_GUIDE, DEF_GUIDE);
+    shotTrail    = gpu && sp.getBoolean(KEY_TRAIL,   DEF_TRAIL);
     vibration    = sp.getBoolean(KEY_VIBRATE, DEF_VIBRATE);
     if (!screenShake) {
       sShakeTicks = 0;

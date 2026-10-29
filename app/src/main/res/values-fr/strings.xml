@@ -191,4 +191,16 @@
   <string name="setup_allow">Autoriser</string>
   <string name="setup_not_now">Pas maintenant</string>
   <string name="opt_player_name">Nom du joueur</string>
+  <string name="folder_none">Aucun dossier choisi</string>
+  <plurals name="music_folder_songs">
+    <item quantity="one">%1$s – %2$d morceau</item>
+    <item quantity="other">%1$s – %2$d morceaux</item>
+  </plurals>
+  <string name="opt_reset_progress">Réinitialiser la progression</string>
+  <string name="reset_confirm_title">Réinitialiser la progression ?</string>
+  <string name="reset_confirm_message">Le Puzzle reprend au niveau 1, et vos records et votre partie sauvegardée de Puzzle sont effacés.</string>
+  <string name="reset_confirm_button">Réinitialiser</string>
+  <string name="reset_done">Progression réinitialisée.</string>
+  <string name="fx_needs_gpu">Nécessite le rendu GPU</string>
+  <string name="fx_needs_aiming">Inutile avec « Toucher pour tirer »</string>
 </resources>

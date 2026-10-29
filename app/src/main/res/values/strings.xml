@@ -192,4 +192,16 @@
   <string name="setup_allow">Allow</string>
   <string name="setup_not_now">Not Now</string>
   <string name="opt_player_name">Player Name</string>
+  <string name="folder_none">No folder chosen</string>
+  <plurals name="music_folder_songs">
+    <item quantity="one">%1$s – %2$d song</item>
+    <item quantity="other">%1$s – %2$d songs</item>
+  </plurals>
+  <string name="opt_reset_progress">Reset Level Progress</string>
+  <string name="reset_confirm_title">Reset level progress?</string>
+  <string name="reset_confirm_message">This takes Puzzle back to level 1 and clears your Puzzle best scores and saved Puzzle game.</string>
+  <string name="reset_confirm_button">Reset</string>
+  <string name="reset_done">Level progress reset.</string>
+  <string name="fx_needs_gpu">Needs GPU Rendering</string>
+  <string name="fx_needs_aiming">Not used with Point To Shoot</string>
 </resources>

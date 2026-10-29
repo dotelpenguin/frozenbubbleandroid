@@ -191,4 +191,16 @@
   <string name="setup_allow">Leyfa</string>
   <string name="setup_not_now">Ekki núna</string>
   <string name="opt_player_name">Nafn leikmanns</string>
+  <string name="folder_none">Engin mappa valin</string>
+  <plurals name="music_folder_songs">
+    <item quantity="one">%1$s – %2$d lag</item>
+    <item quantity="other">%1$s – %2$d lög</item>
+  </plurals>
+  <string name="opt_reset_progress">Endurstilla framvindu</string>
+  <string name="reset_confirm_title">Endurstilla framvindu?</string>
+  <string name="reset_confirm_message">Þrautir byrja aftur á borði 1, og bestu stig og vistaður leikur í Þrautum eyðast.</string>
+  <string name="reset_confirm_button">Endurstilla</string>
+  <string name="reset_done">Framvinda endurstillt.</string>
+  <string name="fx_needs_gpu">Krefst GPU-teikningar</string>
+  <string name="fx_needs_aiming">Ekki notað með „Bentu til að skjóta“</string>
 </resources>

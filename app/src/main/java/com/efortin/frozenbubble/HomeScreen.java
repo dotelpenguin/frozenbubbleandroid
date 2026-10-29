@@ -208,7 +208,7 @@ public class HomeScreen extends Activity {
     optionsButton.setTypeface(null, Typeface.BOLD);
     optionsButton.setHorizontalFadingEdgeEnabled(true);
     optionsButton.setFadingEdgeLength(5);
-    optionsButton.setShadowLayer(5, 5, 5, android.graphics.Color.BLACK);
+    MenuButtons.crispText(optionsButton);
     optionsButton.setId(BTN12_ID);
     optionsButton.setFocusable(true);
     optionsButton.setFocusableInTouchMode(true);
@@ -259,7 +259,7 @@ public class HomeScreen extends Activity {
     continueButton.setTypeface(null, Typeface.BOLD);
     continueButton.setHorizontalFadingEdgeEnabled(true);
     continueButton.setFadingEdgeLength(5);
-    continueButton.setShadowLayer(5, 5, 5, android.graphics.Color.BLACK);
+    MenuButtons.crispText(continueButton);
     continueButton.setId(BTN11_ID);
     continueButton.setFocusable(true);
     continueButton.setFocusableInTouchMode(true);
@@ -314,7 +314,7 @@ public class HomeScreen extends Activity {
     start2pGameButton.setTypeface(null, Typeface.BOLD);
     start2pGameButton.setHorizontalFadingEdgeEnabled(true);
     start2pGameButton.setFadingEdgeLength(5);
-    start2pGameButton.setShadowLayer(5, 5, 5, android.graphics.Color.BLACK);
+    MenuButtons.crispText(start2pGameButton);
     start2pGameButton.setId(BTN3_ID);
     start2pGameButton.setFocusable(true);
     start2pGameButton.setFocusableInTouchMode(true);
@@ -354,7 +354,7 @@ public class HomeScreen extends Activity {
     start1pGameButton.setTypeface(null, Typeface.BOLD);
     start1pGameButton.setHorizontalFadingEdgeEnabled(true);
     start1pGameButton.setFadingEdgeLength(5);
-    start1pGameButton.setShadowLayer(5, 5, 5, android.graphics.Color.BLACK);
+    MenuButtons.crispText(start1pGameButton);
     start1pGameButton.setId(BTN2_ID);
     start1pGameButton.setFocusable(true);
     start1pGameButton.setFocusableInTouchMode(true);
@@ -398,7 +398,7 @@ public class HomeScreen extends Activity {
     startArcadeGameButton.setTypeface(null, Typeface.BOLD);
     startArcadeGameButton.setHorizontalFadingEdgeEnabled(true);
     startArcadeGameButton.setFadingEdgeLength(5);
-    startArcadeGameButton.setShadowLayer(5, 5, 5, android.graphics.Color.BLACK);
+    MenuButtons.crispText(startArcadeGameButton);
     startArcadeGameButton.setId(BTN1_ID);
     startArcadeGameButton.setFocusable(true);
     startArcadeGameButton.setFocusableInTouchMode(true);
@@ -441,7 +441,7 @@ public class HomeScreen extends Activity {
     gameExtrasButton.setTypeface(null, Typeface.BOLD);
     gameExtrasButton.setHorizontalFadingEdgeEnabled(true);
     gameExtrasButton.setFadingEdgeLength(5);
-    gameExtrasButton.setShadowLayer(5, 5, 5, android.graphics.Color.BLACK);
+    MenuButtons.crispText(gameExtrasButton);
     gameExtrasButton.setId(BTN4_ID);
     gameExtrasButton.setFocusable(true);
     gameExtrasButton.setFocusableInTouchMode(true);
@@ -678,7 +678,7 @@ public class HomeScreen extends Activity {
     startWiFiGameButton.setTypeface(null, Typeface.BOLD);
     startWiFiGameButton.setHorizontalFadingEdgeEnabled(true);
     startWiFiGameButton.setFadingEdgeLength(5);
-    startWiFiGameButton.setShadowLayer(5, 5, 5, android.graphics.Color.BLACK);
+    MenuButtons.crispText(startWiFiGameButton);
     startWiFiGameButton.setId(BTN7_ID);
     startWiFiGameButton.setFocusable(true);
     startWiFiGameButton.setFocusableInTouchMode(true);
@@ -715,7 +715,7 @@ public class HomeScreen extends Activity {
     startBluetoothGameButton.setTypeface(null, Typeface.BOLD);
     startBluetoothGameButton.setHorizontalFadingEdgeEnabled(true);
     startBluetoothGameButton.setFadingEdgeLength(5);
-    startBluetoothGameButton.setShadowLayer(5, 5, 5, android.graphics.Color.BLACK);
+    MenuButtons.crispText(startBluetoothGameButton);
     startBluetoothGameButton.setId(BTN6_ID);
     startBluetoothGameButton.setFocusable(true);
     startBluetoothGameButton.setFocusableInTouchMode(true);
@@ -765,7 +765,7 @@ public class HomeScreen extends Activity {
     startCPUGameButton.setTypeface(null, Typeface.BOLD);
     startCPUGameButton.setHorizontalFadingEdgeEnabled(true);
     startCPUGameButton.setFadingEdgeLength(5);
-    startCPUGameButton.setShadowLayer(5, 5, 5, android.graphics.Color.BLACK);
+    MenuButtons.crispText(startCPUGameButton);
     startCPUGameButton.setId(BTN5_ID);
     startCPUGameButton.setFocusable(true);
     startCPUGameButton.setFocusableInTouchMode(true);
@@ -818,7 +818,7 @@ public class HomeScreen extends Activity {
     startLocal2PlayerGameButton.setTypeface(null, Typeface.BOLD);
     startLocal2PlayerGameButton.setHorizontalFadingEdgeEnabled(true);
     startLocal2PlayerGameButton.setFadingEdgeLength(5);
-    startLocal2PlayerGameButton.setShadowLayer(5, 5, 5, android.graphics.Color.BLACK);
+    MenuButtons.crispText(startLocal2PlayerGameButton);
     startLocal2PlayerGameButton.setId(BTN8_ID);
     startLocal2PlayerGameButton.setFocusable(true);
     startLocal2PlayerGameButton.setFocusableInTouchMode(true);
@@ -881,7 +881,7 @@ public class HomeScreen extends Activity {
     player2Button.setTypeface(null, Typeface.BOLD);
     player2Button.setHorizontalFadingEdgeEnabled(true);
     player2Button.setFadingEdgeLength(5);
-    player2Button.setShadowLayer(5, 5, 5, android.graphics.Color.BLACK);
+    MenuButtons.crispText(player2Button);
     player2Button.setId(BTN10_ID);
     player2Button.setFocusable(true);
     player2Button.setFocusableInTouchMode(true);
@@ -930,7 +930,7 @@ public class HomeScreen extends Activity {
     player1Button.setTypeface(null, Typeface.BOLD);
     player1Button.setHorizontalFadingEdgeEnabled(true);
     player1Button.setFadingEdgeLength(5);
-    player1Button.setShadowLayer(5, 5, 5, android.graphics.Color.BLACK);
+    MenuButtons.crispText(player1Button);
     player1Button.setId(BTN9_ID);
     player1Button.setFocusable(true);
     player1Button.setFocusableInTouchMode(true);
@@ -1531,6 +1531,14 @@ public class HomeScreen extends Activity {
                                  boolean arcadeGame,
                                  boolean playerSave) {
     finished = true;
+    /*
+     * Coming back from the game shows the main menu, where Continue /
+     * New Game is offered (it used to reopen the 2 Player page after a
+     * 2 player game).  The mode's button is preselected.
+     */
+    pageSelected   = 1;
+    buttonSelPage1 = (numPlayers > 1) ? BTN3_ID :
+                     (arcadeGame ? BTN1_ID : BTN2_ID);
     /*
      * Since the default game activity creates its own player,
      * destroy the current player.

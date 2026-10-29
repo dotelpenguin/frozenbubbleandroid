@@ -32,7 +32,17 @@ public final class MenuButtons {
     button.setTypeface(null, Typeface.BOLD);
     button.setHorizontalFadingEdgeEnabled(true);
     button.setFadingEdgeLength(5);
-    button.setShadowLayer(5, 5, 5, android.graphics.Color.BLACK);
+    crispText(button);
+  }
+
+  /**
+   * Crisp button text: a sharp, faint white highlight just below the
+   * letters (a slight embossed look).  It replaces a large, blurred
+   * black shadow that made the dark text look fuzzy on the light buttons.
+   */
+  public static void crispText(android.widget.TextView text) {
+    float dp = text.getResources().getDisplayMetrics().density;
+    text.setShadowLayer(0.01f, 0f, dp, 0x99FFFFFF);
   }
 
   /** A home-screen-style menu button. */

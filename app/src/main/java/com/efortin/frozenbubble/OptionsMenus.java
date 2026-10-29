@@ -72,12 +72,30 @@ public class OptionsMenus {
      * nothing to center it.
      */
     void placePopup(Window window);
+    /**
+     * <code>true</code> for the in-game menu, where some options (like
+     * resetting level progress) are left out.
+     */
+    default boolean inGame() {
+      return false;
+    }
   }
 
   /** One button in a category popup. */
   private interface Item {
-    String label();
-    void   onTap();
+    CharSequence label();
+    void         onTap();
+    /** <code>false</code> to grey the button out. */
+    default boolean enabled() {
+      return true;
+    }
+  }
+
+  /** Grey out a button whose setting doesn't apply right now. */
+  private static void applyEnabled(Button button, Item item) {
+    boolean on = item.enabled();
+    button.setEnabled(on);
+    button.setAlpha(on ? 1f : 0.45f);
   }
 
   private final Activity          activity;
@@ -107,6 +125,7 @@ public class OptionsMenus {
 
   /** Relabel the open popup's buttons, e.g. after the folder picker. */
   public void refresh() {
+    folderSummary = null;   // the music folder may have changed
     if (refreshOpenMenu != null)
       refreshOpenMenu.run();
   }
@@ -130,10 +149,51 @@ public class OptionsMenus {
             }
           }
         }),
-        action(R.string.opt_choose_folder, () -> {
-          if (!host.pickMusicFolder())
-            toast(R.string.opt_folder_from_home);
-        }));
+        new Item() {
+          public CharSequence label() {
+            // "Choose Music Folder" with the folder and its song count
+            // below it in smaller text.
+            return withNote(activity.getString(R.string.opt_choose_folder),
+                            folderSummary());
+          }
+          public void onTap() {
+            if (!host.pickMusicFolder())
+              toast(R.string.opt_folder_from_home);
+          }
+        });
+  }
+
+  /** A button label with a second, smaller line under it. */
+  private static CharSequence withNote(String label, String note) {
+    android.text.SpannableStringBuilder text =
+        new android.text.SpannableStringBuilder(label + "\n" + note);
+    int start = label.length() + 1;
+    text.setSpan(new android.text.style.RelativeSizeSpan(0.72f),
+                 start, text.length(),
+                 android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    text.setSpan(new android.text.style.StyleSpan(Typeface.NORMAL),
+                 start, text.length(),
+                 android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    return text;
+  }
+
+  /** Cached "Mods – 23 songs" (counting songs reads the folder). */
+  private String folderSummary = null;
+
+  private String folderSummary() {
+    if (folderSummary == null) {
+      android.net.Uri folder = CustomMusic.getFolder(activity);
+      if (folder == null) {
+        folderSummary = activity.getString(R.string.folder_none);
+      }
+      else {
+        int count = CustomMusic.listSongs(activity, folder).size();
+        folderSummary = activity.getResources().getQuantityString(
+            R.plurals.music_folder_songs, count,
+            CustomMusic.describeFolder(activity, folder), count);
+      }
+    }
+    return folderSummary;
   }
 
   public void showDisplayMenu(Runnable onClose) {
@@ -170,21 +230,77 @@ public class OptionsMenus {
   }
 
   public void showGameplayMenu(Runnable onClose) {
-    showMenu(onClose,
-        slider(R.string.opt_difficulty, KEY_DIFFICULTY,
+    java.util.List<Item> items = new java.util.ArrayList<Item>();
+    items.add(new Item() {
+      public String label() {
+        return activity.getString(R.string.opt_player_name) + ": " +
+            PlayerName.get(activity);
+      }
+      public void onTap() {
+        showNameEditor();
+      }
+    });
+    items.add(slider(R.string.opt_difficulty, KEY_DIFFICULTY,
                LevelManager.EASY, DIFFICULTY_MAX, LevelManager.NORMAL,
-               R.string.opt_difficulty_value, R.string.opt_difficulty_help),
-        toggle(R.string.opt_hurry, KEY_RUSH_ME, true, null),
-        toggle(R.string.opt_compressor, KEY_COMPRESSOR, false, null),
-        new Item() {
-          public String label() {
-            return activity.getString(R.string.opt_player_name) + ": " +
-                PlayerName.get(activity);
-          }
-          public void onTap() {
-            showNameEditor();
-          }
-        });
+               R.string.opt_difficulty_value, R.string.opt_difficulty_help));
+    items.add(toggle(R.string.opt_hurry, KEY_RUSH_ME, true, null));
+    items.add(toggle(R.string.opt_compressor, KEY_COMPRESSOR, false, null));
+    if (!host.inGame()) {
+      // Not offered mid-game: the game being played would save its
+      // level back over the reset.
+      items.add(action(R.string.opt_reset_progress, () -> showConfirm(
+          R.string.reset_confirm_title, R.string.reset_confirm_message,
+          R.string.reset_confirm_button, () -> {
+            FrozenBubble.resetPuzzleProgress(activity);
+            toast(R.string.reset_done);
+          })));
+    }
+    showMenu(onClose, items.toArray(new Item[0]));
+  }
+
+  /**
+   * Ask before doing something that can't be undone: a title, a message,
+   * and the action's button with Cancel, in place of the category popup.
+   */
+  private void showConfirm(int titleId, int messageId, int okId,
+                           final Runnable onOk) {
+    final AlertDialog dialog = new AlertDialog.Builder(activity).create();
+    LinearLayout box = new LinearLayout(activity);
+    box.setOrientation(LinearLayout.VERTICAL);
+    box.setGravity(Gravity.CENTER_HORIZONTAL);
+    int pad = (int) (12 * activity.getResources().getDisplayMetrics().density);
+    box.setPadding(pad, pad, pad, 0);
+    TextView title = new TextView(activity);
+    styleText(title, 22);
+    title.setText(titleId);
+    box.addView(title);
+    TextView message = new TextView(activity);
+    styleText(message, 15);
+    message.setTypeface(null, Typeface.NORMAL);
+    message.setText(messageId);
+    message.setPadding(pad, pad, pad, 0);
+    box.addView(message);
+    Button ok = MenuButtons.create(activity, okId, v -> {
+      host.click();
+      dialog.dismiss();
+      onOk.run();
+    });
+    Button cancel = MenuButtons.create(activity, R.string.cancel, v -> {
+      host.click();
+      dialog.dismiss();
+    });
+    box.addView(MenuButtons.column(activity, ok, cancel));
+    dialog.setView(scrolling(box));
+    final AlertDialog under = openMenu;
+    if (under != null)
+      under.hide();
+    dialog.setOnDismissListener(d -> {
+      if ((under != null) && (openMenu == under)) {
+        refresh();
+        under.show();
+      }
+    });
+    showSeeThrough(dialog);
   }
 
   /**
@@ -259,12 +375,21 @@ public class OptionsMenus {
 
   public void showEffectsMenu(Runnable onClose) {
     showMenu(onClose,
-        toggle(R.string.fx_pop,     Effects.KEY_POP,     Effects.DEF_POP,     null),
-        toggle(R.string.fx_fade,    Effects.KEY_FADE,    Effects.DEF_FADE,    null),
-        toggle(R.string.fx_wobble,  Effects.KEY_WOBBLE,  Effects.DEF_WOBBLE,  null),
-        toggle(R.string.fx_shake,   Effects.KEY_SHAKE,   Effects.DEF_SHAKE,   null),
-        toggle(R.string.fx_trail,   Effects.KEY_TRAIL,   Effects.DEF_TRAIL,   null),
-        toggle(R.string.fx_guide,   Effects.KEY_GUIDE,   Effects.DEF_GUIDE,   null),
+        // Greyed out (and off) without GPU Rendering, which draws them
+        // smoothly.
+        toggle(R.string.fx_pop,     Effects.KEY_POP,     Effects.DEF_POP,     null,
+               () -> Effects.gpuRendering(activity), R.string.fx_needs_gpu),
+        toggle(R.string.fx_fade,    Effects.KEY_FADE,    Effects.DEF_FADE,    null,
+               () -> Effects.gpuRendering(activity), R.string.fx_needs_gpu),
+        toggle(R.string.fx_wobble,  Effects.KEY_WOBBLE,  Effects.DEF_WOBBLE,  null,
+               () -> Effects.gpuRendering(activity), R.string.fx_needs_gpu),
+        toggle(R.string.fx_shake,   Effects.KEY_SHAKE,   Effects.DEF_SHAKE,   null,
+               () -> Effects.gpuRendering(activity), R.string.fx_needs_gpu),
+        toggle(R.string.fx_trail,   Effects.KEY_TRAIL,   Effects.DEF_TRAIL,   null,
+               () -> Effects.gpuRendering(activity), R.string.fx_needs_gpu),
+        // No guide with Point To Shoot: you tap where the shot goes.
+        toggle(R.string.fx_guide,   Effects.KEY_GUIDE,   Effects.DEF_GUIDE,   null,
+               () -> Effects.aimingUsed(activity), R.string.fx_needs_aiming),
         toggle(R.string.fx_vibrate, Effects.KEY_VIBRATE, Effects.DEF_VIBRATE, null));
   }
 
@@ -297,8 +422,10 @@ public class OptionsMenus {
     final AlertDialog dialog = new AlertDialog.Builder(activity).create();
     final Button[] buttons = new Button[items.length + 1];
     final Runnable refresh = () -> {
-      for (int i = 0; i < items.length; i++)
+      for (int i = 0; i < items.length; i++) {
         buttons[i].setText(items[i].label());
+        applyEnabled(buttons[i], items[i]);
+      }
     };
     for (int i = 0; i < items.length; i++) {
       final Item item = items[i];
@@ -308,6 +435,7 @@ public class OptionsMenus {
         refresh.run();
       });
       widen(buttons[i]);
+      applyEnabled(buttons[i], item);
     }
     buttons[items.length] = MenuButtons.create(activity, R.string.back, v -> {
       host.click();
@@ -352,11 +480,27 @@ public class OptionsMenus {
 
   private Item toggle(final int nameId, final String key,
                       final boolean def, final Runnable after) {
+    return toggle(nameId, key, def, after, null, 0);
+  }
+
+  /**
+   * A toggle that is greyed out while <code>available</code> is false,
+   * with a small note under it saying why (<code>whyId</code>).
+   */
+  private Item toggle(final int nameId, final String key,
+                      final boolean def, final Runnable after,
+                      final java.util.function.BooleanSupplier available,
+                      final int whyId) {
     return new Item() {
-      public String label() {
-        return activity.getString(nameId) + ": " +
+      public boolean enabled() {
+        return (available == null) || available.getAsBoolean();
+      }
+      public CharSequence label() {
+        String text = activity.getString(nameId) + ": " +
             activity.getString(sp.getBoolean(key, def) ? R.string.opt_on
                                                        : R.string.opt_off);
+        return (enabled() || (whyId == 0)) ? text
+            : withNote(text, activity.getString(whyId));
       }
       public void onTap() {
         sp.edit().putBoolean(key, !sp.getBoolean(key, def)).apply();

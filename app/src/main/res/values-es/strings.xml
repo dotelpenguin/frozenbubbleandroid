@@ -191,4 +191,16 @@
   <string name="setup_allow">Permitir</string>
   <string name="setup_not_now">Ahora no</string>
   <string name="opt_player_name">Nombre del jugador</string>
+  <string name="folder_none">Ninguna carpeta elegida</string>
+  <plurals name="music_folder_songs">
+    <item quantity="one">%1$s – %2$d canción</item>
+    <item quantity="other">%1$s – %2$d canciones</item>
+  </plurals>
+  <string name="opt_reset_progress">Reiniciar progreso</string>
+  <string name="reset_confirm_title">¿Reiniciar el progreso?</string>
+  <string name="reset_confirm_message">Puzle vuelve al nivel 1 y se borran tus mejores puntuaciones de Puzle y tu partida de Puzle guardada.</string>
+  <string name="reset_confirm_button">Reiniciar</string>
+  <string name="reset_done">Progreso reiniciado.</string>
+  <string name="fx_needs_gpu">Requiere renderizado por GPU</string>
+  <string name="fx_needs_aiming">No se usa con «Apunta y dispara»</string>
 </resources>

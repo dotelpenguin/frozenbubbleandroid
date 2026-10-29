@@ -189,4 +189,15 @@
   <string name="setup_allow">允许</string>
   <string name="setup_not_now">暂不</string>
   <string name="opt_player_name">玩家名字</string>
+  <string name="folder_none">未选择文件夹</string>
+  <plurals name="music_folder_songs">
+    <item quantity="other">%1$s – %2$d 首歌曲</item>
+  </plurals>
+  <string name="opt_reset_progress">重置关卡进度</string>
+  <string name="reset_confirm_title">重置关卡进度？</string>
+  <string name="reset_confirm_message">解谜将回到第 1 关，并清除你的解谜最佳成绩和已保存的解谜游戏。</string>
+  <string name="reset_confirm_button">重置</string>
+  <string name="reset_done">关卡进度已重置。</string>
+  <string name="fx_needs_gpu">需要开启 GPU 渲染</string>
+  <string name="fx_needs_aiming">“点击射击”模式下不使用</string>
 </resources>

@@ -291,6 +291,29 @@ public class FrozenBubble extends Activity
     editor.commit();
   }
 
+  /**
+   * Options > Gameplay > Reset Level Progress: back to Puzzle level 1.
+   * The saved Puzzle game and the Puzzle best scores go too (level
+   * select counts levels with a best score as completed).
+   */
+  public static void resetPuzzleProgress(Context context) {
+    selectPuzzleLevel(context, 0);
+    context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+        .putInt(LEVEL_MAX_KEY, 0).commit();
+    com.efortin.frozenbubble.HighscoreDB db = null;
+    try {
+      db = new com.efortin.frozenbubble.HighscoreDB(context,
+          com.efortin.frozenbubble.HighscoreManager.PUZZLE_DATABASE_NAME);
+      db.deleteAll();
+    } catch (RuntimeException e) {
+      // No scores to clear.
+    } finally {
+      if (db != null) {
+        db.close();
+      }
+    }
+  }
+
   /** The save slot of the game being played. */
   private static String currentSlot() {
     return (numPlayers > 1) ? SAVED_MODE_2PLAYER :
@@ -819,6 +842,10 @@ public class FrozenBubble extends Activity
         @Override
         public void placePopup(android.view.Window window) {
           centerOverDimmedGame(window);
+        }
+        @Override
+        public boolean inGame() {
+          return true;
         }
       });
     }

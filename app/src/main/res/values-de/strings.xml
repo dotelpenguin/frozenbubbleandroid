@@ -191,4 +191,16 @@
   <string name="setup_allow">Erlauben</string>
   <string name="setup_not_now">Nicht jetzt</string>
   <string name="opt_player_name">Spielername</string>
+  <string name="folder_none">Kein Ordner gewählt</string>
+  <plurals name="music_folder_songs">
+    <item quantity="one">%1$s – %2$d Song</item>
+    <item quantity="other">%1$s – %2$d Songs</item>
+  </plurals>
+  <string name="opt_reset_progress">Level-Fortschritt zurücksetzen</string>
+  <string name="reset_confirm_title">Level-Fortschritt zurücksetzen?</string>
+  <string name="reset_confirm_message">Puzzle beginnt wieder bei Level 1. Deine Puzzle-Bestwerte und dein gespeichertes Puzzle-Spiel werden gelöscht.</string>
+  <string name="reset_confirm_button">Zurücksetzen</string>
+  <string name="reset_done">Level-Fortschritt zurückgesetzt.</string>
+  <string name="fx_needs_gpu">Benötigt GPU-Darstellung</string>
+  <string name="fx_needs_aiming">Nicht bei „Zeigen zum Schießen“</string>
 </resources>

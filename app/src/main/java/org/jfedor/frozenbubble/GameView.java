@@ -920,7 +920,14 @@ public class GameView extends SurfaceView
         mHighScoreManager = null;
       }
 
-      mLevelManager = new LevelManager(0, FrozenBubble.getDifficulty());
+      /*
+       * A different field each game for local and vs CPU games (the seed
+       * was always 0, so every game started the same).  Network games
+       * keep the fixed seed: both phones must build the same field.
+       */
+      long seed = (gameLocale == FrozenBubble.LOCALE_LOCAL) ?
+                  System.nanoTime() : 0;
+      mLevelManager = new LevelManager(seed, FrozenBubble.getDifficulty());
       newGame(false);
     }
 
