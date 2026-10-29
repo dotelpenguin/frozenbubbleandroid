@@ -847,9 +847,56 @@ public class FrozenBubble extends Activity
         public boolean inGame() {
           return true;
         }
+        @Override
+        public boolean networkGame() {
+          return gameLocale != LOCALE_LOCAL;
+        }
+        @Override
+        public void restartGame() {
+          restartCurrentGame();
+        }
+        @Override
+        public boolean affectsCurrentGame(String key) {
+          // Difficulty (number of colours) is for Arcade and 2 player
+          // games; the compressor option only for 2 player games.
+          if (com.efortin.frozenbubble.OptionsMenus.KEY_DIFFICULTY.equals(key)) {
+            return arcadeGame || (numPlayers > 1);
+          }
+          if (com.efortin.frozenbubble.OptionsMenus.KEY_COMPRESSOR.equals(key)) {
+            return numPlayers > 1;
+          }
+          return true;
+        }
       });
     }
     return optionsMenus;
+  }
+
+  /** The in-game Options menu while it is open (hidden or shown). */
+  private AlertDialog inGameMenu = null;
+
+  /**
+   * Restart the game being played from scratch, so options that need a
+   * new game (difficulty, compressor, GPU rendering, original art) apply:
+   * the game screen is rebuilt.  Puzzle restarts the current level.
+   */
+  private void restartCurrentGame() {
+    if (inGameMenu != null) {
+      inGameMenu.setOnCancelListener(null);
+      inGameMenu.dismiss();
+      inGameMenu = null;
+    }
+    // Record the Puzzle level being played, so the restart starts there.
+    saveState(new Bundle());
+    Intent intent = new Intent();
+    intent.putExtra("myPlayerId", myPlayerId);
+    intent.putExtra("numPlayers", numPlayers);
+    intent.putExtra("opponentId", opponentId);
+    intent.putExtra("gameLocale", gameLocale);
+    intent.putExtra("arcadeGame", arcadeGame);
+    intent.putExtra("playerSave", false);
+    cleanUpGameView();
+    startDefaultGame(intent, null);
   }
 
   /**
@@ -860,6 +907,7 @@ public class FrozenBubble extends Activity
   private void gameOptionsDialog() {
     final com.efortin.frozenbubble.OptionsMenus menus = getOptionsMenus();
     final AlertDialog menu = new AlertDialog.Builder(FrozenBubble.this).create();
+    inGameMenu = menu;
     // Category popups hide this menu, and show it again when closed.
     final Runnable backHere = () -> menu.show();
     Button[] buttons = {

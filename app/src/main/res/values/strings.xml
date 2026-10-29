@@ -204,4 +204,8 @@
   <string name="reset_done">Level progress reset.</string>
   <string name="fx_needs_gpu">Needs GPU Rendering</string>
   <string name="fx_needs_aiming">Not used with Point To Shoot</string>
+  <string name="restart_title">Restart the game?</string>
+  <string name="restart_message">This option only takes effect in a new game. Change it and restart the current game now?</string>
+  <string name="restart_button">Restart</string>
+  <string name="restart_network">This can\'t be changed during a network game.</string>
 </resources>

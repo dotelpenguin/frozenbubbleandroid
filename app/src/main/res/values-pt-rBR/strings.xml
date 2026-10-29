@@ -203,4 +203,8 @@
   <string name="reset_done">Progresso zerado.</string>
   <string name="fx_needs_gpu">Requer renderização por GPU</string>
   <string name="fx_needs_aiming">Não usado com “Apontar para atirar”</string>
+  <string name="restart_title">Reiniciar o jogo?</string>
+  <string name="restart_message">Esta opção só vale em um jogo novo. Mudar e reiniciar o jogo atual agora?</string>
+  <string name="restart_button">Reiniciar</string>
+  <string name="restart_network">Isso não pode ser mudado durante um jogo em rede.</string>
 </resources>

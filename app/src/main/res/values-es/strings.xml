@@ -203,4 +203,8 @@
   <string name="reset_done">Progreso reiniciado.</string>
   <string name="fx_needs_gpu">Requiere renderizado por GPU</string>
   <string name="fx_needs_aiming">No se usa con «Apunta y dispara»</string>
+  <string name="restart_title">¿Reiniciar la partida?</string>
+  <string name="restart_message">Esta opción solo se aplica en una partida nueva. ¿Cambiarla y reiniciar ahora la partida actual?</string>
+  <string name="restart_button">Reiniciar</string>
+  <string name="restart_network">No se puede cambiar durante una partida en red.</string>
 </resources>

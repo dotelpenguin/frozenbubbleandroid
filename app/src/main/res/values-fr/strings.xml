@@ -203,4 +203,8 @@
   <string name="reset_done">Progression réinitialisée.</string>
   <string name="fx_needs_gpu">Nécessite le rendu GPU</string>
   <string name="fx_needs_aiming">Inutile avec « Toucher pour tirer »</string>
+  <string name="restart_title">Recommencer la partie ?</string>
+  <string name="restart_message">Cette option ne s\'applique qu\'à une nouvelle partie. La changer et recommencer la partie en cours maintenant ?</string>
+  <string name="restart_button">Recommencer</string>
+  <string name="restart_network">Impossible de la changer pendant une partie en réseau.</string>
 </resources>

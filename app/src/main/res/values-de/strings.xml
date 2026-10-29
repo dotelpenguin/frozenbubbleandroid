@@ -203,4 +203,8 @@
   <string name="reset_done">Level-Fortschritt zurückgesetzt.</string>
   <string name="fx_needs_gpu">Benötigt GPU-Darstellung</string>
   <string name="fx_needs_aiming">Nicht bei „Zeigen zum Schießen“</string>
+  <string name="restart_title">Spiel neu starten?</string>
+  <string name="restart_message">Diese Option wirkt erst in einem neuen Spiel. Jetzt ändern und das aktuelle Spiel neu starten?</string>
+  <string name="restart_button">Neu starten</string>
+  <string name="restart_network">Das kann während eines Netzwerkspiels nicht geändert werden.</string>
 </resources>

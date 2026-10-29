@@ -79,6 +79,57 @@ public class OptionsMenus {
     default boolean inGame() {
       return false;
     }
+    /** <code>true</code> during a network (Wi-Fi / Bluetooth) game. */
+    default boolean networkGame() {
+      return false;
+    }
+    /** Restart the current game with the changed settings. */
+    default void restartGame() {
+    }
+    /**
+     * <code>false</code> if the option doesn't affect the game being
+     * played (e.g. Difficulty during a Puzzle game), so no restart.
+     */
+    default boolean affectsCurrentGame(String key) {
+      return true;
+    }
+  }
+
+  /*
+   * Options that only take effect in a new game.  Changed in game, they
+   * ask first and then restart the game.
+   */
+  private static final java.util.Set<String> RESTART_KEYS =
+      new java.util.HashSet<String>(java.util.Arrays.asList(
+          KEY_DIFFICULTY, KEY_COMPRESSOR,
+          GameView.KEY_GPU_RENDERING, GameView.KEY_ORIGINAL_ART));
+
+  /**
+   * Apply a change: straight away, or, for an option that needs a new
+   * game while one is being played, after asking, followed by a restart.
+   * During a network game such options can't be changed (restarting one
+   * phone would put the two out of step).
+   */
+  private boolean needsRestart(String key) {
+    return host.inGame() && RESTART_KEYS.contains(key) &&
+           host.affectsCurrentGame(key);
+  }
+
+  private void applyChange(String key, Runnable apply) {
+    if (!needsRestart(key)) {
+      apply.run();
+      return;
+    }
+    if (host.networkGame()) {
+      toast(R.string.restart_network);
+      return;
+    }
+    showConfirm(R.string.restart_title, R.string.restart_message,
+                R.string.restart_button, () -> {
+      apply.run();
+      closeOpenMenu();
+      host.restartGame();
+    });
   }
 
   /** One button in a category popup. */
@@ -163,6 +214,14 @@ public class OptionsMenus {
         });
   }
 
+  /**
+   * "Applies from the next game" after changing GPU Rendering or Original
+   * Art on the home screen's Options (in game, the game restarts).
+   */
+  private Runnable nextGameNote() {
+    return host.inGame() ? null : () -> toast(R.string.opt_next_game_note);
+  }
+
   /** A button label with a second, smaller line under it. */
   private static CharSequence withNote(String label, String note) {
     android.text.SpannableStringBuilder text =
@@ -199,10 +258,9 @@ public class OptionsMenus {
   public void showDisplayMenu(Runnable onClose) {
     showMenu(onClose,
         toggle(R.string.opt_fullscreen, KEY_FULLSCREEN, true, null),
-        toggle(R.string.opt_gpu, GameView.KEY_GPU_RENDERING, true, () ->
-            toast(R.string.opt_next_game_note)),
-        toggle(R.string.opt_original_art, GameView.KEY_ORIGINAL_ART, false, () ->
-            toast(R.string.opt_next_game_note)),
+        toggle(R.string.opt_gpu, GameView.KEY_GPU_RENDERING, true, nextGameNote()),
+        toggle(R.string.opt_original_art, GameView.KEY_ORIGINAL_ART, false,
+               nextGameNote()),
         toggle(R.string.opt_colorblind, KEY_COLORBLIND,
                FrozenBubble.GAME_NORMAL, null));
   }
@@ -503,10 +561,12 @@ public class OptionsMenus {
             : withNote(text, activity.getString(whyId));
       }
       public void onTap() {
-        sp.edit().putBoolean(key, !sp.getBoolean(key, def)).apply();
-        if (after != null)
-          after.run();
-        changed(key);
+        applyChange(key, () -> {
+          sp.edit().putBoolean(key, !sp.getBoolean(key, def)).apply();
+          if (after != null)
+            after.run();
+          changed(key);
+        });
       }
     };
   }
@@ -573,9 +633,23 @@ public class OptionsMenus {
 
     Button done = MenuButtons.create(activity, R.string.opt_done, v -> {
       host.click();
-      sp.edit().putInt(key, bar.getProgress() + min).apply();
-      changed(key);
-      dialog.dismiss();
+      final int chosen = bar.getProgress() + min;
+      if (chosen == clamp(sp.getInt(key, def), min, max)) {
+        dialog.dismiss();     // unchanged: nothing to apply or restart
+        return;
+      }
+      if (needsRestart(key) && !host.networkGame()) {
+        // The restart question replaces this popup.
+        dialog.setOnDismissListener(null);
+        dialog.dismiss();
+      }
+      else {
+        dialog.dismiss();
+      }
+      applyChange(key, () -> {
+        sp.edit().putInt(key, chosen).apply();
+        changed(key);
+      });
     });
     Button cancel = MenuButtons.create(activity, R.string.cancel, v -> {
       host.click();

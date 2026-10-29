@@ -200,4 +200,8 @@
   <string name="reset_done">关卡进度已重置。</string>
   <string name="fx_needs_gpu">需要开启 GPU 渲染</string>
   <string name="fx_needs_aiming">“点击射击”模式下不使用</string>
+  <string name="restart_title">重新开始游戏？</string>
+  <string name="restart_message">此选项仅在新游戏中生效。要更改并立即重新开始当前游戏吗？</string>
+  <string name="restart_button">重新开始</string>
+  <string name="restart_network">网络游戏中无法更改此项。</string>
 </resources>

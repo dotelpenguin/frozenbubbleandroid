@@ -203,4 +203,8 @@
   <string name="reset_done">Framvinda endurstillt.</string>
   <string name="fx_needs_gpu">Krefst GPU-teikningar</string>
   <string name="fx_needs_aiming">Ekki notað með „Bentu til að skjóta“</string>
+  <string name="restart_title">Byrja leikinn aftur?</string>
+  <string name="restart_message">Þessi stilling gildir aðeins í nýjum leik. Breyta henni og byrja núverandi leik aftur núna?</string>
+  <string name="restart_button">Byrja aftur</string>
+  <string name="restart_network">Ekki er hægt að breyta þessu í netleik.</string>
 </resources>
