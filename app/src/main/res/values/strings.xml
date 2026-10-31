@@ -167,7 +167,7 @@
   <string name="home_arcade">Arcade</string>
   <string name="home_wifi">Wi-Fi</string>
   <string name="home_bluetooth">Bluetooth</string>
-  <string name="home_vs_cpu">Player vs. CPU</string>
+  <string name="home_vs_cpu">Vs CPU</string>
   <string name="home_local">Local</string>
   <string name="home_player1">Player 1</string>
   <string name="home_player2">Player 2</string>
@@ -227,4 +227,6 @@
   <string name="hs_none">No scores yet</string>
   <string name="hs_best_ingame">Best: %1$d shots · %2$s · %3$s</string>
   <string name="opt_show_best">Show Best Score</string>
+  <string name="resume">Resume</string>
+  <string name="quit">Quit</string>
 </resources>

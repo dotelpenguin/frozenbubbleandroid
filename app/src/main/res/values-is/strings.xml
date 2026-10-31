@@ -162,7 +162,7 @@
   <string name="home_arcade">Arcade</string>
   <string name="home_wifi">Wi-Fi</string>
   <string name="home_bluetooth">Bluetooth</string>
-  <string name="home_vs_cpu">Leikmaður gegn tölvu</string>
+  <string name="home_vs_cpu">Gegn tölvu</string>
   <string name="home_local">Staðbundið</string>
   <string name="home_player1">Leikmaður 1</string>
   <string name="home_player2">Leikmaður 2</string>
@@ -226,4 +226,6 @@
   <string name="hs_none">Engin stig enn</string>
   <string name="hs_best_ingame">Met: %1$d skot · %2$s · %3$s</string>
   <string name="opt_show_best">Sýna met</string>
+  <string name="resume">Halda áfram</string>
+  <string name="quit">Hætta</string>
 </resources>

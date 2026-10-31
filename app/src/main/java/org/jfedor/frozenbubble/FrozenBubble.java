@@ -966,7 +966,7 @@ public class FrozenBubble extends Activity
 
   private void exitGameDialog() {
     /*
-     * Exit (which always saves), Options and Cancel as a column of buttons in
+     * Resume, Options and Quit (which always saves) as a column of buttons in
      * the home screen menu style.  Options opens the in-game menu, since
      * modern phones have no Menu key to reach it.
      */
@@ -987,7 +987,7 @@ public class FrozenBubble extends Activity
     .create();
 
     Button exitButton = com.efortin.frozenbubble.MenuButtons.create(this,
-        R.string.exit, new android.view.View.OnClickListener() {
+        R.string.quit, new android.view.View.OnClickListener() {
       @Override
       public void onClick(android.view.View v) {
         alert.dismiss();
@@ -1005,7 +1005,7 @@ public class FrozenBubble extends Activity
       }
     });
     Button cancelButton = com.efortin.frozenbubble.MenuButtons.create(this,
-        R.string.cancel, new android.view.View.OnClickListener() {
+        R.string.resume, new android.view.View.OnClickListener() {
       @Override
       public void onClick(android.view.View v) {
         alert.dismiss();
@@ -1015,8 +1015,9 @@ public class FrozenBubble extends Activity
         }
       }
     });
+    // Resume at the top, Quit at the bottom.
     alert.setView(com.efortin.frozenbubble.MenuButtons.column(this,
-        exitButton, optionsButton, cancelButton));
+        cancelButton, optionsButton, exitButton));
     /*
      * No dialog box: the buttons float over the (dimmed) game.
      */

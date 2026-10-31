@@ -166,7 +166,7 @@
   <string name="home_arcade">街机</string>
   <string name="home_wifi">Wi-Fi</string>
   <string name="home_bluetooth">蓝牙</string>
-  <string name="home_vs_cpu">玩家对战电脑</string>
+  <string name="home_vs_cpu">对战电脑</string>
   <string name="home_local">本地</string>
   <string name="home_player1">玩家 1</string>
   <string name="home_player2">玩家 2</string>
@@ -223,4 +223,6 @@
   <string name="hs_none">暂无记录</string>
   <string name="hs_best_ingame">最佳：%1$d 发 · %2$s · %3$s</string>
   <string name="opt_show_best">显示最佳成绩</string>
+  <string name="resume">继续</string>
+  <string name="quit">退出</string>
 </resources>

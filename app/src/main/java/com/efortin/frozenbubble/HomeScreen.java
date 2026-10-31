@@ -380,10 +380,8 @@ public class HomeScreen extends Activity {
         /*
          * Start an Arcade game, or ask whether to continue the saved one.
          */
-        startOrAskToContinue(FrozenBubble.SAVED_MODE_ARCADE, () ->
-            startFrozenBubble(VirtualInput.PLAYER1, 1,
-                              FrozenBubble.HUMAN,
-                              FrozenBubble.LOCALE_LOCAL, true, false));
+        startOrAskToContinue(FrozenBubble.SAVED_MODE_ARCADE,
+                             () -> showArcadeDifficultyMenu());
       }
     });
     startArcadeGameButton.setOnTouchListener(new Button.OnTouchListener(){
@@ -1030,6 +1028,52 @@ public class HomeScreen extends Activity {
    * when Player vs. CPU is chosen.  The choice is remembered and used by
    * the CPU (including when a saved game is continued).
    */
+  /**
+   * New Arcade game: choose the difficulty first.  The last one chosen
+   * (Normal at first) is marked; it is the same setting as Options >
+   * Gameplay > Difficulty.
+   */
+  private void showArcadeDifficultyMenu() {
+    final AlertDialog dialog = new AlertDialog.Builder(HomeScreen.this).create();
+    final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+    int current = sp.getInt(OptionsMenus.KEY_DIFFICULTY,
+                            org.jfedor.frozenbubble.LevelManager.NORMAL);
+    int first = org.jfedor.frozenbubble.LevelManager.EASY;
+    int last  = org.jfedor.frozenbubble.LevelManager.INSANE;
+    Button[] buttons = new Button[(last - first) + 2];
+    for (int d = first; d <= last; d++) {
+      final int difficulty = d;
+      String name = OptionsMenus.difficultyName(this, d);
+      if (d == current) {
+        name = "● " + name;
+      }
+      buttons[d - first] = MenuButtons.create(this, name, v -> {
+        dialog.dismiss();
+        mSoundManager.playSound("stick", R.raw.stick);
+        sp.edit().putInt(OptionsMenus.KEY_DIFFICULTY, difficulty).apply();
+        restoreGamePrefs();
+        startFrozenBubble(VirtualInput.PLAYER1, 1, FrozenBubble.HUMAN,
+                          FrozenBubble.LOCALE_LOCAL, true, false);
+      });
+    }
+    buttons[buttons.length - 1] = MenuButtons.create(this, R.string.back, v -> {
+      dialog.dismiss();
+      mSoundManager.playSound("stick", R.raw.stick);
+    });
+    TextView title = new TextView(this);
+    OptionsMenus.styleText(title, 22);
+    title.setText(R.string.opt_difficulty);
+    LinearLayout box = new LinearLayout(this);
+    box.setOrientation(LinearLayout.VERTICAL);
+    box.setGravity(Gravity.CENTER_HORIZONTAL);
+    box.addView(title);
+    box.addView(MenuButtons.column(this, buttons));
+    android.widget.ScrollView scroll = new android.widget.ScrollView(this);
+    scroll.addView(box);
+    dialog.setView(scroll);
+    showOverDimmedMenu(dialog);
+  }
+
   private void showCpuSkillMenu() {
     final AlertDialog dialog = new AlertDialog.Builder(HomeScreen.this).create();
     final int[] labels = { R.string.cpu_easy, R.string.cpu_normal,

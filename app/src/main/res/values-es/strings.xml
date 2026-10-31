@@ -166,7 +166,7 @@
   <string name="home_arcade">Arcade</string>
   <string name="home_wifi">Wi-Fi</string>
   <string name="home_bluetooth">Bluetooth</string>
-  <string name="home_vs_cpu">Jugador contra CPU</string>
+  <string name="home_vs_cpu">Contra CPU</string>
   <string name="home_local">Local</string>
   <string name="home_player1">Jugador 1</string>
   <string name="home_player2">Jugador 2</string>
@@ -226,4 +226,6 @@
   <string name="hs_none">Aún no hay récords</string>
   <string name="hs_best_ingame">Récord: %1$d disparos · %2$s · %3$s</string>
   <string name="opt_show_best">Mostrar récord</string>
+  <string name="resume">Reanudar</string>
+  <string name="quit">Salir</string>
 </resources>

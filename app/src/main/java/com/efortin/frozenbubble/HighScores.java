@@ -150,8 +150,9 @@ public class HighScores {
         tab = which;
         render();
       });
-      tabs[i].setTextSize(android.util.TypedValue.COMPLEX_UNIT_DIP, 15);
-      tabs[i].setWidth((int) (tabs[i].getTextSize() * 6));
+      tabs[i].setTextSize(android.util.TypedValue.COMPLEX_UNIT_DIP, 16);
+      tabs[i].setSingleLine(true);
+      tabs[i].setWidth((int) (tabs[i].getTextSize() * 8.5f));
       tabRow.addView(tabs[i]);
     }
     box.addView(tabRow);

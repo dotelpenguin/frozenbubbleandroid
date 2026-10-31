@@ -166,7 +166,7 @@
   <string name="home_arcade">Arcade</string>
   <string name="home_wifi">WLAN</string>
   <string name="home_bluetooth">Bluetooth</string>
-  <string name="home_vs_cpu">Spieler gegen CPU</string>
+  <string name="home_vs_cpu">Gegen CPU</string>
   <string name="home_local">Lokal</string>
   <string name="home_player1">Spieler 1</string>
   <string name="home_player2">Spieler 2</string>
@@ -226,4 +226,6 @@
   <string name="hs_none">Noch keine Ergebnisse</string>
   <string name="hs_best_ingame">Rekord: %1$d Schüsse · %2$s · %3$s</string>
   <string name="opt_show_best">Rekord anzeigen</string>
+  <string name="resume">Weiter</string>
+  <string name="quit">Beenden</string>
 </resources>
