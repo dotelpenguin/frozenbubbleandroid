@@ -227,4 +227,11 @@
   <string name="quit">退出</string>
   <string name="hs_col_points">分数</string>
   <string name="hs_best_arcade">最佳：%1$s · %2$s</string>
+  <string name="pack_original">原版</string>
+  <string name="pack_easy">简单</string>
+  <string name="pack_medium">中等</string>
+  <string name="pack_hard">困难</string>
+  <string name="pack_pictures">图案</string>
+  <string name="pack_complete">%1$s 关卡包已完成！从第 1 关重新开始。</string>
+  <string name="pack_title_level">%1$s – 第 %2$d 关</string>
 </resources>

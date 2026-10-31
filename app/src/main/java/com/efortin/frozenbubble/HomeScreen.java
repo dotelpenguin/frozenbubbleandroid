@@ -524,8 +524,8 @@ public class HomeScreen extends Activity {
           R.string.level_select_title, chooseLevel);
     }
     else {
-      showModeMenu(getString(R.string.save_title_puzzle_level,
-                             FrozenBubble.getPuzzleLevel(this) + 1),
+      showModeMenu(FrozenBubble.puzzleTitle(this,
+                                            FrozenBubble.getPuzzleLevel(this) + 1),
           R.string.save_new_game,      newGame,
           R.string.level_select_title, chooseLevel);
     }

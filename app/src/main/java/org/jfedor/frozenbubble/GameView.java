@@ -1118,17 +1118,14 @@ public class GameView extends SurfaceView
       else {
         mHighScoreManager =
             new HighscoreManager(getContext(),
-                                 HighscoreManager.PUZZLE_DATABASE_NAME);
+                com.efortin.frozenbubble.LevelPacks.dbName(
+                    com.efortin.frozenbubble.LevelPacks.current(mContext)));
         if (null == customLevels) {
           try {
-            InputStream is     = mContext.getAssets().open("levels.txt");
-            int         size   = is.available();
-            byte[]      levels = new byte[size];
-            is.read(levels);
-            is.close();
-            SharedPreferences sp = mContext.getSharedPreferences(
-            FrozenBubble.PREFS_NAME, Context.MODE_PRIVATE);
-            startingLevel = sp.getInt("level", 0);
+            // The chosen level pack (Original: assets/levels.txt).
+            String pack   = com.efortin.frozenbubble.LevelPacks.current(mContext);
+            byte[] levels = com.efortin.frozenbubble.LevelPacks.load(mContext, pack);
+            startingLevel = FrozenBubble.getPuzzleLevel(mContext, pack);
             mLevelManager = new LevelManager(levels, startingLevel);
           } catch (IOException e) {
             /*

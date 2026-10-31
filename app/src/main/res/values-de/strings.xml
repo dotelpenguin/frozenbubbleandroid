@@ -230,4 +230,11 @@
   <string name="quit">Beenden</string>
   <string name="hs_col_points">Punkte</string>
   <string name="hs_best_arcade">Rekord: %1$s · %2$s</string>
+  <string name="pack_original">Original</string>
+  <string name="pack_easy">Leicht</string>
+  <string name="pack_medium">Mittel</string>
+  <string name="pack_hard">Schwer</string>
+  <string name="pack_pictures">Bilder</string>
+  <string name="pack_complete">Paket „%1$s“ geschafft! Weiter mit Level 1.</string>
+  <string name="pack_title_level">%1$s – Level %2$d</string>
 </resources>

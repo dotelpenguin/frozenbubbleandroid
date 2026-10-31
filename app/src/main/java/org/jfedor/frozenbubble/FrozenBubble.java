@@ -204,9 +204,7 @@ public class FrozenBubble extends Activity
     int detail = PreferenceManager.getDefaultSharedPreferences(context)
         .getInt(SAVED_DETAIL + slot, -1);
     if (SAVED_MODE_PUZZLE.equals(slot)) {
-      return (detail > 0) ?
-          context.getString(R.string.save_title_puzzle_level, detail) :
-          context.getString(R.string.save_title_puzzle);
+      return puzzleTitle(context, detail);
     }
     if (SAVED_MODE_ARCADE.equals(slot)) {
       return (detail > 0) ?
@@ -215,6 +213,23 @@ public class FrozenBubble extends Activity
     }
     return context.getString((detail == CPU) ? R.string.save_title_2p_cpu :
                                                R.string.save_title_2p);
+  }
+
+  /**
+   * "Puzzle - Level 23", or with the pack's name for other packs:
+   * "Pictures - Level 4".
+   * @param level - 1-based, or 0 or less for no level.
+   */
+  public static String puzzleTitle(Context context, int level) {
+    String pack = com.efortin.frozenbubble.LevelPacks.current(context);
+    if (level <= 0) {
+      return context.getString(R.string.save_title_puzzle);
+    }
+    if (com.efortin.frozenbubble.LevelPacks.isOriginal(pack)) {
+      return context.getString(R.string.save_title_puzzle_level, level);
+    }
+    return context.getString(R.string.pack_title_level,
+        com.efortin.frozenbubble.LevelPacks.name(context, pack), level);
   }
 
   /**
@@ -249,10 +264,19 @@ public class FrozenBubble extends Activity
   private final static String LEVEL_KEY     = "level";
   private final static String LEVEL_MAX_KEY = "levelMax";
 
-  /** The Puzzle level New Game starts at (0-based). */
+  /*
+   * Each level pack keeps its own progress (see LevelPacks.key()); the
+   * Original pack uses the plain keys, as before packs.
+   */
+
+  /** The Puzzle level New Game starts at (0-based), in the current pack. */
   public static int getPuzzleLevel(Context context) {
+    return getPuzzleLevel(context, com.efortin.frozenbubble.LevelPacks.current(context));
+  }
+
+  public static int getPuzzleLevel(Context context, String pack) {
     return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        .getInt(LEVEL_KEY, 0);
+        .getInt(com.efortin.frozenbubble.LevelPacks.key(LEVEL_KEY, pack), 0);
   }
 
   /**
@@ -261,11 +285,12 @@ public class FrozenBubble extends Activity
    * levels with a best score (completed).
    * @param bestCompleted - the highest completed level, or -1.
    */
-  public static int getHighestPuzzleLevel(Context context, int bestCompleted) {
+  public static int getHighestPuzzleLevel(Context context, String pack,
+                                          int bestCompleted) {
     SharedPreferences sp =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-    return Math.max(Math.max(sp.getInt(LEVEL_MAX_KEY, 0),
-                             sp.getInt(LEVEL_KEY, 0)),
+    return Math.max(Math.max(sp.getInt(com.efortin.frozenbubble.LevelPacks.key(LEVEL_MAX_KEY, pack), 0),
+                             sp.getInt(com.efortin.frozenbubble.LevelPacks.key(LEVEL_KEY, pack), 0)),
                     bestCompleted + 1);
   }
 
@@ -276,9 +301,11 @@ public class FrozenBubble extends Activity
   public static void selectPuzzleLevel(Context context, int level) {
     SharedPreferences sp =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+    String pack   = com.efortin.frozenbubble.LevelPacks.current(context);
+    String maxKey = com.efortin.frozenbubble.LevelPacks.key(LEVEL_MAX_KEY, pack);
     sp.edit()
-      .putInt(LEVEL_KEY, level)
-      .putInt(LEVEL_MAX_KEY, Math.max(level, sp.getInt(LEVEL_MAX_KEY, 0)))
+      .putInt(com.efortin.frozenbubble.LevelPacks.key(LEVEL_KEY, pack), level)
+      .putInt(maxKey, Math.max(level, sp.getInt(maxKey, 0)))
       .commit();
     context.deleteFile(saveFileName(SAVED_MODE_PUZZLE));
     SharedPreferences dp = PreferenceManager.getDefaultSharedPreferences(context);
@@ -299,20 +326,26 @@ public class FrozenBubble extends Activity
   public static void resetPuzzleProgress(Context context) {
     com.efortin.frozenbubble.LevelSelect.setCheat(context, false);
     selectPuzzleLevel(context, 0);
-    context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
-        .putInt(LEVEL_MAX_KEY, 0).commit();
-    com.efortin.frozenbubble.HighscoreDB db = null;
-    try {
-      db = new com.efortin.frozenbubble.HighscoreDB(context,
-          com.efortin.frozenbubble.HighscoreManager.PUZZLE_DATABASE_NAME);
-      db.deleteAll();
-    } catch (RuntimeException e) {
-      // No scores to clear.
-    } finally {
-      if (db != null) {
-        db.close();
+    // Every pack's progress and best scores.
+    SharedPreferences.Editor editor =
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit();
+    for (String pack : com.efortin.frozenbubble.LevelPacks.ids(context)) {
+      editor.putInt(com.efortin.frozenbubble.LevelPacks.key(LEVEL_KEY, pack), 0);
+      editor.putInt(com.efortin.frozenbubble.LevelPacks.key(LEVEL_MAX_KEY, pack), 0);
+      com.efortin.frozenbubble.HighscoreDB db = null;
+      try {
+        db = new com.efortin.frozenbubble.HighscoreDB(context,
+            com.efortin.frozenbubble.LevelPacks.dbName(pack));
+        db.deleteAll();
+      } catch (RuntimeException e) {
+        // No scores to clear.
+      } finally {
+        if (db != null) {
+          db.close();
+        }
       }
     }
+    editor.commit();
   }
 
   /** The save slot of the game being played. */
@@ -1275,7 +1308,15 @@ public class FrozenBubble extends Activity
         gameOver = false;
         if (!arcadeGame && (mGameView != null) && (mGameThread != null) &&
             (numPlayers == 1)) {
-          if (mGameThread.getCurrentLevelIndex() == 0) {
+          if ((mGameThread.getCurrentLevelIndex() == 0) &&
+              !com.efortin.frozenbubble.LevelPacks.isOriginal(com.efortin.frozenbubble.LevelPacks.current(this))) {
+            // The end of a level pack: it starts again at level 1.  (The
+            // credits are for finishing the Original levels.)
+            android.widget.Toast.makeText(this, getString(R.string.pack_complete,
+                com.efortin.frozenbubble.LevelPacks.name(this, com.efortin.frozenbubble.LevelPacks.current(this))),
+                android.widget.Toast.LENGTH_LONG).show();
+          }
+          else if (mGameThread.getCurrentLevelIndex() == 0) {
             /*
              * Destroy the current music player, which will free audio
              * stream resources and allow the system to use them.
@@ -1571,9 +1612,10 @@ public class FrozenBubble extends Activity
       Intent i = getIntent();
       if ((null == i) || !activityCustomStarted) {
         int level = mGameThread.getCurrentLevelIndex();
-        editor.putInt(LEVEL_KEY, level);
-        editor.putInt(LEVEL_MAX_KEY, Math.max(level,
-                                              sp.getInt(LEVEL_MAX_KEY, 0)));
+        String pack   = com.efortin.frozenbubble.LevelPacks.current(this);
+        String maxKey = com.efortin.frozenbubble.LevelPacks.key(LEVEL_MAX_KEY, pack);
+        editor.putInt(com.efortin.frozenbubble.LevelPacks.key(LEVEL_KEY, pack), level);
+        editor.putInt(maxKey, Math.max(level, sp.getInt(maxKey, 0)));
       }
       else {
         /*

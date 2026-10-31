@@ -90,11 +90,15 @@ public class LevelSelect {
 
   private final Activity activity;
   private final Host     host;
-  private final int      numLevels;
-  private final int      reached;   // highest level reached (0-based)
+  /** The level packs, and the one shown (see LevelPacks). */
+  private final List<String> packs;
+  private String           pack;
+  private int              numLevels;
+  private int              reached;   // highest level reached (0-based)
   private int              highest;   // highest level that can be chosen
   /** Best score of each completed level (0-based level → score). */
-  private final Map<Integer, HighscoreDO> best;
+  private Map<Integer, HighscoreDO> best;
+  private TextView packLabel;
 
   private int page;
   private int selected;
@@ -107,18 +111,32 @@ public class LevelSelect {
   public LevelSelect(Activity activity, Host host) {
     this.activity  = activity;
     this.host      = host;
-    this.numLevels = countLevels(activity);
-    this.best      = loadBestScores(activity);
+    this.packs     = LevelPacks.ids(activity);
+    loadPack(LevelPacks.current(activity));
+  }
+
+  /** Show a pack: its levels, progress and best scores. */
+  private void loadPack(String id) {
+    pack      = id;
+    numLevels = LevelPacks.countLevels(activity, id);
+    best      = loadBestScores(activity, id);
     int bestCompleted = -1;
     for (int level : best.keySet()) {
       bestCompleted = Math.max(bestCompleted, level);
     }
-    this.reached  = Math.min(numLevels - 1,
-        FrozenBubble.getHighestPuzzleLevel(activity, bestCompleted));
-    this.highest  = cheatOn(activity) ? numLevels - 1 : reached;
-    this.selected = Math.max(0, Math.min(highest,
-                                         FrozenBubble.getPuzzleLevel(activity)));
-    this.page     = selected / PER_PAGE;
+    reached  = Math.min(numLevels - 1,
+        FrozenBubble.getHighestPuzzleLevel(activity, id, bestCompleted));
+    highest  = cheatOn(activity) ? numLevels - 1 : reached;
+    selected = Math.max(0, Math.min(highest,
+                                    FrozenBubble.getPuzzleLevel(activity, id)));
+    page     = selected / PER_PAGE;
+  }
+
+  private void switchPack(int step) {
+    int i = packs.indexOf(pack);
+    i = (i + step + packs.size()) % packs.size();
+    loadPack(packs.get(i));
+    render();
   }
 
   public static boolean cheatOn(android.content.Context context) {
@@ -131,26 +149,13 @@ public class LevelSelect {
         .edit().putBoolean(KEY_CHEAT, on).apply();
   }
 
-  /** The number of Puzzle levels (100 in the built-in set). */
-  private static int countLevels(Activity activity) {
-    try (InputStream is = activity.getAssets().open("levels.txt")) {
-      byte[] data = new byte[is.available()];
-      int read = is.read(data);
-      if (read > 0) {
-        return Math.max(1, new LevelManager(data, 0).getNumLevels());
-      }
-    } catch (IOException | RuntimeException e) {
-      // Fall through.
-    }
-    return 100;
-  }
-
   /** The best (fewest shots, then fastest) score of each level. */
-  private static Map<Integer, HighscoreDO> loadBestScores(Activity activity) {
+  private static Map<Integer, HighscoreDO> loadBestScores(Activity activity,
+                                                         String pack) {
     Map<Integer, HighscoreDO> map = new HashMap<Integer, HighscoreDO>();
     HighscoreDB db = null;
     try {
-      db = new HighscoreDB(activity, HighscoreManager.PUZZLE_DATABASE_NAME);
+      db = new HighscoreDB(activity, LevelPacks.dbName(pack));
       List<HighscoreDO> all = db.selectAll();
       for (HighscoreDO hi : all) {
         HighscoreDO old = map.get(hi.getLevel());
@@ -196,6 +201,31 @@ public class LevelSelect {
       }
     });
     box.addView(title);
+
+    // The level pack: ◀ Original ▶ (only with more than one pack).
+    if (packs.size() > 1) {
+      LinearLayout packRow = new LinearLayout(activity);
+      packRow.setOrientation(LinearLayout.HORIZONTAL);
+      packRow.setGravity(Gravity.CENTER);
+      Button packPrev = MenuButtons.create(activity, "◀", v -> {
+        host.click();
+        switchPack(-1);
+      });
+      Button packNext = MenuButtons.create(activity, "▶", v -> {
+        host.click();
+        switchPack(1);
+      });
+      for (Button b : new Button[] { packPrev, packNext }) {
+        b.setWidth((int) (b.getTextSize() * 3.5f));
+      }
+      packLabel = new TextView(activity);
+      OptionsMenus.styleText(packLabel, 18);
+      packLabel.setMinWidth((int) (150 * dp));
+      packRow.addView(packPrev);
+      packRow.addView(packLabel);
+      packRow.addView(packNext);
+      box.addView(packRow);
+    }
 
     // The grid of level bubbles.
     int cell = (int) (54 * dp);
@@ -251,6 +281,8 @@ public class LevelSelect {
     play = MenuButtons.create(activity, "", v -> {
       host.click();
       dialog.dismiss();
+      // Playing a level makes its pack the one Puzzle plays.
+      LevelPacks.setCurrent(activity, pack);
       host.play(selected);
     });
     OptionsMenus.widen(play);
@@ -305,6 +337,9 @@ public class LevelSelect {
   }
 
   private void render() {
+    if (packLabel != null) {
+      packLabel.setText(LevelPacks.name(activity, pack));
+    }
     boolean hd = !android.preference.PreferenceManager
         .getDefaultSharedPreferences(activity)
         .getBoolean(GameView.KEY_ORIGINAL_ART, false);

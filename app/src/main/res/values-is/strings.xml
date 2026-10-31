@@ -230,4 +230,11 @@
   <string name="quit">Hætta</string>
   <string name="hs_col_points">Stig</string>
   <string name="hs_best_arcade">Met: %1$s · %2$s</string>
+  <string name="pack_original">Upprunaleg</string>
+  <string name="pack_easy">Létt</string>
+  <string name="pack_medium">Miðlungs</string>
+  <string name="pack_hard">Erfitt</string>
+  <string name="pack_pictures">Myndir</string>
+  <string name="pack_complete">Pakkinn %1$s er búinn! Aftur á borð 1.</string>
+  <string name="pack_title_level">%1$s – Borð %2$d</string>
 </resources>
