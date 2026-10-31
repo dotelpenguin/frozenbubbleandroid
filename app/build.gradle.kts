@@ -37,3 +37,9 @@ android {
         abortOnError = false
     }
 }
+
+// List every deprecated or unchecked API use in the build output (as
+// warnings with file and line), to work through docs/DEPRECATIONS.md.
+tasks.withType<JavaCompile>().configureEach {
+    options.compilerArgs.addAll(listOf("-Xlint:deprecation", "-Xlint:unchecked"))
+}
