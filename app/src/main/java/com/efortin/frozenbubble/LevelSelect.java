@@ -98,6 +98,8 @@ public class LevelSelect {
   private int              highest;   // highest level that can be chosen
   /** Best score of each completed level (0-based level → score). */
   private Map<Integer, HighscoreDO> best;
+  /** The pack's levels, for the previews in the level bubbles. */
+  private LevelManager levels;
   private TextView packLabel;
 
   private int page;
@@ -118,7 +120,8 @@ public class LevelSelect {
   /** Show a pack: its levels, progress and best scores. */
   private void loadPack(String id) {
     pack      = id;
-    numLevels = LevelPacks.countLevels(activity, id);
+    levels    = LevelPacks.levels(activity, id);
+    numLevels = (levels != null) ? Math.max(1, levels.getNumLevels()) : 1;
     best      = loadBestScores(activity, id);
     int bestCompleted = -1;
     for (int level : best.keySet()) {
@@ -354,8 +357,16 @@ public class LevelSelect {
       t.setText(Integer.toString(level + 1));
       int color = level % BUBBLE.length;
       boolean open = level <= highest;
-      t.setBackgroundResource(open ? (hd ? BUBBLE_HD[color] : BUBBLE[color])
-                                   : (hd ? FROZEN_HD[color] : FROZEN[color]));
+      if (open) {
+        // A preview of the level inside the bubble.
+        t.setBackground(new LevelThumbDrawable(
+            (levels != null) ? levels.getLevelAt(level) : null,
+            activity.getResources().getDisplayMetrics().density));
+      }
+      else {
+        // Locked: frozen, no preview (no spoilers).
+        t.setBackgroundResource(hd ? FROZEN_HD[color] : FROZEN[color]);
+      }
       t.setAlpha(open ? 1f : 0.45f);
       t.setEnabled(open);
       // Yellow: the highest level reached (not completed yet).

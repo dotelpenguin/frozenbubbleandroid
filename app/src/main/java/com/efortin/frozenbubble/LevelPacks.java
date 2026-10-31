@@ -133,6 +133,15 @@ public final class LevelPacks {
     return out.toString().trim().concat("\n").getBytes();
   }
 
+  /** A pack's levels (null if it can't be read). */
+  public static LevelManager levels(Context context, String id) {
+    try {
+      return new LevelManager(load(context, id), 0);
+    } catch (IOException | RuntimeException e) {
+      return null;
+    }
+  }
+
   /** The number of levels in a pack. */
   public static int countLevels(Context context, String id) {
     try {

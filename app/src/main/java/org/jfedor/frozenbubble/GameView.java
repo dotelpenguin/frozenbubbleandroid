@@ -3347,6 +3347,7 @@ public class GameView extends SurfaceView
         return;
       }
 
+      boolean startedNextLevel = false;   // a Puzzle level was won
       boolean actionLeft;
       boolean actionRight;
       boolean actionUp;
@@ -3517,9 +3518,18 @@ public class GameView extends SurfaceView
           pause();
         }
         else if (game1State == gameEnum.NEXT_WON) {
+          /*
+           * Puzzle: straight on to the next level, with no high score
+           * screen in between (the best scores show in Choose Level).
+           * After the last level, wait (as before) for the credits or
+           * the "pack complete" message.
+           */
           game1Status = gameEnum.WON;
-          mShowScores = true;
-          pause();
+          nextLevel();
+          if (getCurrentLevelIndex() == 0) {
+            pause();
+          }
+          startedNextLevel = true;
         }
         else {
           game1Status = gameEnum.LOST;
@@ -3533,6 +3543,9 @@ public class GameView extends SurfaceView
         }
         else if (game1State == gameEnum.NEXT_LOST){
           mGameListener.onGameEvent(eventEnum.GAME_LOST);
+        }
+        if (startedNextLevel) {
+          mGameListener.onGameEvent(eventEnum.GAME_START);
         }
       }
     }

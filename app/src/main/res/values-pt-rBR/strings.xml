@@ -141,7 +141,7 @@
   <string name="save_title_puzzle">Puzzle</string>
   <string name="save_title_puzzle_level">Puzzle – Nível %1$d</string>
   <string name="save_title_arcade">Arcade</string>
-  <string name="save_title_arcade_colors">Arcade – %1$d cores</string>
+  <string name="save_title_arcade_level">Arcade – %1$s</string>
   <string name="save_title_2p">2 jogadores</string>
   <string name="save_title_2p_cpu">2 jogadores – contra a CPU</string>
   <string name="level_select_title">Escolher nível</string>

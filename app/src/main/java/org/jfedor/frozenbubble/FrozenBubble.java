@@ -208,7 +208,8 @@ public class FrozenBubble extends Activity
     }
     if (SAVED_MODE_ARCADE.equals(slot)) {
       return (detail > 0) ?
-          context.getString(R.string.save_title_arcade_colors, detail) :
+          context.getString(R.string.save_title_arcade_level,
+              com.efortin.frozenbubble.OptionsMenus.difficultyName(context, detail)) :
           context.getString(R.string.save_title_arcade);
     }
     return context.getString((detail == CPU) ? R.string.save_title_2p_cpu :

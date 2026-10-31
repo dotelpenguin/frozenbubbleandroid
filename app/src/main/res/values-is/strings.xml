@@ -137,7 +137,7 @@
   <string name="save_title_puzzle">Þrautir</string>
   <string name="save_title_puzzle_level">Þrautir – borð %1$d</string>
   <string name="save_title_arcade">Arcade</string>
-  <string name="save_title_arcade_colors">Arcade – %1$d litir</string>
+  <string name="save_title_arcade_level">Arcade – %1$s</string>
   <string name="save_title_2p">2 leikmenn</string>
   <string name="save_title_2p_cpu">2 leikmenn – gegn tölvu</string>
   <string name="level_select_title">Velja borð</string>

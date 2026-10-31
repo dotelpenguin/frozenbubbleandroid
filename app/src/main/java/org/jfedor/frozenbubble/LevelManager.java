@@ -286,6 +286,14 @@ public class LevelManager {
     return rowOffset;
   }
 
+  /** A level's bubbles ([x][y], -1 = empty), e.g. for a preview. */
+  public byte[][] getLevelAt(int index) {
+    if (!randomMode && (index >= 0) && (index < levelList.size())) {
+      return levelList.elementAt(index);
+    }
+    return null;
+  }
+
   public byte[][] getCurrentLevel() {
     if (!randomMode) {
       if (currentLevel < levelList.size()) {

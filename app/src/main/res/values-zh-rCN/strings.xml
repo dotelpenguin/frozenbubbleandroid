@@ -141,7 +141,7 @@
   <string name="save_title_puzzle">解谜</string>
   <string name="save_title_puzzle_level">解谜 – 第 %1$d 关</string>
   <string name="save_title_arcade">街机</string>
-  <string name="save_title_arcade_colors">街机 – %1$d 种颜色</string>
+  <string name="save_title_arcade_level">街机 – %1$s</string>
   <string name="save_title_2p">双人</string>
   <string name="save_title_2p_cpu">双人 – 对战电脑</string>
   <string name="level_select_title">选择关卡</string>
