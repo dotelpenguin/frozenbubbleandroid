@@ -46,7 +46,8 @@
     "\nPatrick Casey - AndModPlug Library\n"
     "\nhttp://www.peculiar-games.com/\n\n"
     "\nMichel Racic - Gérant High Scores\n"
-    "\nhttp://www.2030.tk/\n\n\n"
+    "\nhttp://www.2030.tk/\n\n"
+    "\nAstigmatic - Luckiest Guy font (Apache 2.0)\n\n\n"
     "\nTraduction\n"
     "------------------------\n"
     "\nShanghai Ndoo Network Technology Ltd. - Chinese\n\n"
@@ -240,8 +241,8 @@
   <string name="game_over">Partie terminée</string>
   <string name="sum_new_best">Nouveau record !</string>
   <string name="sum_rank">N° %1$d du classement</string>
-  <string name="sum_popped">Bulles éclatées</string>
-  <string name="sum_dropped">Bulles tombées</string>
+  <string name="sum_popped">Éclatées</string>
+  <string name="sum_dropped">Tombées</string>
   <string name="sum_best_combo">Meilleur combo</string>
   <string name="sum_shots">Tirs</string>
   <string name="sum_time">Temps</string>

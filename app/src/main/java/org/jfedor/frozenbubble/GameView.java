@@ -2412,6 +2412,13 @@ public class GameView extends SurfaceView
       }
     }
 
+    /** Play a game sound (if sound effects are on). */
+    public void playSound(String id, int resId) {
+      if (mSoundManager != null) {
+        mSoundManager.playSound(id, resId);
+      }
+    }
+
     /** Start another Arcade game (after the end-of-game summary). */
     public void playArcadeAgain() {
       synchronized(mSurfaceHolder) {

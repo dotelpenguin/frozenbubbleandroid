@@ -46,7 +46,8 @@
     "\nPatrick Casey - AndModPlug forritasafn\n"
     "\nhttp://www.peculiar-games.com/\n\n"
     "\nMichel Racic - Umsjón með stigatalningu\n"
-    "\nhttp://www.2030.tk/\n\n\n"
+    "\nhttp://www.2030.tk/\n\n"
+    "\nAstigmatic - Luckiest Guy font (Apache 2.0)\n\n\n"
     "\nÞýðingar\n"
     "------------------------\n"
     "\nShanghai Ndoo Network Technology Ltd. - Chinese\n\n"
@@ -240,8 +241,8 @@
   <string name="game_over">Leik lokið</string>
   <string name="sum_new_best">Nýtt met!</string>
   <string name="sum_rank">Sæti %1$d á stigatöflunni</string>
-  <string name="sum_popped">Sprungnar kúlur</string>
-  <string name="sum_dropped">Fallnar kúlur</string>
+  <string name="sum_popped">Sprungnar</string>
+  <string name="sum_dropped">Fallnar</string>
   <string name="sum_best_combo">Besta samsetning</string>
   <string name="sum_shots">Skot</string>
   <string name="sum_time">Tími</string>

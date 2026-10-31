@@ -46,7 +46,8 @@
     "\nPatrick Casey - AndModPlug Library\n"
     "\nhttp://www.peculiar-games.com/\n\n"
     "\nMichel Racic - High Score Manager\n"
-    "\nhttp://www.2030.tk/\n\n\n"
+    "\nhttp://www.2030.tk/\n\n"
+    "\nAstigmatic - Luckiest Guy font (Apache 2.0)\n\n\n"
     "\nTranslations\n"
     "------------------------\n"
     "\nShanghai Ndoo Network Technology Ltd. - Chinese\n\n"
@@ -237,8 +238,8 @@
   <string name="game_over">游戏结束</string>
   <string name="sum_new_best">新纪录！</string>
   <string name="sum_rank">排行榜第 %1$d 名</string>
-  <string name="sum_popped">消除泡泡</string>
-  <string name="sum_dropped">掉落泡泡</string>
+  <string name="sum_popped">消除</string>
+  <string name="sum_dropped">掉落</string>
   <string name="sum_best_combo">最佳连击</string>
   <string name="sum_shots">发射</string>
   <string name="sum_time">时间</string>

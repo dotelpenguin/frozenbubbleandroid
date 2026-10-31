@@ -1063,75 +1063,41 @@ public class FrozenBubble extends Activity
   }
 
   /**
-   * The end of an Arcade game: the score and how it was made, with Play
-   * Again and Quit (in place of the old high score table).
+   * The end of an Arcade game: the score and how it was made (see
+   * ArcadeSummary), with Play Again and Quit, in place of the old high
+   * score table.
    */
   private void showArcadeSummary() {
     if ((mGameThread == null) || isFinishing()) {
       return;
     }
-    Bundle s = mGameThread.arcadeSummary();
     setMenuDim(true);
     final AlertDialog dialog = new AlertDialog.Builder(FrozenBubble.this).create();
-    float dp = getResources().getDisplayMetrics().density;
-
-    android.widget.LinearLayout box = new android.widget.LinearLayout(this);
-    box.setOrientation(android.widget.LinearLayout.VERTICAL);
-    box.setGravity(android.view.Gravity.CENTER_HORIZONTAL);
-    int pad = (int) (8 * dp);
-    box.setPadding(pad, pad, pad, pad);
-
-    box.addView(summaryText(getString(R.string.game_over), 26, true));
-    box.addView(summaryText(String.format(java.util.Locale.getDefault(), "%,d",
-                                          s.getLong("score")), 40, true));
-    int rank = s.getInt("rank");
-    if (rank == 1) {
-      android.widget.TextView best = summaryText(getString(R.string.sum_new_best), 18, true);
-      best.setTextColor(0xFFFFE14D);
-      box.addView(best);
-    }
-    else if (rank > 1) {
-      box.addView(summaryText(getString(R.string.sum_rank, rank), 16, false));
-    }
-
-    int difficulty = s.getInt("difficulty", LevelManager.NORMAL);
-    // The multipliers: x(d - 2) / 2 for the difficulty, x(c + 1) / 2 for
-    // the combo.
-    String[] lines = {
-      getString(R.string.opt_difficulty) + ": " +
-          com.efortin.frozenbubble.OptionsMenus.difficultyName(this, difficulty) +
-          " (×" + half(difficulty - 2) + ")",
-      getString(R.string.sum_popped) + ": " + s.getInt("popped"),
-      getString(R.string.sum_dropped) + ": " + s.getInt("dropped"),
-      getString(R.string.sum_best_combo) + ": " +
-          ((s.getInt("bestCombo") > 0) ? "×" + half(s.getInt("bestCombo") + 1) : "–"),
-      getString(R.string.sum_shots) + ": " + s.getInt("shots"),
-      getString(R.string.sum_time) + ": " +
-          com.efortin.frozenbubble.HighScores.time(s.getLong("time")),
-    };
-    for (String line : lines) {
-      box.addView(summaryText(line, 16, false));
-    }
-
-    Button again = com.efortin.frozenbubble.MenuButtons.create(this,
-        R.string.play_again, v -> {
-      dialog.dismiss();
-      setMenuDim(false);
-      if (mGameThread != null) {
-        mGameThread.playArcadeAgain();
+    android.view.View content = com.efortin.frozenbubble.ArcadeSummary.build(
+        this, mGameThread.arcadeSummary(),
+        new com.efortin.frozenbubble.ArcadeSummary.Host() {
+      @Override
+      public void playAgain() {
+        dialog.dismiss();
+        setMenuDim(false);
+        if (mGameThread != null) {
+          mGameThread.playArcadeAgain();
+        }
+      }
+      @Override
+      public void quit() {
+        dialog.dismiss();
+        exit(true);
+      }
+      @Override
+      public void applause() {
+        if (mGameThread != null) {
+          mGameThread.playSound("applause", R.raw.applause);
+        }
       }
     });
-    Button quit = com.efortin.frozenbubble.MenuButtons.create(this,
-        R.string.quit, v -> {
-      dialog.dismiss();
-      exit(true);
-    });
-    com.efortin.frozenbubble.OptionsMenus.widen(again);
-    com.efortin.frozenbubble.OptionsMenus.widen(quit);
-    box.addView(com.efortin.frozenbubble.MenuButtons.column(this, again, quit));
-
     android.widget.ScrollView scroll = new android.widget.ScrollView(this);
-    scroll.addView(box);
+    scroll.addView(content);
     dialog.setView(scroll);
     // Back quits, as the game is over.
     dialog.setOnCancelListener(d -> exit(true));
@@ -1143,22 +1109,6 @@ public class FrozenBubble extends Activity
       centerOverDimmedGame(dialog.getWindow());
     }
     dialog.show();
-  }
-
-  /** n / 2 as "1", "1.5", "2"... */
-  private static String half(int n) {
-    return ((n % 2) == 0) ? Integer.toString(n / 2) : (n / 2) + ".5";
-  }
-
-  private android.widget.TextView summaryText(String text, int sizeDp,
-                                              boolean bold) {
-    android.widget.TextView t = new android.widget.TextView(this);
-    com.efortin.frozenbubble.OptionsMenus.styleText(t, sizeDp);
-    if (!bold) {
-      t.setTypeface(null, android.graphics.Typeface.NORMAL);
-    }
-    t.setText(text);
-    return t;
   }
 
   private void exitGameDialog() {
