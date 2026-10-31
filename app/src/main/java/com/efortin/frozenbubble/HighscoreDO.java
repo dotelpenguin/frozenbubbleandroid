@@ -63,6 +63,8 @@ public class HighscoreDO {
   private String name;
   private int shots;
   private long time;
+  /** Arcade points (0 for Puzzle and Vs CPU, and old Arcade records). */
+  private long score;
 
   /**
    * Used when reading entries from the database.
@@ -129,6 +131,21 @@ public class HighscoreDO {
 
   public void setShots(int shots) {
     this.shots = shots;
+  }
+
+  /** An Arcade game's result (not yet in the database). */
+  public HighscoreDO(int level, String name, int shots, long time,
+                     long score) {
+    this(level, name, shots, time);
+    this.score = score;
+  }
+
+  public long getScore() {
+    return score;
+  }
+
+  public void setScore(long score) {
+    this.score = score;
   }
 
   public long getTime() {

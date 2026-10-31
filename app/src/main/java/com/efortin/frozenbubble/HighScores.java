@@ -37,8 +37,8 @@ import android.widget.TextView;
  * The High Scores popup, with a tab for each mode.  (Puzzle scores are
  * shown in Choose Level.)
  * <ul>
- * <li>Arcade: the top 3 games for each number of colours (most shots,
- *     then longest: Arcade is about lasting).
+ * <li>Arcade: the top 10 games of every difficulty, by points (the
+ *     points include the difficulty multiplier).
  * <li>Vs CPU: wins for each number of colours, and the quickest win.
  * </ul>
  * Also score helpers used by the game (the "Best" line).
@@ -47,16 +47,16 @@ public class HighScores {
 
   private static final int TAB_ARCADE = 0;
   private static final int TAB_CPU    = 1;
-  private static final int ARCADE_TOP = 3;
+  private static final int ARCADE_TOP = 10;
 
   /** Fewest shots, then fastest (the quickest Vs CPU win). */
   public static final Comparator<HighscoreDO> QUICKEST_ORDER = (a, b) ->
       (a.getShots() != b.getShots()) ? Integer.compare(a.getShots(), b.getShots())
                                      : Long.compare(a.getTime(), b.getTime());
-  /** Arcade order: most shots, then longest. */
+  /** Arcade order: most points, then the quicker game. */
   public static final Comparator<HighscoreDO> ARCADE_ORDER = (a, b) ->
-      (a.getShots() != b.getShots()) ? Integer.compare(b.getShots(), a.getShots())
-                                     : Long.compare(b.getTime(), a.getTime());
+      (a.getScore() != b.getScore()) ? Long.compare(b.getScore(), a.getScore())
+                                     : Long.compare(a.getTime(), b.getTime());
 
   private final Activity     activity;
   private final Runnable     click;
@@ -225,21 +225,20 @@ public class HighScores {
   }
 
   private boolean fillArcade(TableLayout table) {
-    Map<Integer, List<HighscoreDO>> byColours = byLevel(
-        loadAll(activity, HighscoreManager.ARCADE_DATABASE_NAME), ARCADE_ORDER);
-    if (byColours.isEmpty()) {
+    // One leaderboard for every difficulty: the points include the
+    // difficulty multiplier.
+    List<HighscoreDO> all = loadAll(activity, HighscoreManager.ARCADE_DATABASE_NAME);
+    Collections.sort(all, ARCADE_ORDER);
+    if (all.isEmpty()) {
       return false;
     }
-    header(table, 0, R.string.hs_col_shots, R.string.hs_col_time,
+    header(table, 0, R.string.hs_col_points, R.string.opt_difficulty,
            R.string.hs_col_player);
-    for (Map.Entry<Integer, List<HighscoreDO>> e : byColours.entrySet()) {
-      group(table, colours(e.getKey()));
-      List<HighscoreDO> list = e.getValue();
-      for (int i = 0; (i < list.size()) && (i < ARCADE_TOP); i++) {
-        HighscoreDO hi = list.get(i);
-        row(table, "#" + (i + 1), Integer.toString(hi.getShots()),
-            time(hi.getTime()), hi.getName());
-      }
+    for (int i = 0; (i < all.size()) && (i < ARCADE_TOP); i++) {
+      HighscoreDO hi = all.get(i);
+      row(table, "#" + (i + 1),
+          String.format(Locale.getDefault(), "%,d", hi.getScore()),
+          colours(hi.getLevel()), hi.getName());
     }
     return true;
   }

@@ -427,7 +427,7 @@ public class FrozenGame extends GameScreen {
         penguin.updateState(PenguinSprite.STATE_GAME_LOST);
         if (highscoreManager != null) {
           if (isArcade) {
-            highscoreManager.endLevel(nbBubbles);
+            highscoreManager.endLevel(nbBubbles, score);
           }
           else {
             highscoreManager.lostLevel();
@@ -651,6 +651,102 @@ public class FrozenGame extends GameScreen {
   /** Advance the visual effects by one game step. */
   public void tickEffects() {
     effects().tick();
+    tickScore();
+  }
+
+  /*
+   * Arcade scoring.  Points only come from clearing bubbles:
+   *   popped:  10 each (3 or more of a colour, with the bubble shot);
+   *   dropped: 20 each, more for bigger drops (x1.8 for 4, x3 for 10).
+   * Clearing on shots in a row builds a combo, x1, x1.5, x2 ... up to
+   * x3; a shot that just sticks resets it.  The difficulty multiplies
+   * it all: Easy x1, Normal x1.5, Medium x2, Hard x2.5, Insane x3.
+   */
+  public static final int COMBO_MAX     = 5;   // x3
+  /** How long the "+points" and combo texts show, in game steps. */
+  public static final int SCORE_FX_TIME = 30;
+
+  /** A "+150" rising from the cleared bubbles. */
+  public static class ScorePopup {
+    public final float x, y;
+    public final long  points;
+    public int         age;
+    ScorePopup(float x, float y, long points) {
+      this.x = x; this.y = y; this.points = points;
+    }
+  }
+
+  private long score      = 0;
+  private long shownScore = 0;   // rolls up to the score
+  private int  combo      = 0;   // clearing shots in a row
+  private int  comboShown = 0;   // the combo flash being shown
+  private int  comboAge   = SCORE_FX_TIME;
+  private final Vector<ScorePopup> popups = new Vector<ScorePopup>();
+
+  /** Points for one clearing shot (before the combo and difficulty). */
+  static long clearPoints(int popped, int dropped) {
+    return (10L * popped) + ((20L * dropped * (5 + dropped)) / 5);
+  }
+
+  /** A shot cleared bubbles: popped and dropped, at (x, y). */
+  void scoreClear(int popped, int dropped, double x, double y) {
+    if (!isArcade || endOfGame) {
+      return;
+    }
+    combo++;
+    int c = Math.min(combo, COMBO_MAX);
+    int d = Math.max(LevelManager.EASY,
+                     Math.min(LevelManager.INSANE, levelManager.getLevelIndex()));
+    // x (c + 1) / 2 for the combo, x (d - 2) / 2 for the difficulty.
+    long points = Math.round(clearPoints(popped, dropped) *
+                             (c + 1) * (d - 2) / 4.0);
+    score += points;
+    popups.addElement(new ScorePopup((float) x + 16, (float) y, points));
+    if (combo >= 2) {
+      comboShown = c;
+      comboAge   = 0;
+    }
+  }
+
+  /** A shot stuck without clearing anything: the combo ends. */
+  void scoreMiss() {
+    combo = 0;
+  }
+
+  private void tickScore() {
+    if (shownScore < score) {
+      shownScore += Math.max(1, (score - shownScore) / 4);
+    }
+    for (int i = popups.size() - 1; i >= 0; i--) {
+      if (++popups.elementAt(i).age >= SCORE_FX_TIME) {
+        popups.removeElementAt(i);
+      }
+    }
+    if (comboAge < SCORE_FX_TIME) {
+      comboAge++;
+    }
+  }
+
+  public long getScore() {
+    return score;
+  }
+
+  /** The score as shown: it rolls up quickly to the real score. */
+  public long getShownScore() {
+    return shownScore;
+  }
+
+  public Vector<ScorePopup> getScorePopups() {
+    return popups;
+  }
+
+  /** The combo flash: its multiplier step (2 = x1.5 ...), or 0. */
+  public int getComboFlash() {
+    return (comboAge < SCORE_FX_TIME) ? comboShown : 0;
+  }
+
+  public int getComboFlashAge() {
+    return comboAge;
   }
 
   /** The bubble in flight, or <code>null</code>. */
@@ -1313,6 +1409,9 @@ public class FrozenGame extends GameScreen {
     }
     fixedBubbles   = map.getInt(String.format("%d-fixedBubbles", player));
     nbBubbles      = map.getInt(String.format("%d-nbBubbles", player));
+    score          = map.getLong(String.format("%d-score", player), 0);
+    shownScore     = score;
+    combo          = map.getInt(String.format("%d-combo", player), 0);
     sendToOpponent = map.getInt(String.format("%d-sendToOpponent", player));
     blinkDelay     = map.getInt(String.format("%d-blinkDelay", player));
     int hurryId    = map.getInt(String.format("%d-hurryId", player));
@@ -1450,6 +1549,8 @@ public class FrozenGame extends GameScreen {
     }
     map.putInt(String.format("%d-fixedBubbles", player), fixedBubbles);
     map.putInt(String.format("%d-nbBubbles", player), nbBubbles);
+    map.putLong(String.format("%d-score", player), score);
+    map.putInt(String.format("%d-combo", player), combo);
     map.putInt(String.format("%d-sendToOpponent", player), sendToOpponent);
     map.putInt(String.format("%d-blinkDelay", player), blinkDelay);
     hurrySprite.saveState(map, savedSprites, player);

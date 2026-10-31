@@ -534,10 +534,12 @@ public class BubbleSprite extends Sprite {
           }
         }
         frozen.effects().onPop(checkJump, detached);
+        frozen.scoreClear(checkJump.size(), detached, realX, realY);
 
         soundManager.playSound("destroy_group", R.raw.destroy_group);
       }
       else if (!this.register(grid, lastOpenPosition)) {
+        frozen.scoreMiss();
         /*
          * If the moving bubble failed to register because the grid
          * location it would fill is already occupied, simply remove
@@ -549,6 +551,7 @@ public class BubbleSprite extends Sprite {
       }
       else {
         addToManager();
+        frozen.scoreMiss();
         frozen.effects().onImpact(this, neighbors, moveX, moveY);
         moveX = 0.;
         moveY = 0.;

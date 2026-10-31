@@ -114,6 +114,23 @@ public class BubbleFont {
     return imageWidth + SEPARATOR_WIDTH;
   }
 
+  /** The width of a text in game pixels, as print() draws it. */
+  public final int textWidth(String s) {
+    int w = 0;
+    for (int i = 0; i < s.length(); i++) {
+      char c = s.charAt(i);
+      if (c == ' ') {
+        w += SPACE_CHAR_WIDTH + SEPARATOR_WIDTH;
+        continue;
+      }
+      int index = getCharIndex(c);
+      if (index != -1) {
+        w += (position[index + 1] - position[index]) + SEPARATOR_WIDTH;
+      }
+    }
+    return w;
+  }
+
   private final int getCharIndex(char c) {
     for (int i=0 ; i<characters.length ; i++) {
       if (characters[i] == c) {

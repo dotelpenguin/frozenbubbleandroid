@@ -225,4 +225,6 @@
   <string name="opt_show_best">显示最佳成绩</string>
   <string name="resume">继续</string>
   <string name="quit">退出</string>
+  <string name="hs_col_points">分数</string>
+  <string name="hs_best_arcade">最佳：%1$s · %2$s</string>
 </resources>

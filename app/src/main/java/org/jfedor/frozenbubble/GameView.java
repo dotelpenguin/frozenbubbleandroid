@@ -1359,6 +1359,12 @@ public class GameView extends SurfaceView
       }
       if (FrozenBubble.arcadeGame) {
         drawDifficulty(canvas);
+        if (numPlayers == 1) {
+          // Over the bubbles, so the score always shows (new rows slide
+          // in under it).
+          drawScoreSign(canvas);
+          drawScoreEffects(canvas);
+        }
       }
       else if (numPlayers > 1) {
         if (mFrozenGame2 != null) {
@@ -1880,9 +1886,18 @@ public class GameView extends SurfaceView
 
     private String bestText(int level) {
       try {
-        List<HighscoreDO> list = FrozenBubble.arcadeGame
-            ? mHighScoreManager.getLowScore(level, 1)    // most shots
-            : mHighScoreManager.getHighScore(level, 1);  // fewest shots
+        if (FrozenBubble.arcadeGame) {
+          // One leaderboard for every difficulty: the top score.
+          List<HighscoreDO> top = mHighScoreManager.getTopScores(1);
+          if (top.isEmpty() || (top.get(0).getScore() <= 0)) {
+            return null;
+          }
+          return mContext.getString(R.string.hs_best_arcade,
+              String.format(java.util.Locale.getDefault(), "%,d",
+                            top.get(0).getScore()),
+              top.get(0).getName());
+        }
+        List<HighscoreDO> list = mHighScoreManager.getHighScore(level, 1);
         if (list.isEmpty()) {
           return null;
         }
@@ -1892,6 +1907,147 @@ public class GameView extends SurfaceView
             best.getName());
       } catch (RuntimeException e) {
         return null;
+      }
+    }
+
+    /*
+     * The Arcade score: on a wooden sign over the "1 UP" sign at the top,
+     * which grows with the score (the game's own font, which has commas).
+     */
+    private static final int SCORE_SIGN_X     = 320;   // centre
+    private static final int SCORE_SIGN_Y     = 1;
+    private static final int SCORE_SIGN_H     = 30;
+    private static final int SCORE_SIGN_MIN_W = 110;
+    private static final int SCORE_SIGN_MAX_W = 240;   // the plank image
+    private Bitmap mScorePlank = null;
+    private final Paint mPlankPaint = new Paint(Paint.FILTER_BITMAP_FLAG);
+    private final Rect  mPlankSrc   = new Rect();
+    private final RectF mPlankDst   = new RectF();
+
+    private String scoreText(long n) {
+      return String.format(java.util.Locale.US, "%,d", n);
+    }
+
+    private void drawScoreSign(Canvas canvas) {
+      if ((mFrozenGame1 == null) || (mFont == null)) {
+        return;
+      }
+      if (mScorePlank == null) {
+        try {
+          mScorePlank = BitmapFactory.decodeResource(mContext.getResources(),
+                                                     R.drawable.score_plank_hd);
+        } catch (RuntimeException | OutOfMemoryError e) {
+          return;
+        }
+        if (mScorePlank == null) {
+          return;
+        }
+      }
+      String text = scoreText(mFrozenGame1.getShownScore());
+      int tw = mFont.textWidth(text);
+      int w  = Math.min(SCORE_SIGN_MAX_W, Math.max(SCORE_SIGN_MIN_W, tw + 24));
+      // The plank's left and right halves, so its ends (and nails) show
+      // at any width.
+      int   pw   = mScorePlank.getWidth();
+      int   ph   = mScorePlank.getHeight();
+      float k    = pw / (float) SCORE_SIGN_MAX_W;   // image px per game px
+      float half = w / 2f;
+      float s    = (float) mDisplayScale;
+      float top  = (SCORE_SIGN_Y * s) + mDisplayDY;
+      float bot  = top + ((ph / k) * s);
+      float cx   = (SCORE_SIGN_X * s) + mDisplayDX;
+      mPlankSrc.set(0, 0, (int) (half * k), ph);
+      mPlankDst.set(cx - (half * s), top, cx, bot);
+      canvas.drawBitmap(mScorePlank, mPlankSrc, mPlankDst, mPlankPaint);
+      mPlankSrc.set(pw - (int) (half * k), 0, pw, ph);
+      mPlankDst.set(cx, top, cx + (half * s), bot);
+      canvas.drawBitmap(mScorePlank, mPlankSrc, mPlankDst, mPlankPaint);
+      mFont.print(text, SCORE_SIGN_X - (tw / 2),
+                  SCORE_SIGN_Y + ((SCORE_SIGN_H - 22) / 2), canvas,
+                  mDisplayScale, mDisplayDX, mDisplayDY);
+    }
+
+    /** "+150" rising from cleared bubbles, and the combo flash. */
+    private void drawScoreEffects(Canvas canvas) {
+      if ((mFrozenGame1 == null) || (mFont == null)) {
+        return;
+      }
+      int fxTime = FrozenGame.SCORE_FX_TIME;
+      for (FrozenGame.ScorePopup p : mFrozenGame1.getScorePopups()) {
+        float t     = p.age / (float) fxTime;
+        int   alpha = (int) (255 * Math.min(1f, 2f * (1f - t)));
+        drawFontText(canvas, "+" + scoreText(p.points), p.x, p.y - (28 * t),
+                     0.8f, alpha);
+      }
+      int combo = mFrozenGame1.getComboFlash();
+      if (combo > 0) {
+        int age   = mFrozenGame1.getComboFlashAge();
+        int alpha = (int) (255 * Math.min(1f, (fxTime - age) / 8f));
+        float grow = 1.25f + (0.25f * Math.max(0, 4 - age) / 4f);
+        // The multiplier: x1.5, x2, x2.5, x3.
+        String mult = ((combo % 2) == 0) ? ((combo + 1) / 2) + ".5"
+                                         : Integer.toString((combo + 1) / 2);
+        drawFontText(canvas, "combo x" + mult + "!", SCORE_SIGN_X, 250,
+                     grow, alpha);
+      }
+    }
+
+    /** Game-font text centred on (cx, cy), resized and faded. */
+    private void drawFontText(Canvas canvas, String text, float cx, float cy,
+                              float size, int alpha) {
+      if (alpha <= 0) {
+        return;
+      }
+      int   tw = mFont.textWidth(text);
+      float s  = (float) mDisplayScale;
+      float sx = (cx * s) + mDisplayDX;
+      float sy = (cy * s) + mDisplayDY;
+      int saved = canvas.save();
+      if (alpha < 255) {
+        float hw = ((tw / 2f) + 4) * size * s;
+        float hh = 16 * size * s;
+        canvas.saveLayerAlpha(sx - hw, sy - hh, sx + hw, sy + hh, alpha);
+      }
+      canvas.translate(sx, sy);
+      canvas.scale(size, size);
+      mFont.print(text, -(tw / 2), -11, canvas, mDisplayScale, 0, 0);
+      canvas.restoreToCount(saved);
+    }
+
+    /**
+     * The Arcade high scores at the end of a game: the top 10 of every
+     * difficulty, with this game's score marked.
+     */
+    private void drawArcadeScoreScreen(Canvas canvas) {
+      if (mHighScoreManager == null) {
+        mShowScores = false;
+        return;
+      }
+      canvas.drawRGB(0, 0, 0);
+      int x   = drawTextOffsetX();
+      int y   = 10;
+      int ysp = 26;
+      mFont.print("arcade high scores", x, y, canvas,
+                  mDisplayScale, mDisplayDX, mDisplayDY);
+      y += 1.5f * ysp;
+      long lastId = mHighScoreManager.getLastScoreId();
+      boolean shown = false;
+      int i = 1;
+      for (HighscoreDO hdo : mHighScoreManager.getTopScores(10)) {
+        String you = "";
+        if (lastId == hdo.getId()) {
+          you   = "|";
+          shown = true;
+        }
+        mFont.print(you + i++ + " - " + scoreText(hdo.getScore()) + " - " +
+                    hdo.getName().toLowerCase(java.util.Locale.ROOT),
+                    x + 10, y, canvas, mDisplayScale, mDisplayDX, mDisplayDY);
+        y += ysp;
+      }
+      HighscoreDO mine = mHighScoreManager.getLastScoreDO();
+      if (!shown && (mine != null)) {
+        mFont.print("|  - " + scoreText(mine.getScore()), x + 10, y, canvas,
+                    mDisplayScale, mDisplayDX, mDisplayDY);
       }
     }
 
@@ -2594,7 +2750,10 @@ public class GameView extends SurfaceView
                       }
                     }
                     else if ((mHighScoreManager != null) && mShowScores) {
-                      if (FrozenBubble.arcadeGame || (numPlayers > 1)) {
+                      if (FrozenBubble.arcadeGame) {
+                        drawArcadeScoreScreen(c);
+                      }
+                      else if (numPlayers > 1) {
                         drawLowScoreScreen(c, mHighScoreManager.getLevel());
                       }
                       else {

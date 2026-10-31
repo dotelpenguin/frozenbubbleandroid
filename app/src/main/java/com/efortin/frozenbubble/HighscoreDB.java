@@ -71,7 +71,12 @@ import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 
 public class HighscoreDB {
-  private static final int    DATABASE_VERSION = 1;
+  /*
+   * Version 2 adds the score column (Arcade points).  Old Arcade records
+   * (shots only) are cleared then, since they can't be turned into
+   * points; Puzzle and Vs CPU records are kept.
+   */
+  private static final int    DATABASE_VERSION = 2;
   private static final String TABLE_NAME       = "highscore";
   private static String databaseName;
 
@@ -79,7 +84,7 @@ public class HighscoreDB {
   private final SQLiteDatabase db;
   private final SQLiteStatement insertStmt;
   private static final String INSERT = "insert into " + TABLE_NAME +
-    "(level, name, shots, time) values (?,?,?,?)";
+    "(level, name, shots, time, score) values (?,?,?,?,?)";
 
 
   public HighscoreDB(Context context, String databaseName) {
@@ -99,6 +104,7 @@ public class HighscoreDB {
     insertStmt.bindString(2, hi.getName());
     insertStmt.bindLong(3, hi.getShots());
     insertStmt.bindLong(4, hi.getTime());
+    insertStmt.bindLong(5, hi.getScore());
     return insertStmt.executeInsert();
   }
 
@@ -116,8 +122,32 @@ public class HighscoreDB {
                              "level asc, shots asc, time asc");
     if (cursor.moveToFirst()) {
       do {
-        list.add(new HighscoreDO(cursor.getInt(0), cursor.getInt(1),
-                 cursor.getString(2), cursor.getInt(3), cursor.getLong(4)));
+        list.add(fromCursor(cursor));
+      } while (cursor.moveToNext());
+    }
+    if ((cursor != null) && !cursor.isClosed()) {
+      cursor.close();
+    }
+    return list;
+  }
+
+  private static HighscoreDO fromCursor(Cursor cursor) {
+    HighscoreDO hi = new HighscoreDO(cursor.getInt(0), cursor.getInt(1),
+        cursor.getString(2), cursor.getInt(3), cursor.getLong(4));
+    if (cursor.getColumnCount() > 5) {
+      hi.setScore(cursor.getLong(5));
+    }
+    return hi;
+  }
+
+  /** The highest Arcade scores, of every difficulty. */
+  public List<HighscoreDO> selectTopByScore(int limit) {
+    List<HighscoreDO> list = new ArrayList<HighscoreDO>();
+    Cursor cursor = db.query(TABLE_NAME, null, null, null, null, null,
+                             "score desc, time asc", "" + limit);
+    if (cursor.moveToFirst()) {
+      do {
+        list.add(fromCursor(cursor));
       } while (cursor.moveToNext());
     }
     if ((cursor != null) && !cursor.isClosed()) {
@@ -132,8 +162,7 @@ public class HighscoreDB {
                              null, null, "shots asc, time asc", "" + limit);
     if (cursor.moveToFirst()) {
       do {
-        list.add(new HighscoreDO(cursor.getInt(0), cursor.getInt(1),
-                 cursor.getString(2), cursor.getInt(3), cursor.getLong(4)));
+        list.add(fromCursor(cursor));
       } while (cursor.moveToNext());
     }
     if ((cursor != null) && !cursor.isClosed()) {
@@ -149,8 +178,7 @@ public class HighscoreDB {
     if (cursor.moveToLast()) {
       int index = 0;
       do {
-        list.add(new HighscoreDO(cursor.getInt(0), cursor.getInt(1),
-                 cursor.getString(2), cursor.getInt(3), cursor.getLong(4)));
+        list.add(fromCursor(cursor));
         index++;
       } while (cursor.moveToPrevious() && (index < limit));
     }
@@ -168,15 +196,20 @@ public class HighscoreDB {
     @Override
     public void onCreate(SQLiteDatabase db) {
       db.execSQL("CREATE TABLE " + TABLE_NAME +
-                 " (id INTEGER PRIMARY KEY, level INTEGER, name TEXT, shots INTEGER, time LONG)");
+                 " (id INTEGER PRIMARY KEY, level INTEGER, name TEXT, shots INTEGER, time LONG," +
+                 " score INTEGER DEFAULT 0)");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-      Log.w("Example",
-            "Upgrading database, this will drop tables and recreate.");
-      db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
-      onCreate(db);
+      if (oldVersion < 2) {
+        // Keep the scores: add the column (the old code dropped them).
+        db.execSQL("ALTER TABLE " + TABLE_NAME +
+                   " ADD COLUMN score INTEGER DEFAULT 0");
+        if (HighscoreManager.ARCADE_DATABASE_NAME.equals(databaseName)) {
+          db.execSQL("DELETE FROM " + TABLE_NAME);
+        }
+      }
     }
   }
 }

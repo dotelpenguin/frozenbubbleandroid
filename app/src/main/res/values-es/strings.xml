@@ -228,4 +228,6 @@
   <string name="opt_show_best">Mostrar récord</string>
   <string name="resume">Reanudar</string>
   <string name="quit">Salir</string>
+  <string name="hs_col_points">Puntos</string>
+  <string name="hs_best_arcade">Récord: %1$s · %2$s</string>
 </resources>

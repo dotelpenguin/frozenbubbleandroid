@@ -229,4 +229,6 @@
   <string name="opt_show_best">Show Best Score</string>
   <string name="resume">Resume</string>
   <string name="quit">Quit</string>
+  <string name="hs_col_points">Points</string>
+  <string name="hs_best_arcade">Best: %1$s · %2$s</string>
 </resources>

@@ -97,6 +97,14 @@ public class HighscoreManager {
    * @param nbBubbles - The number of bubbles launched by the player.
    */
   public void endLevel(int nbBubbles) {
+    endLevel(nbBubbles, 0);
+  }
+
+  /**
+   * The end of a level or game, with its Arcade points (0 in other
+   * modes).
+   */
+  public void endLevel(int nbBubbles, long score) {
     long endTime  = System.currentTimeMillis();
     long duration = (endTime - startTime) + pausedTime;
 
@@ -133,10 +141,15 @@ public class HighscoreManager {
     name = sp.getString("highscorename", "anon");
     */
     lastScoreDO = new HighscoreDO(currentLevel, PlayerName.get(ctx),
-                                  nbBubbles, duration);
+                                  nbBubbles, duration, score);
     lastScoreId = db.insert(lastScoreDO);
     //Log.i("FrozenBubble-highscore", "endLevel() " + (duration / 1000F) +
     //  " seconds and " + nbBubbles + " shots used for level " + currentLevel);
+  }
+
+  /** The highest Arcade scores, of every difficulty. */
+  public List<HighscoreDO> getTopScores(int limit) {
+    return db.selectTopByScore(limit);
   }
 
   public void lostLevel() {

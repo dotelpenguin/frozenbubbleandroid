@@ -228,4 +228,6 @@
   <string name="opt_show_best">Sýna met</string>
   <string name="resume">Halda áfram</string>
   <string name="quit">Hætta</string>
+  <string name="hs_col_points">Stig</string>
+  <string name="hs_best_arcade">Met: %1$s · %2$s</string>
 </resources>
