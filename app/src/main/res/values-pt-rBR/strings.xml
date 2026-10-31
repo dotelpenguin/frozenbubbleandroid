@@ -136,7 +136,6 @@
   <string name="opt_difficulty_help">Número de cores de bolhas no Arcade e no modo 2 jogadores.</string>
   <string name="opt_hurry">Modo pressa</string>
   <string name="opt_effects">Efeitos</string>
-  <string name="save_continue">Continuar</string>
   <string name="save_new_game">Novo jogo</string>
   <string name="save_title_puzzle">Puzzle</string>
   <string name="save_title_puzzle_level">Puzzle – Nível %1$d</string>
@@ -149,7 +148,6 @@
   <string name="cheat_on">Todos os níveis liberados</string>
   <string name="cheat_off">Níveis bloqueados de novo</string>
   <string name="level_select_page">Página %1$d de %2$d</string>
-  <string name="level_select_play">Jogar nível %1$d</string>
   <string name="level_select_best">Nível %1$d – recorde: %2$d tiros, %3$s (%4$s)</string>
   <string name="level_select_not_done">Nível %1$d – ainda não concluído</string>
   <string name="fx_pop">Faíscas ao estourar</string>
@@ -237,4 +235,7 @@
   <string name="pack_pictures">Desenhos</string>
   <string name="pack_complete">Pacote %1$s concluído! Voltando ao nível 1.</string>
   <string name="pack_title_level">%1$s – Nível %2$d</string>
+  <string name="pack_caption">Pacote de níveis</string>
+  <string name="restart_level">Reiniciar nível</string>
+  <string name="level_select_tap">Toque em um nível para jogar</string>
 </resources>

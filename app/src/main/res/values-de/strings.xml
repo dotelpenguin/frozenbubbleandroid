@@ -136,7 +136,6 @@
   <string name="opt_difficulty_help">Anzahl der Blasenfarben in Arcade- und 2-Spieler-Spielen.</string>
   <string name="opt_hurry">Eile-Modus</string>
   <string name="opt_effects">Effekte</string>
-  <string name="save_continue">Weiterspielen</string>
   <string name="save_new_game">Neues Spiel</string>
   <string name="save_title_puzzle">Puzzle</string>
   <string name="save_title_puzzle_level">Puzzle – Level %1$d</string>
@@ -149,7 +148,6 @@
   <string name="cheat_on">Alle Level freigeschaltet</string>
   <string name="cheat_off">Level wieder gesperrt</string>
   <string name="level_select_page">Seite %1$d von %2$d</string>
-  <string name="level_select_play">Level %1$d spielen</string>
   <string name="level_select_best">Level %1$d – Bestwert: %2$d Schüsse, %3$s (%4$s)</string>
   <string name="level_select_not_done">Level %1$d – noch nicht geschafft</string>
   <string name="fx_pop">Platz-Funken</string>
@@ -237,4 +235,7 @@
   <string name="pack_pictures">Bilder</string>
   <string name="pack_complete">Paket „%1$s“ geschafft! Weiter mit Level 1.</string>
   <string name="pack_title_level">%1$s – Level %2$d</string>
+  <string name="pack_caption">Level-Paket</string>
+  <string name="restart_level">Level neu starten</string>
+  <string name="level_select_tap">Tippe auf ein Level, um es zu spielen</string>
 </resources>

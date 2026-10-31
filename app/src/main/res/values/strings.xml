@@ -137,7 +137,6 @@
   <string name="opt_difficulty_help">Number of bubble colors in Arcade and 2 Player games.</string>
   <string name="opt_hurry">Hurry Mode</string>
   <string name="opt_effects">Effects</string>
-  <string name="save_continue">Continue</string>
   <string name="save_new_game">New Game</string>
   <string name="save_title_puzzle">Puzzle</string>
   <string name="save_title_puzzle_level">Puzzle – Level %1$d</string>
@@ -150,7 +149,6 @@
   <string name="cheat_on">All levels unlocked</string>
   <string name="cheat_off">Levels locked again</string>
   <string name="level_select_page">Page %1$d of %2$d</string>
-  <string name="level_select_play">Play Level %1$d</string>
   <string name="level_select_best">Level %1$d – best: %2$d shots, %3$s (%4$s)</string>
   <string name="level_select_not_done">Level %1$d – not completed yet</string>
   <string name="fx_pop">Pop Sparkles</string>
@@ -238,4 +236,7 @@
   <string name="pack_pictures">Pictures</string>
   <string name="pack_complete">%1$s pack complete! Starting again at level 1.</string>
   <string name="pack_title_level">%1$s – Level %2$d</string>
+  <string name="pack_caption">Level Pack</string>
+  <string name="restart_level">Restart Level</string>
+  <string name="level_select_tap">Tap a level to play</string>
 </resources>

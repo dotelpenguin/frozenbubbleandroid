@@ -503,7 +503,7 @@ public class HomeScreen extends Activity {
       return;
     }
     showModeMenu(FrozenBubble.savedGameTitle(this, slot),
-        R.string.save_continue, (Runnable) () -> startSavedGame(slot),
+        R.string.resume, (Runnable) () -> startSavedGame(slot),
         R.string.save_new_game, startNew);
   }
 
@@ -513,21 +513,16 @@ public class HomeScreen extends Activity {
    */
   private void showPuzzleMenu() {
     final String slot = FrozenBubble.SAVED_MODE_PUZZLE;
-    final Runnable newGame = () ->
-        startFrozenBubble(VirtualInput.PLAYER1, 1, FrozenBubble.HUMAN,
-                          FrozenBubble.LOCALE_LOCAL, false, false);
-    final Runnable chooseLevel = this::showLevelSelect;
     if (FrozenBubble.hasSavedGame(this, slot)) {
+      // Continue, or pick a level (which starts a new game).
       showModeMenu(FrozenBubble.savedGameTitle(this, slot),
-          R.string.save_continue,      (Runnable) () -> startSavedGame(slot),
-          R.string.save_new_game,      newGame,
-          R.string.level_select_title, chooseLevel);
+          R.string.resume,      (Runnable) () -> startSavedGame(slot),
+          R.string.level_select_title, (Runnable) this::showLevelSelect);
     }
     else {
-      showModeMenu(FrozenBubble.puzzleTitle(this,
-                                            FrozenBubble.getPuzzleLevel(this) + 1),
-          R.string.save_new_game,      newGame,
-          R.string.level_select_title, chooseLevel);
+      // Nothing to continue: straight to Choose Level, at the level
+      // reached.  (Its Play button is what New Game used to do.)
+      showLevelSelect();
     }
   }
 
@@ -549,7 +544,12 @@ public class HomeScreen extends Activity {
       }
       @Override
       public void back() {
-        showPuzzleMenu();
+        // Back to the Puzzle menu if it was shown (a saved game), else
+        // to the main menu.
+        if (FrozenBubble.hasSavedGame(HomeScreen.this,
+                                      FrozenBubble.SAVED_MODE_PUZZLE)) {
+          showPuzzleMenu();
+        }
       }
     }).show();
   }

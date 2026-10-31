@@ -132,7 +132,6 @@
   <string name="opt_difficulty_help">Fjöldi kúlulita í Arcade og tveggja manna leikjum.</string>
   <string name="opt_hurry">Flýtistilling</string>
   <string name="opt_effects">Áhrif</string>
-  <string name="save_continue">Halda áfram</string>
   <string name="save_new_game">Nýr leikur</string>
   <string name="save_title_puzzle">Þrautir</string>
   <string name="save_title_puzzle_level">Þrautir – borð %1$d</string>
@@ -145,7 +144,6 @@
   <string name="cheat_on">Öll borð opnuð</string>
   <string name="cheat_off">Borðum læst aftur</string>
   <string name="level_select_page">Síða %1$d af %2$d</string>
-  <string name="level_select_play">Spila borð %1$d</string>
   <string name="level_select_best">Borð %1$d – best: %2$d skot, %3$s (%4$s)</string>
   <string name="level_select_not_done">Borð %1$d – ekki lokið enn</string>
   <string name="fx_pop">Neistar við sprengingu</string>
@@ -237,4 +235,7 @@
   <string name="pack_pictures">Myndir</string>
   <string name="pack_complete">Pakkinn %1$s er búinn! Aftur á borð 1.</string>
   <string name="pack_title_level">%1$s – Borð %2$d</string>
+  <string name="pack_caption">Borðapakki</string>
+  <string name="restart_level">Byrja borðið aftur</string>
+  <string name="level_select_tap">Ýttu á borð til að spila það</string>
 </resources>

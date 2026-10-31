@@ -136,7 +136,6 @@
   <string name="opt_difficulty_help">Número de colores de burbujas en Arcade y en 2 jugadores.</string>
   <string name="opt_hurry">Modo prisa</string>
   <string name="opt_effects">Efectos</string>
-  <string name="save_continue">Continuar</string>
   <string name="save_new_game">Partida nueva</string>
   <string name="save_title_puzzle">Puzle</string>
   <string name="save_title_puzzle_level">Puzle – Nivel %1$d</string>
@@ -149,7 +148,6 @@
   <string name="cheat_on">Todos los niveles desbloqueados</string>
   <string name="cheat_off">Niveles bloqueados de nuevo</string>
   <string name="level_select_page">Página %1$d de %2$d</string>
-  <string name="level_select_play">Jugar nivel %1$d</string>
   <string name="level_select_best">Nivel %1$d – mejor: %2$d disparos, %3$s (%4$s)</string>
   <string name="level_select_not_done">Nivel %1$d – aún sin completar</string>
   <string name="fx_pop">Chispas al explotar</string>
@@ -237,4 +235,7 @@
   <string name="pack_pictures">Dibujos</string>
   <string name="pack_complete">¡Paquete %1$s completado! Se vuelve al nivel 1.</string>
   <string name="pack_title_level">%1$s – Nivel %2$d</string>
+  <string name="pack_caption">Paquete de niveles</string>
+  <string name="restart_level">Reiniciar nivel</string>
+  <string name="level_select_tap">Toca un nivel para jugarlo</string>
 </resources>

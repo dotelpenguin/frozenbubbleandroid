@@ -136,7 +136,6 @@
   <string name="opt_difficulty_help">街机和双人游戏中泡泡的颜色数量。</string>
   <string name="opt_hurry">催促模式</string>
   <string name="opt_effects">特效</string>
-  <string name="save_continue">继续</string>
   <string name="save_new_game">新游戏</string>
   <string name="save_title_puzzle">解谜</string>
   <string name="save_title_puzzle_level">解谜 – 第 %1$d 关</string>
@@ -149,7 +148,6 @@
   <string name="cheat_on">已解锁全部关卡</string>
   <string name="cheat_off">关卡已重新锁定</string>
   <string name="level_select_page">第 %1$d 页，共 %2$d 页</string>
-  <string name="level_select_play">开始第 %1$d 关</string>
   <string name="level_select_best">第 %1$d 关 – 最佳：%2$d 发，%3$s (%4$s)</string>
   <string name="level_select_not_done">第 %1$d 关 – 尚未通关</string>
   <string name="fx_pop">爆破火花</string>
@@ -234,4 +232,7 @@
   <string name="pack_pictures">图案</string>
   <string name="pack_complete">%1$s 关卡包已完成！从第 1 关重新开始。</string>
   <string name="pack_title_level">%1$s – 第 %2$d 关</string>
+  <string name="pack_caption">关卡包</string>
+  <string name="restart_level">重新开始本关</string>
+  <string name="level_select_tap">点击关卡即可开始</string>
 </resources>

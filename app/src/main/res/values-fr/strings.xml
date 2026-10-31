@@ -136,7 +136,6 @@
   <string name="opt_difficulty_help">Nombre de couleurs de bulles en Arcade et à 2 joueurs.</string>
   <string name="opt_hurry">Mode pressé</string>
   <string name="opt_effects">Effets</string>
-  <string name="save_continue">Continuer</string>
   <string name="save_new_game">Nouvelle partie</string>
   <string name="save_title_puzzle">Puzzle</string>
   <string name="save_title_puzzle_level">Puzzle – Niveau %1$d</string>
@@ -149,7 +148,6 @@
   <string name="cheat_on">Tous les niveaux débloqués</string>
   <string name="cheat_off">Niveaux de nouveau verrouillés</string>
   <string name="level_select_page">Page %1$d sur %2$d</string>
-  <string name="level_select_play">Jouer le niveau %1$d</string>
   <string name="level_select_best">Niveau %1$d – record : %2$d tirs, %3$s (%4$s)</string>
   <string name="level_select_not_done">Niveau %1$d – pas encore terminé</string>
   <string name="fx_pop">Étincelles d\'éclatement</string>
@@ -237,4 +235,7 @@
   <string name="pack_pictures">Images</string>
   <string name="pack_complete">Pack %1$s terminé ! Retour au niveau 1.</string>
   <string name="pack_title_level">%1$s – Niveau %2$d</string>
+  <string name="pack_caption">Pack de niveaux</string>
+  <string name="restart_level">Recommencer le niveau</string>
+  <string name="level_select_tap">Touchez un niveau pour y jouer</string>
 </resources>

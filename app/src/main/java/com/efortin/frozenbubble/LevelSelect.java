@@ -34,15 +34,15 @@ import android.widget.Toast;
 /**
  * Puzzle level select: a paged grid of level bubbles, 20 to a page.
  * <ul>
- * <li>Completed levels show their bubble; tap one to see its best score.
- * <li>The highest level reached is marked in yellow.
- * <li>Levels not reached yet are frozen and can't be chosen.
+ * <li>Unlocked levels show a preview; tapping one plays it (replacing a
+ *     saved Puzzle game).
+ * <li>The highest level reached is marked in yellow (and enlarged).
+ * <li>Levels not reached yet are frozen and can't be played.
  * </ul>
- * Play starts the chosen level (replacing a saved Puzzle game, like New
- * Game does).
- * <p>Cheat mode: tapping the title {@value #CHEAT_TAPS} times in a row
- * unlocks every level (and the same again locks them).  Levels played
- * meanwhile stay unlocked; Reset Level Progress turns cheat mode off.
+ * <p>Cheat mode: tapping a frozen level {@value #CHEAT_TAPS} times in a
+ * row unlocks every level.  Tapping the title {@value #CHEAT_TAPS} times
+ * locks them again (as does Reset Level Progress).  Levels played
+ * meanwhile stay unlocked.
  */
 public class LevelSelect {
 
@@ -101,6 +101,7 @@ public class LevelSelect {
   /** The pack's levels, for the previews in the level bubbles. */
   private LevelManager levels;
   private TextView packLabel;
+  private TextView packDots;
 
   private int page;
   private int selected;
@@ -108,7 +109,12 @@ public class LevelSelect {
   private final TextView[] cells = new TextView[PER_PAGE];
   private TextView pageLabel;
   private TextView info;
-  private Button   prev, next, play;
+  private Button   prev, next;
+  private AlertDialog dialog;
+  private TextView    titleView;
+  /** Taps on frozen levels, for cheat mode. */
+  private int  lockedTaps    = 0;
+  private long lastLockedTap = 0;
 
   public LevelSelect(Activity activity, Host host) {
     this.activity  = activity;
@@ -179,7 +185,7 @@ public class LevelSelect {
   }
 
   public void show() {
-    final AlertDialog dialog = new AlertDialog.Builder(activity).create();
+    dialog = new AlertDialog.Builder(activity).create();
     final float dp = activity.getResources().getDisplayMetrics().density;
 
     LinearLayout box = new LinearLayout(activity);
@@ -191,14 +197,16 @@ public class LevelSelect {
     final TextView title = new TextView(activity);
     OptionsMenus.styleText(title, 22);
     setTitle(title);
-    // The hidden cheat-mode switch: tap the title several times.
+    titleView = title;
+    // Cheat mode off: tap the title several times.  (It is turned on by
+    // tapping a frozen level several times: see choose().)
     final int[]  taps    = { 0 };
     final long[] lastTap = { 0 };
     title.setOnClickListener(v -> {
       long now = android.os.SystemClock.uptimeMillis();
       taps[0] = (now - lastTap[0] < CHEAT_TAP_GAP_MS) ? taps[0] + 1 : 1;
       lastTap[0] = now;
-      if (taps[0] >= CHEAT_TAPS) {
+      if ((taps[0] >= CHEAT_TAPS) && cheatOn(activity)) {
         taps[0] = 0;
         toggleCheat(title);
       }
@@ -221,11 +229,30 @@ public class LevelSelect {
       for (Button b : new Button[] { packPrev, packNext }) {
         b.setWidth((int) (b.getTextSize() * 3.5f));
       }
+      // "Level Pack" over the pack's name, and a dot for each pack (the
+      // shown one filled), so it is clear the arrows change the pack.
+      // Tapping the name changes it too.
+      TextView caption = new TextView(activity);
+      OptionsMenus.styleText(caption, 13);
+      caption.setTypeface(null, Typeface.NORMAL);
+      caption.setText(R.string.pack_caption);
       packLabel = new TextView(activity);
-      OptionsMenus.styleText(packLabel, 18);
-      packLabel.setMinWidth((int) (150 * dp));
+      OptionsMenus.styleText(packLabel, 20);
+      packDots = new TextView(activity);
+      OptionsMenus.styleText(packDots, 11);
+      LinearLayout middle = new LinearLayout(activity);
+      middle.setOrientation(LinearLayout.VERTICAL);
+      middle.setGravity(Gravity.CENTER_HORIZONTAL);
+      middle.setMinimumWidth((int) (160 * dp));
+      middle.addView(caption);
+      middle.addView(packLabel);
+      middle.addView(packDots);
+      middle.setOnClickListener(v -> {
+        host.click();
+        switchPack(1);
+      });
       packRow.addView(packPrev);
-      packRow.addView(packLabel);
+      packRow.addView(middle);
       packRow.addView(packNext);
       box.addView(packRow);
     }
@@ -281,21 +308,13 @@ public class LevelSelect {
     info.setTypeface(null, Typeface.NORMAL);
     box.addView(info);
 
-    play = MenuButtons.create(activity, "", v -> {
-      host.click();
-      dialog.dismiss();
-      // Playing a level makes its pack the one Puzzle plays.
-      LevelPacks.setCurrent(activity, pack);
-      host.play(selected);
-    });
-    OptionsMenus.widen(play);
     Button back = MenuButtons.create(activity, R.string.back, v -> {
       host.click();
       dialog.dismiss();
       host.back();
     });
     OptionsMenus.widen(back);
-    box.addView(MenuButtons.column(activity, play, back));
+    box.addView(MenuButtons.column(activity, back));
 
     ScrollView scroll = new ScrollView(activity);
     scroll.addView(box);
@@ -325,11 +344,27 @@ public class LevelSelect {
                    Toast.LENGTH_SHORT).show();
   }
 
+  /** A level bubble was tapped: play it, or count taps on frozen ones. */
   private void choose(int level) {
-    if ((level < numLevels) && (level <= highest)) {
+    if (level >= numLevels) {
+      return;
+    }
+    if (level <= highest) {
       host.click();
-      selected = level;
-      render();
+      dialog.dismiss();
+      // Playing a level makes its pack the one Puzzle plays.
+      LevelPacks.setCurrent(activity, pack);
+      host.play(level);
+      return;
+    }
+    // A frozen level: tapped several times in a row, cheat mode unlocks
+    // every level.
+    long now = android.os.SystemClock.uptimeMillis();
+    lockedTaps = (now - lastLockedTap < CHEAT_TAP_GAP_MS) ? lockedTaps + 1 : 1;
+    lastLockedTap = now;
+    if ((lockedTaps >= CHEAT_TAPS) && !cheatOn(activity)) {
+      lockedTaps = 0;
+      toggleCheat(titleView);
     }
   }
 
@@ -342,6 +377,14 @@ public class LevelSelect {
   private void render() {
     if (packLabel != null) {
       packLabel.setText(LevelPacks.name(activity, pack));
+      StringBuilder dots = new StringBuilder();
+      for (String id : packs) {
+        if (dots.length() > 0) {
+          dots.append(' ');
+        }
+        dots.append(id.equals(pack) ? '●' : '○');
+      }
+      packDots.setText(dots);
     }
     boolean hd = !android.preference.PreferenceManager
         .getDefaultSharedPreferences(activity)
@@ -368,7 +411,7 @@ public class LevelSelect {
         t.setBackgroundResource(hd ? FROZEN_HD[color] : FROZEN[color]);
       }
       t.setAlpha(open ? 1f : 0.45f);
-      t.setEnabled(open);
+      t.setEnabled(true);   // frozen ones count taps (cheat mode)
       // Yellow: the highest level reached (not completed yet).
       t.setTextColor((level == reached && !best.containsKey(level))
                      ? 0xFFFFE14D : Color.WHITE);
@@ -384,18 +427,19 @@ public class LevelSelect {
     prev.setAlpha(prev.isEnabled() ? 1f : 0.4f);
     next.setAlpha(next.isEnabled() ? 1f : 0.4f);
 
+    // "Tap a level to play", and the best score of the level reached.
+    String line;
     HighscoreDO score = best.get(selected);
     if (score != null) {
       long secs = score.getTime() / 1000;
-      info.setText(activity.getString(R.string.level_select_best,
+      line = activity.getString(R.string.level_select_best,
           selected + 1, score.getShots(),
           String.format(java.util.Locale.ROOT, "%d:%02d", secs / 60, secs % 60),
-          score.getName()));
+          score.getName());
     }
     else {
-      info.setText(activity.getString(R.string.level_select_not_done,
-                                      selected + 1));
+      line = activity.getString(R.string.level_select_not_done, selected + 1);
     }
-    play.setText(activity.getString(R.string.level_select_play, selected + 1));
+    info.setText(activity.getString(R.string.level_select_tap) + "\n" + line);
   }
 }

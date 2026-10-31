@@ -915,6 +915,56 @@ public class FrozenBubble extends Activity
    * new game (difficulty, compressor, GPU rendering, original art) apply:
    * the game screen is rebuilt.  Puzzle restarts the current level.
    */
+  /** A one player Puzzle game (not Arcade, not 2 player). */
+  private boolean puzzle() {
+    return !arcadeGame && (numPlayers == 1);
+  }
+
+  /**
+   * Choose Level over the game (Puzzle).  Play starts the chosen level
+   * (of the chosen pack); Back returns to the in-game menu.
+   */
+  private void chooseLevelInGame(final Runnable onBack) {
+    new com.efortin.frozenbubble.LevelSelect(this,
+        new com.efortin.frozenbubble.LevelSelect.Host() {
+      @Override
+      public void click() {
+        // Silent, like the other in-game menus.
+      }
+      @Override
+      public void showPopup(AlertDialog dialog) {
+        getOptionsMenus().showSeeThrough(dialog);
+      }
+      @Override
+      public void play(int level) {
+        selectPuzzleLevel(FrozenBubble.this, level);
+        startPuzzleLevel();
+      }
+      @Override
+      public void back() {
+        onBack.run();
+      }
+    }).show();
+  }
+
+  /** Start the Puzzle level that is chosen (see selectPuzzleLevel()). */
+  private void startPuzzleLevel() {
+    if (inGameMenu != null) {
+      inGameMenu.setOnCancelListener(null);
+      inGameMenu.dismiss();
+      inGameMenu = null;
+    }
+    Intent intent = new Intent();
+    intent.putExtra("myPlayerId", myPlayerId);
+    intent.putExtra("numPlayers", numPlayers);
+    intent.putExtra("opponentId", opponentId);
+    intent.putExtra("gameLocale", gameLocale);
+    intent.putExtra("arcadeGame", arcadeGame);
+    intent.putExtra("playerSave", false);
+    cleanUpGameView();
+    startDefaultGame(intent, null);
+  }
+
   private void restartCurrentGame() {
     if (inGameMenu != null) {
       inGameMenu.setOnCancelListener(null);
@@ -958,18 +1008,32 @@ public class FrozenBubble extends Activity
           v -> { menu.hide(); menus.showEffectsMenu(backHere); }),
       com.efortin.frozenbubble.MenuButtons.create(this, R.string.high_scores,
           v -> { menu.hide(); menus.showHighScores(backHere); }),
-      com.efortin.frozenbubble.MenuButtons.create(this, R.string.menu_new_game,
-          v -> { menu.hide(); newGameDialog(backHere); }),
+      puzzle() ?
+        // Puzzle: replay this level, or pick another.  (A "new game"
+        // would only restart the pack at level 1.)
+        com.efortin.frozenbubble.MenuButtons.create(this, R.string.restart_level,
+            v -> restartCurrentGame()) :
+        com.efortin.frozenbubble.MenuButtons.create(this, R.string.menu_new_game,
+            v -> { menu.hide(); newGameDialog(backHere); }),
+      puzzle() ?
+        com.efortin.frozenbubble.MenuButtons.create(this, R.string.level_select_title,
+            v -> { menu.hide(); chooseLevelInGame(backHere); }) :
+        null,
       com.efortin.frozenbubble.MenuButtons.create(this, R.string.menu_about,
           v -> { menu.dismiss(); handleMenuAction(MENU_ABOUT); }),
       com.efortin.frozenbubble.MenuButtons.create(this, R.string.back,
           v -> { menu.dismiss(); exitGameDialog(); }),
     };
+    java.util.List<Button> shown = new java.util.ArrayList<Button>();
     for (Button b : buttons) {
-      com.efortin.frozenbubble.OptionsMenus.widen(b);
+      if (b != null) {
+        com.efortin.frozenbubble.OptionsMenus.widen(b);
+        shown.add(b);
+      }
     }
     android.widget.ScrollView scroll = new android.widget.ScrollView(this);
-    scroll.addView(com.efortin.frozenbubble.MenuButtons.column(this, buttons));
+    scroll.addView(com.efortin.frozenbubble.MenuButtons.column(this,
+        shown.toArray(new Button[0])));
     menu.setView(scroll);
     // The system Back gesture or a tap outside also goes back.
     menu.setOnCancelListener(d -> exitGameDialog());
