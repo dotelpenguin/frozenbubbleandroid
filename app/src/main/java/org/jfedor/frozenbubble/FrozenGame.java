@@ -681,6 +681,10 @@ public class FrozenGame extends GameScreen {
   private int  combo      = 0;   // clearing shots in a row
   private int  comboShown = 0;   // the combo flash being shown
   private int  comboAge   = SCORE_FX_TIME;
+  /* For the end-of-game summary. */
+  private int  totalPopped  = 0;
+  private int  totalDropped = 0;
+  private int  bestCombo    = 0;   // combo step (1 = x1 ... 5 = x3)
   private final Vector<ScorePopup> popups = new Vector<ScorePopup>();
 
   /** Points for one clearing shot (before the combo and difficulty). */
@@ -695,6 +699,9 @@ public class FrozenGame extends GameScreen {
     }
     combo++;
     int c = Math.min(combo, COMBO_MAX);
+    totalPopped  += popped;
+    totalDropped += dropped;
+    bestCombo     = Math.max(bestCombo, c);
     int d = Math.max(LevelManager.EASY,
                      Math.min(LevelManager.INSANE, levelManager.getLevelIndex()));
     // x (c + 1) / 2 for the combo, x (d - 2) / 2 for the difficulty.
@@ -729,6 +736,23 @@ public class FrozenGame extends GameScreen {
 
   public long getScore() {
     return score;
+  }
+
+  public int getTotalPopped() {
+    return totalPopped;
+  }
+
+  public int getTotalDropped() {
+    return totalDropped;
+  }
+
+  /** The best combo step reached (1 = x1, 2 = x1.5 ... 5 = x3). */
+  public int getBestCombo() {
+    return bestCombo;
+  }
+
+  public int getShots() {
+    return nbBubbles;
   }
 
   /** The score as shown: it rolls up quickly to the real score. */
@@ -1412,6 +1436,9 @@ public class FrozenGame extends GameScreen {
     score          = map.getLong(String.format("%d-score", player), 0);
     shownScore     = score;
     combo          = map.getInt(String.format("%d-combo", player), 0);
+    totalPopped    = map.getInt(String.format("%d-totalPopped", player), 0);
+    totalDropped   = map.getInt(String.format("%d-totalDropped", player), 0);
+    bestCombo      = map.getInt(String.format("%d-bestCombo", player), 0);
     sendToOpponent = map.getInt(String.format("%d-sendToOpponent", player));
     blinkDelay     = map.getInt(String.format("%d-blinkDelay", player));
     int hurryId    = map.getInt(String.format("%d-hurryId", player));
@@ -1551,6 +1578,9 @@ public class FrozenGame extends GameScreen {
     map.putInt(String.format("%d-nbBubbles", player), nbBubbles);
     map.putLong(String.format("%d-score", player), score);
     map.putInt(String.format("%d-combo", player), combo);
+    map.putInt(String.format("%d-totalPopped", player), totalPopped);
+    map.putInt(String.format("%d-totalDropped", player), totalDropped);
+    map.putInt(String.format("%d-bestCombo", player), bestCombo);
     map.putInt(String.format("%d-sendToOpponent", player), sendToOpponent);
     map.putInt(String.format("%d-blinkDelay", player), blinkDelay);
     hurrySprite.saveState(map, savedSprites, player);

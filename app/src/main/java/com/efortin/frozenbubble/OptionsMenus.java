@@ -56,7 +56,6 @@ public class OptionsMenus {
   public static final String KEY_SHOW_BEST   = "show_best_option";
 
   private static final int COLLISION_MAX  = 29;
-  private static final int DIFFICULTY_MAX = 8;
 
   /** What the screen showing these popups provides. */
   public interface Host {
@@ -305,9 +304,7 @@ public class OptionsMenus {
         showNameEditor();
       }
     });
-    items.add(slider(R.string.opt_difficulty, KEY_DIFFICULTY,
-               LevelManager.EASY, DIFFICULTY_MAX, LevelManager.NORMAL,
-               R.string.opt_difficulty_value, R.string.opt_difficulty_help));
+    // (Difficulty is chosen when a new Arcade game starts.)
     items.add(toggle(R.string.opt_hurry, KEY_RUSH_ME, true, null));
     items.add(toggle(R.string.opt_compressor, KEY_COMPRESSOR, false, null));
     items.add(toggle(R.string.opt_show_best, KEY_SHOW_BEST, true, null));

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="app_name">冰冻泡泡</string>
-  <string name="exit">Exit</string>
+  <string name="exit">退出</string>
   <string name="install_editor">推荐您直接到市场上下载关卡编辑器…</string>
   <string name="market_missing">找不到Android市场! 请手动安装冰冻泡泡编辑器.</string>
-  <string name="menu_bluetooth_device">Bluetooth Device</string>
+  <string name="menu_bluetooth_device">蓝牙设备</string>
   <string name="menu_new_game">开始新游戏</string>
   <string name="menu_colorblind_on">色盲模式开启</string>
   <string name="menu_colorblind_off">色盲模式关闭</string>
@@ -102,7 +102,7 @@
   <string name="cpu_expert">专家</string>
   <string name="about">关于</string>
   <string name="credits">制作人员</string>
-  <string name="opt_music_sound">音乐和音效</string>
+  <string name="opt_music_sound">音频</string>
   <string name="opt_display">显示</string>
   <string name="opt_controls">操作</string>
   <string name="opt_gameplay">玩法</string>
@@ -133,7 +133,6 @@
     <item>困难</item>
     <item>疯狂</item>
   </string-array>
-  <string name="opt_difficulty_help">街机和双人游戏中泡泡的颜色数量。</string>
   <string name="opt_hurry">催促模式</string>
   <string name="opt_effects">特效</string>
   <string name="save_new_game">新游戏</string>
@@ -235,4 +234,13 @@
   <string name="pack_caption">关卡包</string>
   <string name="restart_level">重新开始本关</string>
   <string name="level_select_tap">点击关卡即可开始</string>
+  <string name="game_over">游戏结束</string>
+  <string name="sum_new_best">新纪录！</string>
+  <string name="sum_rank">排行榜第 %1$d 名</string>
+  <string name="sum_popped">消除泡泡</string>
+  <string name="sum_dropped">掉落泡泡</string>
+  <string name="sum_best_combo">最佳连击</string>
+  <string name="sum_shots">发射</string>
+  <string name="sum_time">时间</string>
+  <string name="play_again">再玩一次</string>
 </resources>

@@ -2397,6 +2397,71 @@ public class GameView extends SurfaceView
       return !mShowNetwork;
     }
 
+    /** Pause at the end of an Arcade game, without the pause panel. */
+    private void pauseForGameOver() {
+      synchronized(mSurfaceHolder) {
+        if (mMode == stateEnum.RUNNING) {
+          setState(stateEnum.PAUSED);
+          if (mHighScoreManager != null) {
+            mHighScoreManager.pauseLevel();
+          }
+        }
+      }
+      if (mGameListener != null) {
+        mGameListener.onGameEvent(eventEnum.GAME_PAUSED);
+      }
+    }
+
+    /** Start another Arcade game (after the end-of-game summary). */
+    public void playArcadeAgain() {
+      synchronized(mSurfaceHolder) {
+        nextLevel();
+        setState(stateEnum.RUNNING);
+      }
+      if (mGameListener != null) {
+        mGameListener.onGameEvent(eventEnum.GAME_START);
+      }
+    }
+
+    /**
+     * The finished Arcade game, for the summary: score, popped,
+     * dropped, bestCombo, shots, time (ms), difficulty, and rank (1-10
+     * on the leaderboard, or 0).
+     */
+    public Bundle arcadeSummary() {
+      Bundle b = new Bundle();
+      if (mFrozenGame1 == null) {
+        return b;
+      }
+      b.putLong("score",      mFrozenGame1.getScore());
+      b.putInt ("popped",     mFrozenGame1.getTotalPopped());
+      b.putInt ("dropped",    mFrozenGame1.getTotalDropped());
+      b.putInt ("bestCombo",  mFrozenGame1.getBestCombo());
+      b.putInt ("shots",      mFrozenGame1.getShots());
+      b.putInt ("difficulty", mLevelManager.getLevelIndex());
+      int rank = 0;
+      if (mHighScoreManager != null) {
+        HighscoreDO mine = mHighScoreManager.getLastScoreDO();
+        if (mine != null) {
+          b.putLong("time", mine.getTime());
+        }
+        long id = mHighScoreManager.getLastScoreId();
+        try {
+          List<HighscoreDO> top = mHighScoreManager.getTopScores(10);
+          for (int i = 0; i < top.size(); i++) {
+            if (top.get(i).getId() == id) {
+              rank = i + 1;
+              break;
+            }
+          }
+        } catch (RuntimeException e) {
+          // No rank.
+        }
+      }
+      b.putInt("rank", rank);
+      return b;
+    }
+
     public int getCurrentLevelIndex() {
       return mLevelManager.getLevelIndex();
     }
@@ -3513,9 +3578,10 @@ public class GameView extends SurfaceView
       else if ((game1State == gameEnum.NEXT_LOST) ||
                (game1State == gameEnum.NEXT_WON )) {
         if (FrozenBubble.arcadeGame) {
+          // The game is over: the activity shows a summary (see
+          // FrozenBubble.showArcadeSummary()) instead of the score table.
           game1Status = gameEnum.WON;
-          mShowScores = true;
-          pause();
+          pauseForGameOver();
         }
         else if (game1State == gameEnum.NEXT_WON) {
           /*
