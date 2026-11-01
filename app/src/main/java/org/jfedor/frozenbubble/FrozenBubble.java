@@ -1427,34 +1427,44 @@ public class FrozenBubble extends Activity
               !com.efortin.frozenbubble.LevelPacks.isOriginal(com.efortin.frozenbubble.LevelPacks.current(this))) {
             // The end of a level pack: it starts again at level 1.  (The
             // credits are for finishing the Original levels.)
-            android.widget.Toast.makeText(this, getString(R.string.pack_complete,
-                com.efortin.frozenbubble.LevelPacks.name(this, com.efortin.frozenbubble.LevelPacks.current(this))),
-                android.widget.Toast.LENGTH_LONG).show();
+            // This event comes from the game thread, which can't show a
+            // toast (that crashed): show it on the UI thread.
+            final String done = getString(R.string.pack_complete,
+                com.efortin.frozenbubble.LevelPacks.name(this,
+                    com.efortin.frozenbubble.LevelPacks.current(this)));
+            runOnUiThread(() -> android.widget.Toast.makeText(
+                FrozenBubble.this, done, android.widget.Toast.LENGTH_LONG).show());
           }
           else if (mGameThread.getCurrentLevelIndex() == 0) {
-            /*
-             * Destroy the current music player, which will free audio
-             * stream resources and allow the system to use them.
-             */
-            if (myModPlayer != null)
-              myModPlayer.destroyMusicPlayer();
-            myModPlayer = null;
-            /*
-             * Clear the game screen and suspend input processing for
-             * three seconds.
-             *
-             * Afterwards,  the "About" screen will be displayed as a
-             * backup just in case anything goes awry with displaying
-             * the end-of-game credits.  It will be displayed after the
-             * user touches the screen when the credits are finished.
-             */
-            mGameView.clearGameScreen(true, 3000);
-            /*
-             * Create an intent to launch the activity to display the
-             * credits screen.
-             */
-            Intent intent = new Intent(this, ScrollingCredits.class);
-            startActivity(intent);
+            // The end of the Original levels: the credits (on the UI
+            // thread, as this event comes from the game thread).
+            runOnUiThread(() -> {
+              /*
+               * Destroy the current music player, which will free audio
+               * stream resources and allow the system to use them.
+               */
+              if (myModPlayer != null)
+                myModPlayer.destroyMusicPlayer();
+              myModPlayer = null;
+              /*
+               * Clear the game screen and suspend input processing for
+               * three seconds.
+               *
+               * Afterwards,  the "About" screen will be displayed as a
+               * backup just in case anything goes awry with displaying
+               * the end-of-game credits.  It will be displayed after the
+               * user touches the screen when the credits are finished.
+               */
+              if (mGameView != null) {
+                mGameView.clearGameScreen(true, 3000);
+              }
+              /*
+               * Create an intent to launch the activity to display the
+               * credits screen.
+               */
+              Intent intent = new Intent(FrozenBubble.this, ScrollingCredits.class);
+              startActivity(intent);
+            });
             break;
           }
         }
