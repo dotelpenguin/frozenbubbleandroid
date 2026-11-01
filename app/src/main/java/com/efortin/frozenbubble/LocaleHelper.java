@@ -13,7 +13,6 @@ import java.util.Locale;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.LocaleList;
-import android.preference.PreferenceManager;
 
 /**
  * The language chosen in Options &rarr; Language, or the phone's own
@@ -42,13 +41,13 @@ public final class LocaleHelper {
 
   /** The chosen language tag, or "" for the phone's language. */
   public static String getLanguage(Context context) {
-    String tag = PreferenceManager.getDefaultSharedPreferences(context)
+    String tag = Prefs.get(context)
         .getString(KEY_LANGUAGE, "");
     return (tag == null) ? "" : tag;
   }
 
   public static void setLanguage(Context context, String tag) {
-    PreferenceManager.getDefaultSharedPreferences(context).edit()
+    Prefs.get(context).edit()
         .putString(KEY_LANGUAGE, (tag == null) ? "" : tag).commit();
   }
 

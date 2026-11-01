@@ -75,13 +75,12 @@ public class ComputerAI extends Thread implements Freile.OpponentListener {
 
   /** @return the CPU skill last chosen (Normal by default). */
   public static int getSkill(android.content.Context context) {
-    return android.preference.PreferenceManager
-        .getDefaultSharedPreferences(context)
+    return Prefs.get(context)
         .getInt(KEY_CPU_SKILL, Freile.SKILL_NORMAL);
   }
 
   public static void setSkill(android.content.Context context, int skill) {
-    android.preference.PreferenceManager.getDefaultSharedPreferences(context)
+    Prefs.get(context)
         .edit().putInt(KEY_CPU_SKILL, skill).apply();
   }
 

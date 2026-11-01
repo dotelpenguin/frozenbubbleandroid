@@ -17,7 +17,7 @@ import android.graphics.Paint;
 import android.os.Build;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
-import android.preference.PreferenceManager;
+import com.efortin.frozenbubble.Prefs;
 
 /**
  * Optional bubble and screen effects, each switched on or off in
@@ -75,13 +75,13 @@ public class Effects {
   /** <code>true</code> when GPU Rendering is on (and available). */
   public static boolean gpuRendering(Context context) {
     return (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) &&
-        PreferenceManager.getDefaultSharedPreferences(context)
+        Prefs.get(context)
             .getBoolean(GameView.KEY_GPU_RENDERING, true);
   }
 
   /** <code>false</code> with Point To Shoot, where there's no aiming. */
   public static boolean aimingUsed(Context context) {
-    String mode = PreferenceManager.getDefaultSharedPreferences(context)
+    String mode = Prefs.get(context)
         .getString("targeting_option",
                    Integer.toString(FrozenBubble.POINT_TO_SHOOT));
     return !Integer.toString(FrozenBubble.POINT_TO_SHOOT).equals(mode);
@@ -89,7 +89,7 @@ public class Effects {
 
   /** Re-read the effect settings (after a change in Options). */
   public static void loadSettings(Context context) {
-    SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+    SharedPreferences sp = Prefs.get(context);
     /*
      * The advanced effects need GPU Rendering (they rely on its smooth,
      * scaled drawing); the aiming guide is no use with Point To Shoot.

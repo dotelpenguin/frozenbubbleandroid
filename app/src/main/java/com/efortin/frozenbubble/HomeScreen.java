@@ -66,7 +66,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.TypedValue;
 import android.view.InputDevice;
 import android.view.KeyEvent;
@@ -1035,7 +1034,7 @@ public class HomeScreen extends Activity {
    */
   private void showArcadeDifficultyMenu() {
     final AlertDialog dialog = new AlertDialog.Builder(HomeScreen.this).create();
-    final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+    final SharedPreferences sp = Prefs.get(this);
     int current = sp.getInt(OptionsMenus.KEY_DIFFICULTY,
                             org.jfedor.frozenbubble.LevelManager.NORMAL);
     int first = org.jfedor.frozenbubble.LevelManager.EASY;
@@ -1235,7 +1234,7 @@ public class HomeScreen extends Activity {
       @Override
       public void onClick(DialogInterface dialog, int which) {
         SharedPreferences sp =
-            PreferenceManager.getDefaultSharedPreferences(HomeScreen.this);
+            Prefs.get(HomeScreen.this);
         myPreferences.bluetooth = which;
         PreferencesActivity.saveDefaultPreferences(myPreferences, sp);
         /*
@@ -1385,7 +1384,7 @@ public class HomeScreen extends Activity {
      */
     FrozenBubble.migrateSavedGame(this);
     SharedPreferences mConfig =
-        PreferenceManager.getDefaultSharedPreferences(this);
+        Prefs.get(this);
     playerSave         = FrozenBubble.hasAnySavedGame(this);
     boolean systemSave = mConfig.getBoolean("systemSave", false );
 
@@ -1500,7 +1499,7 @@ public class HomeScreen extends Activity {
 
   private void restoreGamePrefs() {
     SharedPreferences sp =
-        PreferenceManager.getDefaultSharedPreferences(this);
+        Prefs.get(this);
     myPreferences = PreferencesActivity.getDefaultPrefs(sp);
     /*
      * Also apply them app-wide right away.  Sound effects check the

@@ -19,7 +19,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.os.Build;
-import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
@@ -66,11 +65,11 @@ public class FirstRunSetup {
   public FirstRunSetup(Activity activity, Host host) {
     this.activity = activity;
     this.host     = host;
-    this.sp       = PreferenceManager.getDefaultSharedPreferences(activity);
+    this.sp       = Prefs.get(activity);
   }
 
   public static boolean isNeeded(Context context) {
-    return !PreferenceManager.getDefaultSharedPreferences(context)
+    return !Prefs.get(context)
         .getBoolean(KEY_DONE, false);
   }
 

@@ -149,12 +149,11 @@ public class LevelSelect {
   }
 
   public static boolean cheatOn(android.content.Context context) {
-    return android.preference.PreferenceManager
-        .getDefaultSharedPreferences(context).getBoolean(KEY_CHEAT, false);
+    return Prefs.get(context).getBoolean(KEY_CHEAT, false);
   }
 
   public static void setCheat(android.content.Context context, boolean on) {
-    android.preference.PreferenceManager.getDefaultSharedPreferences(context)
+    Prefs.get(context)
         .edit().putBoolean(KEY_CHEAT, on).apply();
   }
 
@@ -386,8 +385,7 @@ public class LevelSelect {
       }
       packDots.setText(dots);
     }
-    boolean hd = !android.preference.PreferenceManager
-        .getDefaultSharedPreferences(activity)
+    boolean hd = !Prefs.get(activity)
         .getBoolean(GameView.KEY_ORIGINAL_ART, false);
     for (int i = 0; i < PER_PAGE; i++) {
       int level = (page * PER_PAGE) + i;

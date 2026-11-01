@@ -74,6 +74,8 @@
 
 package org.jfedor.frozenbubble;
 
+import com.efortin.frozenbubble.Prefs;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -665,8 +667,7 @@ public class GameView extends SurfaceView
      * bubble set.  Read when the game screen is created.
      */
     private final boolean mUseHdArt =
-        !android.preference.PreferenceManager.getDefaultSharedPreferences(
-            mContext).getBoolean(KEY_ORIGINAL_ART, false);
+        !Prefs.get(mContext).getBoolean(KEY_ORIGINAL_ART, false);
 
     /** @return the HD resource, or the original when that is chosen. */
     private int art(int hdId, int originalId) {
@@ -1854,8 +1855,7 @@ public class GameView extends SurfaceView
      */
     private void drawBestScore(Canvas canvas) {
       if ((mHighScoreManager == null) ||
-          !android.preference.PreferenceManager
-              .getDefaultSharedPreferences(mContext)
+          !Prefs.get(mContext)
               .getBoolean(com.efortin.frozenbubble.OptionsMenus.KEY_SHOW_BEST,
                           true)) {
         return;
@@ -4087,8 +4087,7 @@ public class GameView extends SurfaceView
    * switched on (for screens outside the game view).
    */
   public static int chooseArt(Context context, int hdId, int originalId) {
-    return android.preference.PreferenceManager
-        .getDefaultSharedPreferences(context)
+    return Prefs.get(context)
         .getBoolean(KEY_ORIGINAL_ART, false) ? originalId : hdId;
   }
 
@@ -4097,8 +4096,7 @@ public class GameView extends SurfaceView
 
   public void surfaceCreated(SurfaceHolder holder) {
     //Log.i("frozen-bubble", "GameView.surfaceCreated()");
-    mGameThread.setRenderMode(android.preference.PreferenceManager
-        .getDefaultSharedPreferences(mContext)
+    mGameThread.setRenderMode(Prefs.get(mContext)
         .getBoolean(KEY_GPU_RENDERING, true));
     mGameThread.setSurfaceOK(true);
   }

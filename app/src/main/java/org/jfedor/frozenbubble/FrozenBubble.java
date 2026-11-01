@@ -100,7 +100,7 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
-import android.preference.PreferenceManager;
+import com.efortin.frozenbubble.Prefs;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -201,7 +201,7 @@ public class FrozenBubble extends Activity
    * "Puzzle - Level 23".
    */
   public static String savedGameTitle(Context context, String slot) {
-    int detail = PreferenceManager.getDefaultSharedPreferences(context)
+    int detail = Prefs.get(context)
         .getInt(SAVED_DETAIL + slot, -1);
     if (SAVED_MODE_PUZZLE.equals(slot)) {
       return puzzleTitle(context, detail);
@@ -242,7 +242,7 @@ public class FrozenBubble extends Activity
     if (!old.exists()) {
       return;
     }
-    String slot = PreferenceManager.getDefaultSharedPreferences(context)
+    String slot = Prefs.get(context)
         .getString(SAVED_GAME_MODE, SAVED_MODE_PUZZLE);
     if (!SAVED_MODE_ARCADE.equals(slot) && !SAVED_MODE_2PLAYER.equals(slot)) {
       slot = SAVED_MODE_PUZZLE;
@@ -251,7 +251,7 @@ public class FrozenBubble extends Activity
     if (slotFile.exists() || !old.renameTo(slotFile)) {
       old.delete();
     }
-    PreferenceManager.getDefaultSharedPreferences(context).edit()
+    Prefs.get(context).edit()
         .putString(SAVED_GAME_MODE, slot)
         .putBoolean("playerSave", hasAnySavedGame(context))
         .commit();
@@ -309,7 +309,7 @@ public class FrozenBubble extends Activity
       .putInt(maxKey, Math.max(level, sp.getInt(maxKey, 0)))
       .commit();
     context.deleteFile(saveFileName(SAVED_MODE_PUZZLE));
-    SharedPreferences dp = PreferenceManager.getDefaultSharedPreferences(context);
+    SharedPreferences dp = Prefs.get(context);
     Editor editor = dp.edit()
         .putBoolean("playerSave", hasAnySavedGame(context))
         .remove(SAVED_DETAIL + SAVED_MODE_PUZZLE);
@@ -567,7 +567,7 @@ public class FrozenBubble extends Activity
 
     if (prefsUpdated) {
       SharedPreferences sp =
-          PreferenceManager.getDefaultSharedPreferences(this);
+          Prefs.get(this);
       PreferencesActivity.saveDefaultPreferences(prefs, sp);
     }
 
@@ -622,7 +622,7 @@ public class FrozenBubble extends Activity
   private void clearSavedGame() {
     String slot = currentSlot();
     deleteFile(saveFileName(slot));
-    SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+    SharedPreferences sp = Prefs.get(this);
     Editor editor = sp.edit()
         .putBoolean("playerSave", hasAnySavedGame(this))
         .remove(SAVED_DETAIL + slot);
@@ -667,7 +667,7 @@ public class FrozenBubble extends Activity
      * the game state in.
      */
     SharedPreferences.Editor editor =
-        PreferenceManager.getDefaultSharedPreferences(this).edit();
+        Prefs.get(this).edit();
     editor.putBoolean("systemSave", true);
     editor.commit();
   }
@@ -826,7 +826,7 @@ public class FrozenBubble extends Activity
      * save the game state.
      */
     SharedPreferences.Editor editor =
-        PreferenceManager.getDefaultSharedPreferences(this).edit();
+        Prefs.get(this).edit();
     editor.putBoolean("systemSave", false);
     editor.commit();
     /*
@@ -1648,7 +1648,7 @@ public class FrozenBubble extends Activity
    */
   private void restoreGamePrefs() {
     SharedPreferences sp =
-        PreferenceManager.getDefaultSharedPreferences(this);
+        Prefs.get(this);
     prefs = PreferencesActivity.getDefaultPrefs(sp);
 
     /*
@@ -1687,7 +1687,7 @@ public class FrozenBubble extends Activity
        * Set a flag indicating that the player saved the game.
        */
       Editor editor =
-          PreferenceManager.getDefaultSharedPreferences(this).edit();
+          Prefs.get(this).edit();
       editor.putBoolean("playerSave", true);
       editor.putString(SAVED_GAME_MODE, slot);
       // Where it left off, for the home screen's Continue popup.
@@ -1870,7 +1870,7 @@ public class FrozenBubble extends Activity
         
         if (prefsUpdated) {
           SharedPreferences sp =
-              PreferenceManager.getDefaultSharedPreferences(getApplication());
+              Prefs.get(getApplication());
           PreferencesActivity.saveDefaultPreferences(prefs, sp);
         }
       }
@@ -2010,7 +2010,7 @@ public class FrozenBubble extends Activity
       // most recently saved one.
       String slot = (intent != null) ? intent.getStringExtra("saveSlot") : null;
       if (slot == null) {
-        slot = PreferenceManager.getDefaultSharedPreferences(this)
+        slot = Prefs.get(this)
             .getString(SAVED_GAME_MODE, SAVED_MODE_PUZZLE);
       }
       newGameView(restoreSavedGame(slot));
@@ -2060,7 +2060,7 @@ public class FrozenBubble extends Activity
       public void onClick(DialogInterface builder, int id) {
         // User clicked OK.
         SharedPreferences sp =
-            PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            Prefs.get(getApplicationContext());
         PreferencesActivity.saveDefaultPreferences(prefs, sp);
       }
     });

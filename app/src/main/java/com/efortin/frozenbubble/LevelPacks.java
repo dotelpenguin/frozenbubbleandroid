@@ -18,7 +18,6 @@ import java.util.List;
 import org.jfedor.frozenbubble.LevelManager;
 
 import android.content.Context;
-import android.preference.PreferenceManager;
 
 /**
  * Puzzle level packs.
@@ -86,13 +85,13 @@ public final class LevelPacks {
 
   /** The pack Puzzle plays (Original if it is missing). */
   public static String current(Context context) {
-    String id = PreferenceManager.getDefaultSharedPreferences(context)
+    String id = Prefs.get(context)
         .getString(KEY_PACK, ORIGINAL);
     return ids(context).contains(id) ? id : ORIGINAL;
   }
 
   public static void setCurrent(Context context, String id) {
-    PreferenceManager.getDefaultSharedPreferences(context).edit()
+    Prefs.get(context).edit()
         .putString(KEY_PACK, id).commit();
   }
 

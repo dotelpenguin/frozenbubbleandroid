@@ -72,7 +72,6 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
 import android.text.format.Formatter;
 
 import com.efortin.frozenbubble.BluetoothManager.BluetoothListener;
@@ -212,7 +211,7 @@ public class NetworkManager extends Thread
      * Obtain a copy of the local game preferences.
      */
     SharedPreferences sp =
-        PreferenceManager.getDefaultSharedPreferences(myContext);
+        Prefs.get(myContext);
     localPrefs = PreferencesActivity.getDefaultPrefs(sp);
     /*
      * Create the player action arrays.  The actions are inserted

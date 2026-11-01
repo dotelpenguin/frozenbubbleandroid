@@ -16,7 +16,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.provider.DocumentsContract;
 
 import java.util.ArrayList;
@@ -64,7 +63,7 @@ public final class CustomMusic {
    * caller then plays the built-in music).
    */
   public static synchronized List<Uri> getActiveSongs(Context context) {
-    SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+    SharedPreferences sp = Prefs.get(context);
     String folder = sp.getString(KEY_FOLDER, null);
     if (!sp.getBoolean(KEY_ON, false) || (folder == null)) {
       return Collections.emptyList();
@@ -79,7 +78,7 @@ public final class CustomMusic {
   }
 
   public static Uri getFolder(Context context) {
-    String folder = PreferenceManager.getDefaultSharedPreferences(context)
+    String folder = Prefs.get(context)
         .getString(KEY_FOLDER, null);
     return (folder == null) ? null : Uri.parse(folder);
   }
@@ -101,7 +100,7 @@ public final class CustomMusic {
     }
     cr.takePersistableUriPermission(treeUri,
         Intent.FLAG_GRANT_READ_URI_PERMISSION);
-    PreferenceManager.getDefaultSharedPreferences(context).edit()
+    Prefs.get(context).edit()
         .putString(KEY_FOLDER, treeUri.toString())
         .apply();
     cachedFolder = null; // force a rescan

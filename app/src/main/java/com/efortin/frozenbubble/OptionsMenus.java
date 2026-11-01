@@ -21,7 +21,6 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
-import android.preference.PreferenceManager;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -162,7 +161,7 @@ public class OptionsMenus {
   public OptionsMenus(Activity activity, Host host) {
     this.activity = activity;
     this.host     = host;
-    this.sp       = PreferenceManager.getDefaultSharedPreferences(activity);
+    this.sp       = Prefs.get(activity);
   }
 
   /** Close the open category popup (e.g. before the screen reloads). */

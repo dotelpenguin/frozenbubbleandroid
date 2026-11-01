@@ -68,7 +68,6 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -142,7 +141,7 @@ public class PreferencesActivity extends Activity
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     requestWindowFeature(Window.FEATURE_NO_TITLE);
-    sp = PreferenceManager.getDefaultSharedPreferences(this);
+    sp = Prefs.get(this);
     applyFullscreen();
 
     mSoundManager = new SoundManager(this);
