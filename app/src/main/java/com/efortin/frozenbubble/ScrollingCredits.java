@@ -58,13 +58,11 @@ import org.jfedor.frozenbubble.R;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
@@ -187,27 +185,15 @@ public class ScrollingCredits extends Activity implements Runnable {
    * the window layout settings.
    */
   private void setWindowLayout(int layoutResID) {
-    final int flagFs   = WindowManager.LayoutParams.FLAG_FULLSCREEN;
-    final int flagNoFs = WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN;
-
     // Remove the title bar.
     requestWindowFeature(Window.FEATURE_NO_TITLE);
     // Load and apply the specified XML layout.
     setContentView(layoutResID);
-    // Set full screen mode based on the game preferences.
-    SharedPreferences mConfig =
-      getSharedPreferences(FrozenBubble.PREFS_NAME, Context.MODE_PRIVATE);
-    boolean fullscreen = mConfig.getBoolean("fullscreen", true);
-
-    if (fullscreen) {
-      getWindow().addFlags(flagFs);
-      getWindow().clearFlags(flagNoFs);
-    }
-    else {
-      getWindow().clearFlags(flagFs);
-      getWindow().addFlags(flagNoFs);
-    }
-    SystemUi.apply(this, fullscreen);
+    // Full screen (or not) as chosen in Options.  (This used to read an
+    // old setting that nothing writes any more, so the credits were
+    // always full screen.)
+    SystemUi.apply(this, Prefs.get(this).getBoolean(OptionsMenus.KEY_FULLSCREEN,
+                                                    true));
   }
 
   public boolean checkCreditsDone() {

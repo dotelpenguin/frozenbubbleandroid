@@ -72,7 +72,6 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -238,16 +237,7 @@ public class PreferencesActivity extends Activity
   }
 
   private void applyFullscreen() {
-    boolean fullscreen = sp.getBoolean(KEY_FULLSCREEN, true);
-    if (fullscreen) {
-      getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-      getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-    }
-    else {
-      getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-      getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-    }
-    SystemUi.apply(this, fullscreen);
+    SystemUi.apply(this, sp.getBoolean(KEY_FULLSCREEN, true));
   }
 
   /*

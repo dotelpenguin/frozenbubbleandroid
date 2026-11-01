@@ -1764,17 +1764,6 @@ public class FrozenBubble extends Activity
   }
 
   private void setFullscreen() {
-    final int flagFs   = WindowManager.LayoutParams.FLAG_FULLSCREEN;
-    final int flagNoFs = WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN;
-
-    if (prefs.fullscreen) {
-      getWindow().addFlags(flagFs);
-      getWindow().clearFlags(flagNoFs);
-    }
-    else {
-      getWindow().clearFlags(flagFs);
-      getWindow().addFlags(flagNoFs);
-    }
     com.efortin.frozenbubble.SystemUi.apply(this, prefs.fullscreen);
 
     if (mGameView != null)

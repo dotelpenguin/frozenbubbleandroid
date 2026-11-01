@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
+import android.view.WindowManager;
 
 /**
  * Modern system bar handling.
@@ -29,10 +30,11 @@ public final class SystemUi {
   private SystemUi() {}
 
   public static void apply(Activity activity, boolean fullscreen) {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-      return; // Older devices: the legacy window flags still work.
-    }
     Window window = activity.getWindow();
+    legacyFlags(window, fullscreen);
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+      return; // Android 7-10: the window flags above do it.
+    }
     View content = window.findViewById(android.R.id.content);
     if (content != null) {
       content.setOnApplyWindowInsetsListener((v, insets) -> {
@@ -55,6 +57,27 @@ public final class SystemUi {
     }
     else {
       controller.show(WindowInsets.Type.systemBars());
+    }
+  }
+
+  /**
+   * The window flags that hide the status bar on Android 7-10 (and that
+   * the screens set on every version before this class did it).  They
+   * are deprecated from Android 11, where the insets controller above
+   * does the work; they are kept here, in one place, for the older
+   * versions.
+   */
+  @SuppressWarnings("deprecation")
+  private static void legacyFlags(Window window, boolean fullscreen) {
+    final int flagFs   = WindowManager.LayoutParams.FLAG_FULLSCREEN;
+    final int flagNoFs = WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN;
+    if (fullscreen) {
+      window.addFlags(flagFs);
+      window.clearFlags(flagNoFs);
+    }
+    else {
+      window.clearFlags(flagFs);
+      window.addFlags(flagNoFs);
     }
   }
 }

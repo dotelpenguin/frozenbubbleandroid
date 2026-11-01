@@ -1564,19 +1564,7 @@ public class HomeScreen extends Activity {
    * layout, or it will generate an exception.
    */
   private void setWindowLayout() {
-    final int flagFs   = WindowManager.LayoutParams.FLAG_FULLSCREEN;
-    final int flagNoFs = WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN;
-    /*
-     * Set full screen mode based on the game preferences.
-     */
-    if (myPreferences.fullscreen) {
-      getWindow().addFlags(flagFs);
-      getWindow().clearFlags(flagNoFs);
-    }
-    else {
-      getWindow().clearFlags(flagFs);
-      getWindow().addFlags(flagNoFs);
-    }
+    // Full screen (or not) as chosen in Options.
     SystemUi.apply(this, myPreferences.fullscreen);
 
     if (myLayout != null) {
