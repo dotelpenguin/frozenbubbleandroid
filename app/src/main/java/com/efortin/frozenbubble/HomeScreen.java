@@ -751,7 +751,7 @@ public class HomeScreen extends Activity {
      * on Android 12+, and the permission is requested from this button,
      * so checking the list here disabled the button for good.)
      */
-    if (android.bluetooth.BluetoothAdapter.getDefaultAdapter() == null) {
+    if (BluetoothManager.adapter(this) == null) {
       startBluetoothGameButton.setEnabled(false);
     }
     myParams = new LayoutParams(LayoutParams.WRAP_CONTENT,
@@ -1123,8 +1123,7 @@ public class HomeScreen extends Activity {
    * can no longer switch it on themselves), then list paired devices.
    */
   private void enableBluetoothThenShowDevices() {
-    android.bluetooth.BluetoothAdapter adapter =
-        android.bluetooth.BluetoothAdapter.getDefaultAdapter();
+    android.bluetooth.BluetoothAdapter adapter = BluetoothManager.adapter(this);
     boolean enabled;
     try {
       enabled = (adapter != null) && adapter.isEnabled();
@@ -1206,7 +1205,7 @@ public class HomeScreen extends Activity {
         new ArrayAdapter<String>(HomeScreen.this,
                                  android.R.layout.select_dialog_singlechoice);
 
-    BluetoothDevice[] devices = BluetoothManager.getPairedDevices();
+    BluetoothDevice[] devices = BluetoothManager.getPairedDevices(this);
     if ((devices == null) || (devices.length == 0)) {
       showNoPairedDevices();
       return;

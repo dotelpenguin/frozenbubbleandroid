@@ -206,7 +206,7 @@ public class NetworkManager extends Thread
     /*
      * Determine if the local device has bluetooth hardware.
      */
-    hasBluetooth = hasBluetooth();
+    hasBluetooth = hasBluetooth(myContext);
     /*
      * Obtain a copy of the local game preferences.
      */
@@ -1220,9 +1220,9 @@ public class NetworkManager extends Thread
    * <code>BLUETOOTH</code>
    * @return <code>true</code> if Bluetooth is enabled.
    */
-  public static boolean hasBluetooth()
+  public static boolean hasBluetooth(Context context)
   {
-    BluetoothAdapter myAdapter = BluetoothAdapter.getDefaultAdapter();
+    BluetoothAdapter myAdapter = BluetoothManager.adapter(context);
     if (myAdapter != null) {
       /*
        * Apps can no longer switch Bluetooth on themselves (Android 13+
@@ -1412,7 +1412,8 @@ public class NetworkManager extends Thread
       }
     }
     else if ((mode == connectEnum.BLUETOOTH) && (sessionBluetooth == null)) {
-      sessionBluetooth = new BluetoothManager(localPlayer.playerID ==
+      sessionBluetooth = new BluetoothManager(myContext,
+                                              localPlayer.playerID ==
                                               VirtualInput.PLAYER1,
                                               FrozenBubble.getBluetooth());
       sessionBluetooth.setBluetoothListener(this);

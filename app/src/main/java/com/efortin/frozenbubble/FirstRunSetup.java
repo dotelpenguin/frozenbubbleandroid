@@ -13,7 +13,6 @@ import org.jfedor.frozenbubble.R;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -180,7 +179,7 @@ public class FirstRunSetup {
       return false; // Granted at install on older Android versions.
     }
     try {
-      if (BluetoothAdapter.getDefaultAdapter() == null) {
+      if (BluetoothManager.adapter(activity) == null) {
         return false; // No Bluetooth on this phone.
       }
     } catch (RuntimeException e) {

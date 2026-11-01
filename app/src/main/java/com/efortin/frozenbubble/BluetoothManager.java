@@ -78,6 +78,19 @@ import android.util.Log;
  * @author Eric Fortin, Wednesday, May 8, 2013
  */
 public class BluetoothManager {
+
+  /**
+   * The phone's Bluetooth adapter, or <code>null</code> if it has none.
+   * (Replaces <code>BluetoothAdapter.getDefaultAdapter()</code>,
+   * deprecated since Android 12.)
+   */
+  public static BluetoothAdapter adapter(android.content.Context context) {
+    android.bluetooth.BluetoothManager manager = context.getSystemService(
+        android.bluetooth.BluetoothManager.class);
+    return (manager != null) ? manager.getAdapter() : null;
+  }
+
+  private final android.content.Context appContext;
   private static final String LOG_TAG  = UDPSocket.class.getSimpleName();
   private static final UUID   SPP_UUID = UUID.
       fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -121,7 +134,9 @@ public class BluetoothManager {
   /**
    * Bluetooth socket class constructor.
    */
-  public BluetoothManager(boolean isServer, int deviceIndex) {
+  public BluetoothManager(android.content.Context context, boolean isServer,
+                          int deviceIndex) {
+    this.appContext  = context.getApplicationContext();
     this.isServer    = isServer;
     this.deviceIndex = deviceIndex;
     myInputStream    = null;
@@ -246,7 +261,7 @@ public class BluetoothManager {
   private void configureBluetoothSocket() {
     BluetoothSocket socket = null;
     mySocket  = null;
-    myAdapter = BluetoothAdapter.getDefaultAdapter();
+    myAdapter = adapter(appContext);
 
     if (myAdapter == null) {
       pauseBeforeRetry();
@@ -265,7 +280,7 @@ public class BluetoothManager {
         remoteName = socket.getRemoteDevice().getName();
       }
       else {
-        BluetoothDevice device = getPairedDevice(deviceIndex);
+        BluetoothDevice device = getPairedDevice(appContext, deviceIndex);
         if (device == null) {
           // The chosen phone is no longer paired.
           pauseBeforeRetry();
@@ -298,7 +313,7 @@ public class BluetoothManager {
   public String getLocalName() {
     String name = null;
 
-    BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+    BluetoothAdapter adapter = adapter(appContext);
 
     if (adapter != null) {
       if (!adapter.isEnabled()) {
@@ -324,8 +339,9 @@ public class BluetoothManager {
    * @return The desired Bluetooth device if it exists, otherwise
    * <code>null</code>.
    */
-  public static BluetoothDevice getPairedDevice(int deviceIndex) {
-    BluetoothDevice[] pairedDevices = getPairedDevices();
+  public static BluetoothDevice getPairedDevice(android.content.Context context,
+                                               int deviceIndex) {
+    BluetoothDevice[] pairedDevices = getPairedDevices(context);
 
     if ((pairedDevices != null) && (pairedDevices.length > 0)) {
       if (deviceIndex >= pairedDevices.length) {
@@ -341,10 +357,9 @@ public class BluetoothManager {
    * @return The array of paired Bluetooth devices if it exists,
    * otherwise <code>null</code>.
    */
-  public static BluetoothDevice[] getPairedDevices() {
-    BluetoothAdapter localAdapter = null;
+  public static BluetoothDevice[] getPairedDevices(android.content.Context context) {
+    BluetoothAdapter localAdapter = adapter(context);
 
-    localAdapter = BluetoothAdapter.getDefaultAdapter();
     try {
       if ((localAdapter != null) && !localAdapter.getBondedDevices().isEmpty()) {
         Set<BluetoothDevice> deviceSet = localAdapter.getBondedDevices();
