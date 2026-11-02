@@ -122,6 +122,7 @@ public class HomeScreen extends Activity {
   private boolean        homeShown     = false;
   private boolean        playerSave    = false;
   private BackdropImageView myImageView = null;
+  private int            homeArt       = 0;   // the picture shown
   private RelativeLayout myLayout      = null;
   private ModPlayer      myModPlayer   = null;
   private Preferences    myPreferences = null;
@@ -1557,8 +1558,8 @@ public class HomeScreen extends Activity {
   }
 
   /**
-   * The app's version, small, in the lower right corner of the home
-   * screen picture (not of the screen, which may have bars around it).
+   * The app's version, small, under the right end of the title
+   * ("frozen bubble HD") painted in the home screen picture.
    */
   private void addVersionLabel() {
     float dp = getResources().getDisplayMetrics().density;
@@ -1571,29 +1572,41 @@ public class HomeScreen extends Activity {
     RelativeLayout.LayoutParams lp =
         new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
                                         LayoutParams.WRAP_CONTENT);
-    lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+    lp.addRule(RelativeLayout.ALIGN_PARENT_TOP);
     lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-    final int m = Math.round(8 * dp);
-    lp.setMargins(m, m, m, m);
     myLayout.addView(version, lp);
-    // Keep it inside the picture's corner whenever the layout changes.
+    // Keep it under the title whenever the layout changes.
     myImageView.addOnLayoutChangeListener(
-        (v, l, t, r, b, ol, ot, or, ob) -> placeVersionLabel(version, m));
-    myImageView.post(() -> placeVersionLabel(version, m));
+        (v, l, t, r, b, ol, ot, or, ob) -> placeVersionLabel(version));
+    myImageView.post(() -> placeVersionLabel(version));
   }
 
-  private void placeVersionLabel(android.widget.TextView version, int m) {
+  /*
+   * Where the title ends in each home screen picture, as fractions of
+   * the picture: its right edge, and just below its bottom (measured
+   * from home_screen_hd.jpg and the original home_screen.jpg).
+   */
+  private static final float TITLE_RIGHT_HD   = 0.970f;
+  private static final float TITLE_BOTTOM_HD  = 0.112f;
+  private static final float TITLE_RIGHT_ORIG = 0.885f;
+  private static final float TITLE_BOTTOM_ORIG = 0.132f;
+
+  private void placeVersionLabel(android.widget.TextView version) {
     android.graphics.Rect img = myImageView.imageRect();
     if (img.isEmpty() || (version.getParent() == null)) {
       return;
     }
+    boolean hd = (homeArt != R.drawable.home_screen);
+    float fr = hd ? TITLE_RIGHT_HD  : TITLE_RIGHT_ORIG;
+    float fb = hd ? TITLE_BOTTOM_HD : TITLE_BOTTOM_ORIG;
     RelativeLayout.LayoutParams lp =
         (RelativeLayout.LayoutParams) version.getLayoutParams();
-    int right  = (myImageView.getWidth()  - img.right)  + m;
-    int bottom = (myImageView.getHeight() - img.bottom) + m;
-    if ((lp.rightMargin != right) || (lp.bottomMargin != bottom)) {
-      lp.rightMargin  = right;
-      lp.bottomMargin = bottom;
+    int right = myImageView.getWidth() -
+                (img.left + Math.round(img.width() * fr));
+    int top   = img.top + Math.round(img.height() * fb);
+    if ((lp.rightMargin != right) || (lp.topMargin != top)) {
+      lp.rightMargin = right;
+      lp.topMargin   = top;
       version.setLayoutParams(lp);
     }
   }
@@ -1605,6 +1618,7 @@ public class HomeScreen extends Activity {
     myImageView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
                                                  LayoutParams.MATCH_PARENT));
     myImageView.setImageResource(resId);
+    homeArt = resId;
     myImageView.setId(SCREEN_ID);
     myLayout.addView(myImageView);
   }
