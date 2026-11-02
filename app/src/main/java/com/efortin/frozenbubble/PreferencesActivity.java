@@ -267,6 +267,20 @@ public class PreferencesActivity extends Activity
   @Override
   public boolean pickMusicFolder() {
     Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+    /*
+     * Open the picker in the phone's Music folder (or the folder chosen
+     * before).  Otherwise it may open in Recent or a media category such
+     * as Audio, where no folder can be chosen ("Can't use this folder").
+     */
+    if (android.os.Build.VERSION.SDK_INT >= 26) {
+      android.net.Uri start = CustomMusic.getFolder(this);
+      intent.putExtra(android.provider.DocumentsContract.EXTRA_INITIAL_URI,
+          (start != null)
+              ? android.provider.DocumentsContract.buildDocumentUriUsingTree(start,
+                    android.provider.DocumentsContract.getTreeDocumentId(start))
+              : android.net.Uri.parse(
+          "content://com.android.externalstorage.documents/document/primary%3AMusic"));
+    }
     try {
       startActivityForResult(intent, REQUEST_MUSIC_FOLDER);
     } catch (ActivityNotFoundException e) {
