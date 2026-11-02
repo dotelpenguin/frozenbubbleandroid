@@ -15,7 +15,8 @@ Android Studio downloaded):
     "$GRADLE" :app:compileDebugJavaWithJavac --rerun --no-build-cache
 
 **Count on 2026-11-01: 130 warnings, all `[deprecation]`, none
-`[unchecked]`.**  Android Studio's Analyze > Inspect Code (or the
+`[unchecked]`.  On 2026-11-02: none** (sections 1 and 2 are done; the
+Wi-Fi network changes still need a two-phone test).  Android Studio's Analyze > Inspect Code (or the
 `lintDebug` task) adds Android lint's view.
 
 Legend: **[B]** changes behaviour soon (do first), **[D]** deprecated but
@@ -24,33 +25,35 @@ still works, **[X]** probably dead code: delete rather than migrate,
 
 ## 1. Behaviour changes
 
-- [ ] **[B] Back key** - `KEYCODE_BACK` in `onKeyDown`: FrozenBubble,
+- [x] **[B] Back key** - `KEYCODE_BACK` in `onKeyDown`: FrozenBubble,
   HomeScreen, PreferencesActivity, ScrollingCredits.  Only works because
   the manifest sets `enableOnBackInvokedCallback="false"`; Google warns a
   future release may stop honouring that.  Fix: `OnBackInvokedCallback`
   (Android 13+, no AndroidX needed), keeping `onKeyDown` for 7-12.
-- [ ] **[B] Orientation on tablets / foldables** - `setRequestedOrientation()`
+  Done: `BackKey`; the manifest now sets it to `"true"`.
+- [x] **[B] Orientation on tablets / foldables** - `setRequestedOrientation()`
   (FrozenBubble).  Ignored on screens >= 600 dp for apps targeting 37.
   Fix: `android:appCategory="game"` on `<application>` (games are exempt).
+  Done.
 
 ## 2. Deprecated, still working
 
 | | API | Warnings | Where | Replace with |
 |---|---|---|---|---|
-| [ ] [D] | `android.preference.PreferenceManager.getDefaultSharedPreferences` (API 29) | 82 | FrozenBubble 26, HomeScreen 8, GameView 8, Effects 6, CustomMusic 6, LevelSelect 6, ComputerAI 4, FirstRunSetup 4, LevelPacks 4, LocaleHelper 4, NetworkManager 2, OptionsMenus 2, PreferencesActivity 2 | A small `Prefs.get(context)` helper opening the same file (`<package>_preferences`), so no data moves |
-| [ ] [D] | `WindowManager.LayoutParams.FLAG_FULLSCREEN`, `FLAG_FORCE_NOT_FULLSCREEN` (API 30) | 10 | FrozenBubble, HomeScreen, PreferencesActivity, ScrollingCredits | `SystemUi` already hides the bars the modern way: remove the leftovers |
-| [ ] [D] | `BluetoothAdapter.getDefaultAdapter()` (API 31) | 7 | BluetoothManager 3, HomeScreen 2, FirstRunSetup, NetworkManager | `context.getSystemService(BluetoothManager.class).getAdapter()` |
-| [ ] [D] | `AsyncTask` (API 30) | 5 | NetworkManager (reconnect) | A plain thread or `Executor` |
-| [ ] [D] | `WifiManager.getConnectionInfo()`, `WifiInfo.getIpAddress()`, `Formatter.formatIpAddress()` (API 31 / 23) | 5 | NetworkManager | `ConnectivityManager` + `LinkProperties` of the active network |
-| [ ] [D] | `NetworkInfo`, `getActiveNetworkInfo()`, `isConnected()` (API 29) | 3 | NetworkManager | `ConnectivityManager.getNetworkCapabilities()` |
-| [ ] [D] | `WifiManager.getDhcpInfo()` (API 31) | 1 | UDPSocket (Wi-Fi game broadcast address) | `LinkProperties` link addresses / prefix length |
-| [ ] [D] | `new AudioTrack(STREAM_MUSIC, ...)` (API 26), `AudioTrack.setStereoVolume` (API 21) | 5 | andmodplug PlayerThread | `AudioTrack.Builder` + `AudioAttributes`; `setVolume(float)` |
-| [ ] [D] | `new SoundPool(n, STREAM_MUSIC, 0)` (API 21) | 1 | SoundManager | `SoundPool.Builder` + `AudioAttributes` (USAGE_GAME) |
-| [ ] [D] | `WindowManager.getDefaultDisplay()`, `Display.getMetrics()` (API 30) | 3 | FrozenBubble | `WindowMetrics` (API 30+) / `context.getDisplay()`, old calls below 30 |
-| [ ] [D] | `Resources.getDrawable(int)`, `getColor(int)` (API 22/23) | 3 | GameView 2, HomeScreen | `context.getDrawable()` / `getColor()` |
-| [ ] [D] | `Context.VIBRATOR_SERVICE` (API 31), `Vibrator.vibrate(long)` (API 26) | 2 | Effects | `VibratorManager.getDefaultVibrator()` on 31+; the `vibrate(long)` call only runs on Android 7 |
-| [ ] [D] | `Activity.overridePendingTransition` (API 34) | 1 | HomeScreen | `overrideActivityTransition` on 34+ |
-| [ ] [OK] | `Drawable.getOpacity()` (API 29) | 2 | BubbleButtonDrawable, LevelThumbDrawable | Still required (abstract): mark `@SuppressWarnings("deprecation")` |
+| [x] [D] | `android.preference.PreferenceManager.getDefaultSharedPreferences` (API 29) | 82 | FrozenBubble 26, HomeScreen 8, GameView 8, Effects 6, CustomMusic 6, LevelSelect 6, ComputerAI 4, FirstRunSetup 4, LevelPacks 4, LocaleHelper 4, NetworkManager 2, OptionsMenus 2, PreferencesActivity 2 | Done: `Prefs.get(context)` opening the same file (`<package>_preferences`), so no data moves |
+| [x] [D] | `WindowManager.LayoutParams.FLAG_FULLSCREEN`, `FLAG_FORCE_NOT_FULLSCREEN` (API 30) | 10 | FrozenBubble, HomeScreen, PreferencesActivity, ScrollingCredits | `SystemUi` already hides the bars the modern way: remove the leftovers |
+| [x] [D] | `BluetoothAdapter.getDefaultAdapter()` (API 31) | 7 | BluetoothManager 3, HomeScreen 2, FirstRunSetup, NetworkManager | `context.getSystemService(BluetoothManager.class).getAdapter()` |
+| [x] [D] | `AsyncTask` (API 30) | 5 | NetworkManager (reconnect) | A plain thread or `Executor` |
+| [x] [D] | `WifiManager.getConnectionInfo()`, `WifiInfo.getIpAddress()`, `Formatter.formatIpAddress()` (API 31 / 23) | 5 | NetworkManager | `ConnectivityManager` + `LinkProperties` of the active network |
+| [x] [D] | `NetworkInfo`, `getActiveNetworkInfo()`, `isConnected()` (API 29) | 3 | NetworkManager | `ConnectivityManager.getNetworkCapabilities()` |
+| [x] [D] | `WifiManager.getDhcpInfo()` (API 31) | 1 | UDPSocket (Wi-Fi game broadcast address) | `LinkProperties` link addresses / prefix length |
+| [x] [D] | `new AudioTrack(STREAM_MUSIC, ...)` (API 26), `AudioTrack.setStereoVolume` (API 21) | 5 | andmodplug PlayerThread | `AudioTrack.Builder` + `AudioAttributes`; `setVolume(float)` |
+| [x] [D] | `new SoundPool(n, STREAM_MUSIC, 0)` (API 21) | 1 | SoundManager | `SoundPool.Builder` + `AudioAttributes` (USAGE_GAME) |
+| [x] [D] | `WindowManager.getDefaultDisplay()`, `Display.getMetrics()` (API 30) | 3 | FrozenBubble | `WindowMetrics` (API 30+) / `context.getDisplay()`, old calls below 30 |
+| [x] [D] | `Resources.getDrawable(int)`, `getColor(int)` (API 22/23) | 3 | GameView 2, HomeScreen | `context.getDrawable()` / `getColor()` |
+| [x] [D] | `Context.VIBRATOR_SERVICE` (API 31), `Vibrator.vibrate(long)` (API 26) | 2 | Effects | `VibratorManager.getDefaultVibrator()` on 31+; the `vibrate(long)` call only runs on Android 7 |
+| [x] [D] | `Activity.overridePendingTransition` (API 34) | 1 | HomeScreen | `overrideActivityTransition` on 34+ |
+| [x] [OK] | `Drawable.getOpacity()` (API 29) | 2 | BubbleButtonDrawable, LevelThumbDrawable | Still required (abstract): mark `@SuppressWarnings("deprecation")` |
 
 Not a problem: `startActivityForResult` / `onActivityResult` and
 `requestPermissions` are only deprecated in AndroidX, which the app
