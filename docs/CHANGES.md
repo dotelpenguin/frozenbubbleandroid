@@ -8,11 +8,11 @@ with Eclipse/Ant for API level 12).  The original developer later
 continued on the upstream `android_studio` branch (2023-2026: target
 SDK 33 to 36, Bluetooth runtime permissions, a level-parsing fix, a
 frozen top row in Arcade, faster credits, 16 KB page-size native
-build); none of that is merged here.  Everything below was added on the
-`modernize` branch from October 2026 onwards.  To see it all in git:
+build); none of that is merged here.  Everything below was added from
+October 2026 onwards.  To see it all in git:
 
-    git log --oneline c3ac715..modernize
-    git diff --stat c3ac715 modernize
+    git log --oneline c3ac715..HEAD
+    git diff --stat c3ac715 HEAD
 
 Version: 4.4 (code 54) became **4.5 (code 55)**.  The app is now
 **Frozen Bubble HD**, with its own application ID,

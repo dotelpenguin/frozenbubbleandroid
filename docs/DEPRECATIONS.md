@@ -1,6 +1,6 @@
 # Deprecated and soon-to-change Android APIs
 
-Working list for the `deprecations` branch.  The app targets SDK 36
+Working list of deprecated Android APIs.  The app targets SDK 36
 (Android 16), minSdk 24 (Android 7).  Google Play will require target
 SDK 37 (Android 17) for new apps and updates from August 2027.
 

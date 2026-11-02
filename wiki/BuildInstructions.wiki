@@ -10,7 +10,7 @@ The project now builds with Android Studio and Gradle.  The full, current instru
 = Details =
 
   * Install Android Studio.  From its SDK manager, install Android SDK Platform 36, the NDK and CMake (Android Studio offers to install whatever is missing when it syncs).
-  * Get the source: `git clone https://github.com/dotelpenguin/frozenbubbleandroid.git`, then `git checkout modernize`.
+  * Get the source: `git clone https://github.com/dotelpenguin/frozenbubbleandroid.git`.
   * In Android Studio, choose File → Open and pick the project folder (the one with settings.gradle.kts).
   * Let Gradle sync; the first sync downloads Gradle 9.6 and the Android Gradle Plugin 9.4.
   * Pick a phone or emulator and Run 'app'.
