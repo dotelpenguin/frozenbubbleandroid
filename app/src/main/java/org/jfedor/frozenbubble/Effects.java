@@ -59,12 +59,28 @@ public class Effects {
 
   private static Vibrator sVibrator = null;
 
+  /** The phone's vibrator (VibratorManager from Android 12). */
+  @SuppressWarnings("deprecation")
+  private static Vibrator vibrator(Context context) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+      android.os.VibratorManager vm =
+          context.getSystemService(android.os.VibratorManager.class);
+      return (vm != null) ? vm.getDefaultVibrator() : null;
+    }
+    return (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+  }
+
+  /** Android 7: vibrate for ms (no strength; deprecated from 8). */
+  @SuppressWarnings("deprecation")
+  private static void legacyVibrate(int ms) {
+    sVibrator.vibrate(ms);
+  }
+
   /** Read the effect settings and get the vibrator. */
   public static void init(Context context) {
     if (sVibrator == null) {
       try {
-        sVibrator = (Vibrator) context.getApplicationContext()
-            .getSystemService(Context.VIBRATOR_SERVICE);
+        sVibrator = vibrator(context.getApplicationContext());
       } catch (RuntimeException e) {
         sVibrator = null;
       }
@@ -180,7 +196,7 @@ public class Effects {
             Math.max(1, Math.min(255, amplitude))));
       }
       else {
-        sVibrator.vibrate(ms);
+        legacyVibrate(ms);
       }
     } catch (RuntimeException e) {
       // No vibrator, or not allowed: just skip it.

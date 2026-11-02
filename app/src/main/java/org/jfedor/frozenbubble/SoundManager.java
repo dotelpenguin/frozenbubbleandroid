@@ -138,9 +138,14 @@ public class SoundManager {
       this.size      = new AtomicInteger(0);
       this.soundMap  =
           new ConcurrentHashMap<String, Integer>(MAX_STREAMS_PER_POOL);
-      this.soundPool =
-          new SoundPool(MAX_STREAMS_PER_POOL,
-                        android.media.AudioManager.STREAM_MUSIC, 0);
+      // Game sounds (they follow the media volume, as before).
+      this.soundPool = new SoundPool.Builder()
+          .setMaxStreams(MAX_STREAMS_PER_POOL)
+          .setAudioAttributes(new android.media.AudioAttributes.Builder()
+              .setUsage(android.media.AudioAttributes.USAGE_GAME)
+              .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
+              .build())
+          .build();
     }
 
     public void load(String id, int resId) {

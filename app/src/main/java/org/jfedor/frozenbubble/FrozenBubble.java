@@ -1179,8 +1179,7 @@ public class FrozenBubble extends Activity
 
   /**
    * Obtain the screen orientation.
-   * @param windowManager - used to get a reference to the display to
-   * obtain display information.
+   * @param activity - the activity whose window and display to check.
    * @return The screen orientation, which can be among the following
    * values:<br><code>
    * ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE<br>
@@ -1188,17 +1187,45 @@ public class FrozenBubble extends Activity
    * FrozenBubble.SCREEN_ORIENTATION_REVERSE_LANDSCAPE<br>
    * FrozenBubble.SCREEN_ORIENTATION_REVERSE_PORTRAIT</code>
    */
-  public static int getScreenOrientation(WindowManager windowManager) {
+  /** Android 7-10: the default display's size (deprecated from 11). */
+  @SuppressWarnings("deprecation")
+  private static DisplayMetrics legacyMetrics(WindowManager windowManager) {
+    DisplayMetrics dm = new DisplayMetrics();
+    windowManager.getDefaultDisplay().getMetrics(dm);
+    return dm;
+  }
+
+  @SuppressWarnings("deprecation")
+  private static int legacyRotation(WindowManager windowManager) {
+    return windowManager.getDefaultDisplay().getRotation();
+  }
+
+  public static int getScreenOrientation(Activity activity) {
+    WindowManager windowManager = activity.getWindowManager();
     /*
      * The method getOrientation() was deprecated in API level 8.
      *
      * For API level 8 or greater, use getRotation().
      */
-    int rotation = windowManager.getDefaultDisplay().getRotation();
-    DisplayMetrics dm = new DisplayMetrics();
-    windowManager.getDefaultDisplay().getMetrics(dm);
-    int width  = dm.widthPixels;
-    int height = dm.heightPixels;
+    int rotation;
+    int width;
+    int height;
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+      // Android 11+: the window's size, and the display it is on.
+      android.graphics.Rect bounds =
+          windowManager.getCurrentWindowMetrics().getBounds();
+      width    = bounds.width();
+      height   = bounds.height();
+      android.view.Display display = activity.getDisplay();
+      rotation = (display != null) ? display.getRotation()
+                                   : legacyRotation(windowManager);
+    }
+    else {
+      DisplayMetrics dm = legacyMetrics(windowManager);
+      width    = dm.widthPixels;
+      height   = dm.heightPixels;
+      rotation = legacyRotation(windowManager);
+    }
     int orientation;
     /*
      * The orientation determination is based on the natural orienation
@@ -1266,12 +1293,12 @@ public class FrozenBubble extends Activity
   private void initGameOptions() {
     restoreGamePrefs();
 
-    currentOrientation = getScreenOrientation(getWindowManager());
+    currentOrientation = getScreenOrientation(this);
     myOrientationEventListener =
       new OrientationEventListener(this, SensorManager.SENSOR_DELAY_NORMAL) {
         @Override
         public void onOrientationChanged(int arg0) {
-          currentOrientation = getScreenOrientation(getWindowManager());
+          currentOrientation = getScreenOrientation(FrozenBubble.this);
         }
       };
     if (myOrientationEventListener.canDetectOrientation())

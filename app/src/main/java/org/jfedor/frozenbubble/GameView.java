@@ -904,7 +904,8 @@ public class GameView extends SurfaceView
       mTomato         = NewBmpWrap();
 
       mFont             = new BubbleFont(mFontImage);
-      mLauncher         = res.getDrawable(art(R.drawable.launcher_hd, R.drawable.launcher));
+      mLauncher         = res.getDrawable(art(R.drawable.launcher_hd, R.drawable.launcher),
+                                          null);
       mSoundManager     = new SoundManager(mContext);
 
       /*
@@ -1092,7 +1093,8 @@ public class GameView extends SurfaceView
       mTomato         = null;
 
       mFont             = new BubbleFont(mFontImage);
-      mLauncher         = res.getDrawable(art(R.drawable.launcher_hd, R.drawable.launcher));
+      mLauncher         = res.getDrawable(art(R.drawable.launcher_hd, R.drawable.launcher),
+                                          null);
       mSoundManager     = new SoundManager(mContext);
 
       /*
@@ -2504,8 +2506,7 @@ public class GameView extends SurfaceView
     }
 
     private int getScreenOrientation() {
-      return FrozenBubble.getScreenOrientation(((Activity) mContext).
-                                               getWindowManager());
+      return FrozenBubble.getScreenOrientation((Activity) mContext);
     }
 
     /**

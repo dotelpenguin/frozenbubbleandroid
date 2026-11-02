@@ -1008,7 +1008,19 @@ public class HomeScreen extends Activity {
     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
     startActivity(intent);
     finish();
-    overridePendingTransition(0, 0);
+    noTransition();
+  }
+
+  /** No animation between the screens (the home screen reloading). */
+  @SuppressWarnings("deprecation")
+  private void noTransition() {
+    if (android.os.Build.VERSION.SDK_INT >= 34) {
+      overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, 0, 0);
+      overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, 0, 0);
+    }
+    else {
+      overridePendingTransition(0, 0);  // Deprecated from Android 14.
+    }
   }
 
   private void cleanUp() {
@@ -1548,7 +1560,7 @@ public class HomeScreen extends Activity {
     if (myImageView.getParent() != null)
       myLayout.removeView(myImageView);
 
-    myImageView.setBackgroundColor(getResources().getColor(R.color.black));
+    myImageView.setBackgroundColor(getColor(R.color.black));
     myImageView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
                                                  LayoutParams.MATCH_PARENT));
     myImageView.setImageResource(resId);
