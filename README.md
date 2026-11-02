@@ -3,12 +3,9 @@
 The Android port of the Frozen Bubble game, brought up to date for
 Android 16 with HD art, new menus, level packs, Arcade scoring and more.
 
-This fork continues from the original project's `master` branch
-([videogameboy76/frozenbubbleandroid](https://github.com/videogameboy76/frozenbubbleandroid),
-commit `c3ac715`, April 2020, version 4.4).  The original
-developer has since continued separately on the upstream `android_studio`
-branch (an Android Studio build targeting Android 16, last updated
-September 2026); those changes are not included here.
+This fork diverged from the original project,
+[videogameboy76/frozenbubbleandroid](https://github.com/videogameboy76/frozenbubbleandroid),
+at its `master` branch (commit `c3ac715`, April 2020, version 4.4).
 
 - **What's new:** [docs/CHANGES.md](docs/CHANGES.md)
 - **Building:** [docs/BUILDING.md](docs/BUILDING.md)
