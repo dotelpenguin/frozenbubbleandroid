@@ -94,7 +94,6 @@
 package com.peculiargames.andmodplug;
 
 import android.media.AudioFormat;
-import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.util.Log;
 
@@ -391,17 +390,13 @@ public class PlayerThread extends Thread {
           mMinbuffer = AudioTrack.getMinBufferSize(try_rates[rateIndex],
             AudioFormat.CHANNEL_OUT_STEREO,
             AudioFormat.ENCODING_PCM_16BIT);
-          mMyTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
-                                    try_rates[rateIndex],
-                                    AudioFormat.CHANNEL_OUT_STEREO,
-                                    AudioFormat.ENCODING_PCM_16BIT,
-                                    mMinbuffer, AudioTrack.MODE_STREAM);
+          mMyTrack = newTrack(try_rates[rateIndex], mMinbuffer);
           /*
            * Init the Modplug player for this sample rate.
            */
           ModPlug_Init(try_rates[rateIndex]);
           success = true;
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | UnsupportedOperationException e) {
           rateIndex++;
         }
       }
@@ -410,10 +405,7 @@ public class PlayerThread extends Thread {
       mMinbuffer = AudioTrack.getMinBufferSize(desiredRate,
         AudioFormat.CHANNEL_OUT_STEREO,
         AudioFormat.ENCODING_PCM_16BIT);
-      mMyTrack = new AudioTrack(AudioManager.STREAM_MUSIC, desiredRate,
-                                AudioFormat.CHANNEL_OUT_STEREO,
-                                AudioFormat.ENCODING_PCM_16BIT,
-                                mMinbuffer, AudioTrack.MODE_STREAM);
+      mMyTrack = newTrack(desiredRate, mMinbuffer);
       /*
        * Init the Modplug player for this sample rate.
        */
@@ -449,10 +441,7 @@ public class PlayerThread extends Thread {
         case AudioTrack.STATE_INITIALIZED:
            break;
         default:
-          mMyTrack = new AudioTrack(AudioManager.STREAM_MUSIC, mRate,
-                                    AudioFormat.CHANNEL_OUT_STEREO,
-                                    AudioFormat.ENCODING_PCM_16BIT,
-                                    mMinbuffer*2, AudioTrack.MODE_STREAM);
+          mMyTrack = newTrack(mRate, mMinbuffer * 2);
           break;
       }
     }
@@ -784,6 +773,27 @@ public class PlayerThread extends Thread {
   }
 
   /**
+   * A stereo 16-bit streaming track for game music (it follows the media
+   * volume, as the old STREAM_MUSIC tracks did).  Replaces the
+   * deprecated <code>AudioTrack(streamType, ...)</code> constructor.
+   */
+  private static AudioTrack newTrack(int rate, int bufferBytes) {
+    return new AudioTrack.Builder()
+        .setAudioAttributes(new android.media.AudioAttributes.Builder()
+            .setUsage(android.media.AudioAttributes.USAGE_GAME)
+            .setContentType(android.media.AudioAttributes.CONTENT_TYPE_MUSIC)
+            .build())
+        .setAudioFormat(new AudioFormat.Builder()
+            .setSampleRate(rate)
+            .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
+            .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+            .build())
+        .setBufferSizeInBytes(bufferBytes)
+        .setTransferMode(AudioTrack.MODE_STREAM)
+        .build();
+  }
+
+  /**
    * Sets playback volume for the MOD/XM player.
    * @param vol - An integer from 0 (sound off) to 255 (full volume).
    */
@@ -791,7 +801,7 @@ public class PlayerThread extends Thread {
     vol = vol>>5;
     if (vol>7) vol = 7;
     if (vol<0) vol = 0;
-    mMyTrack.setStereoVolume(sVolume_floats[vol], sVolume_floats[vol]);
+    mMyTrack.setVolume(sVolume_floats[vol]);
   }
 
   /**
@@ -802,7 +812,7 @@ public class PlayerThread extends Thread {
   public void setVolume(float vol) {
     if (vol>1.0f) vol = 1.0f;
     if (vol<0) vol = 0;
-    mMyTrack.setStereoVolume(vol, vol);
+    mMyTrack.setVolume(vol);
   }
 
   /**

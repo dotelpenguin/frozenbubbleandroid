@@ -93,6 +93,7 @@ public class LevelThumbDrawable extends Drawable {
   }
 
   @Override
+  @SuppressWarnings("deprecation")   // Still required by Drawable.
   public int getOpacity() {
     return PixelFormat.TRANSLUCENT;
   }
