@@ -75,6 +75,9 @@ public class BubbleFont {
 
   public int SEPARATOR_WIDTH  = 1;
   public int SPACE_CHAR_WIDTH = 6;
+  /** U+2009, the thin space between thousands in scores. */
+  public static final char THIN_SPACE = '\u2009';
+  public int THIN_SPACE_WIDTH = 3;
 
   private BmpWrap fontMap;
   private Rect clipRect;
@@ -97,6 +100,9 @@ public class BubbleFont {
                              double scale, int dx, int dy) {
     if (c == ' ') {
       return SPACE_CHAR_WIDTH + SEPARATOR_WIDTH;
+    }
+    if (c == THIN_SPACE) {
+      return THIN_SPACE_WIDTH + SEPARATOR_WIDTH;
     }
     int index = getCharIndex(c);
     if (index == -1) {
@@ -121,6 +127,10 @@ public class BubbleFont {
       char c = s.charAt(i);
       if (c == ' ') {
         w += SPACE_CHAR_WIDTH + SEPARATOR_WIDTH;
+        continue;
+      }
+      if (c == THIN_SPACE) {
+        w += THIN_SPACE_WIDTH + SEPARATOR_WIDTH;
         continue;
       }
       int index = getCharIndex(c);

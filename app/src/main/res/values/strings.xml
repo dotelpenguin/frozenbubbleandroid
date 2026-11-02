@@ -218,16 +218,11 @@
   <string name="restart_network">This can\'t be changed during a network game.</string>
   <string name="high_scores">High Scores</string>
   <string name="hs_tab_cpu">Vs CPU</string>
-  <string name="hs_col_shots">Shots</string>
-  <string name="hs_col_time">Time</string>
-  <string name="hs_col_player">Player</string>
-  <string name="hs_col_wins">Wins</string>
   <string name="hs_none">No scores yet</string>
   <string name="hs_best_ingame">Best: %1$d shots · %2$s · %3$s</string>
   <string name="opt_show_best">Best Score</string>
   <string name="resume">Resume</string>
   <string name="quit">Quit</string>
-  <string name="hs_col_points">Points</string>
   <string name="hs_best_arcade">Best: %1$s · %2$s</string>
   <string name="pack_original">Original</string>
   <string name="pack_easy">Easy</string>

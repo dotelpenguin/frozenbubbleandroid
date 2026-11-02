@@ -217,16 +217,11 @@
   <string name="restart_network">Ekki er hægt að breyta þessu í netleik.</string>
   <string name="high_scores">Stigatafla</string>
   <string name="hs_tab_cpu">Gegn tölvu</string>
-  <string name="hs_col_shots">Skot</string>
-  <string name="hs_col_time">Tími</string>
-  <string name="hs_col_player">Leikmaður</string>
-  <string name="hs_col_wins">Sigrar</string>
   <string name="hs_none">Engin stig enn</string>
   <string name="hs_best_ingame">Met: %1$d skot · %2$s · %3$s</string>
   <string name="opt_show_best">Sýna met</string>
   <string name="resume">Halda áfram</string>
   <string name="quit">Hætta</string>
-  <string name="hs_col_points">Stig</string>
   <string name="hs_best_arcade">Met: %1$s · %2$s</string>
   <string name="pack_original">Upprunaleg</string>
   <string name="pack_easy">Létt</string>

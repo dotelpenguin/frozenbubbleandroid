@@ -1890,8 +1890,7 @@ public class GameView extends SurfaceView
             return null;
           }
           return mContext.getString(R.string.hs_best_arcade,
-              String.format(java.util.Locale.getDefault(), "%,d",
-                            top.get(0).getScore()),
+              com.efortin.frozenbubble.HighScores.points(top.get(0).getScore()),
               top.get(0).getName());
         }
         List<HighscoreDO> list = mHighScoreManager.getHighScore(level, 1);
@@ -1921,8 +1920,9 @@ public class GameView extends SurfaceView
     private final Rect  mPlankSrc   = new Rect();
     private final RectF mPlankDst   = new RectF();
 
+    /** "12 340": a thin space between thousands (no comma). */
     private String scoreText(long n) {
-      return String.format(java.util.Locale.US, "%,d", n);
+      return com.efortin.frozenbubble.HighScores.points(n);
     }
 
     private void drawScoreSign(Canvas canvas) {
@@ -1941,15 +1941,19 @@ public class GameView extends SurfaceView
         }
       }
       String text = scoreText(mFrozenGame1.getShownScore());
-      int tw = mFont.textWidth(text);
-      int w  = Math.min(SCORE_SIGN_MAX_W, Math.max(SCORE_SIGN_MIN_W, tw + 24));
+      // A clean bold font, sized in game pixels (the old bitmap game
+      // font looked fuzzy when scaled up).
+      float s  = (float) mDisplayScale;
+      mScoreTextPaint.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+      mScoreTextPaint.setTextSize(SCORE_TEXT_SIZE * s);
+      int tw = (int) Math.ceil(mScoreTextPaint.measureText(text) / s);
+      int w  = Math.min(SCORE_SIGN_MAX_W, Math.max(SCORE_SIGN_MIN_W, tw + 28));
       // The plank's left and right halves, so its ends (and nails) show
       // at any width.
       int   pw   = mScorePlank.getWidth();
       int   ph   = mScorePlank.getHeight();
       float k    = pw / (float) SCORE_SIGN_MAX_W;   // image px per game px
       float half = w / 2f;
-      float s    = (float) mDisplayScale;
       float top  = (SCORE_SIGN_Y * s) + mDisplayDY;
       float bot  = top + ((ph / k) * s);
       float cx   = (SCORE_SIGN_X * s) + mDisplayDX;
@@ -1959,9 +1963,32 @@ public class GameView extends SurfaceView
       mPlankSrc.set(pw - (int) (half * k), 0, pw, ph);
       mPlankDst.set(cx, top, cx + (half * s), bot);
       canvas.drawBitmap(mScorePlank, mPlankSrc, mPlankDst, mPlankPaint);
-      mFont.print(text, SCORE_SIGN_X - (tw / 2),
-                  SCORE_SIGN_Y + ((SCORE_SIGN_H - 22) / 2), canvas,
-                  mDisplayScale, mDisplayDX, mDisplayDY);
+      // Cream with a dark brown outline, centred on the plank.
+      float baseline = top + (((SCORE_SIGN_H / 2f) + (SCORE_TEXT_SIZE * 0.36f)) * s);
+      drawOutlinedText(canvas, text, cx, baseline, mScoreTextPaint,
+                       0xFFFFF6E1, 0xFF46200A, 3.2f * s);
+    }
+
+    private static final float SCORE_TEXT_SIZE = 17f;   // game pixels
+    private final Paint mScoreTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint mFxTextPaint    = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+    /** Text with a solid outline, centred on x (baseline at y). */
+    private void drawOutlinedText(Canvas canvas, String text, float x,
+                                  float y, Paint paint, int fill, int outline,
+                                  float outlineWidth) {
+      paint.setTextAlign(Paint.Align.CENTER);
+      paint.setStyle(Paint.Style.STROKE);
+      paint.setStrokeJoin(Paint.Join.ROUND);
+      paint.setStrokeWidth(outlineWidth);
+      int alpha = paint.getAlpha();
+      paint.setColor(outline);
+      paint.setAlpha(alpha);
+      canvas.drawText(text, x, y, paint);
+      paint.setStyle(Paint.Style.FILL);
+      paint.setColor(fill);
+      paint.setAlpha(alpha);
+      canvas.drawText(text, x, y, paint);
     }
 
     /** "+150" rising from cleared bubbles, and the combo flash. */
@@ -1973,8 +2000,9 @@ public class GameView extends SurfaceView
       for (FrozenGame.ScorePopup p : mFrozenGame1.getScorePopups()) {
         float t     = p.age / (float) fxTime;
         int   alpha = (int) (255 * Math.min(1f, 2f * (1f - t)));
-        drawFontText(canvas, "+" + scoreText(p.points), p.x, p.y - (28 * t),
-                     0.8f, alpha);
+        drawFxText(canvas, "+" + scoreText(p.points), p.x, p.y - (28 * t),
+                   15f, alpha, android.graphics.Typeface.DEFAULT_BOLD,
+                   0xFFFFF0A0, 0xFF5A2800);
       }
       int combo = mFrozenGame1.getComboFlash();
       if (combo > 0) {
@@ -1984,31 +2012,33 @@ public class GameView extends SurfaceView
         // The multiplier: x1.5, x2, x2.5, x3.
         String mult = ((combo % 2) == 0) ? ((combo + 1) / 2) + ".5"
                                          : Integer.toString((combo + 1) / 2);
-        drawFontText(canvas, "combo x" + mult + "!", SCORE_SIGN_X, 250,
-                     grow, alpha);
+        drawFxText(canvas, "COMBO ×" + mult + "!", SCORE_SIGN_X, 250,
+                   22f * grow, alpha,
+                   com.efortin.frozenbubble.ArcadeSummary.titleFont(mContext),
+                   0xFFFFD23C, 0xFF782800);
       }
     }
 
-    /** Game-font text centred on (cx, cy), resized and faded. */
-    private void drawFontText(Canvas canvas, String text, float cx, float cy,
-                              float size, int alpha) {
+    /**
+     * Outlined text centred on (cx, cy) in game pixels, faded.
+     * @param sizePx - the text size in game pixels.
+     */
+    private void drawFxText(Canvas canvas, String text, float cx, float cy,
+                            float sizePx, int alpha,
+                            android.graphics.Typeface face, int fill,
+                            int outline) {
       if (alpha <= 0) {
         return;
       }
-      int   tw = mFont.textWidth(text);
-      float s  = (float) mDisplayScale;
-      float sx = (cx * s) + mDisplayDX;
-      float sy = (cy * s) + mDisplayDY;
-      int saved = canvas.save();
-      if (alpha < 255) {
-        float hw = ((tw / 2f) + 4) * size * s;
-        float hh = 16 * size * s;
-        canvas.saveLayerAlpha(sx - hw, sy - hh, sx + hw, sy + hh, alpha);
-      }
-      canvas.translate(sx, sy);
-      canvas.scale(size, size);
-      mFont.print(text, -(tw / 2), -11, canvas, mDisplayScale, 0, 0);
-      canvas.restoreToCount(saved);
+      float s = (float) mDisplayScale;
+      mFxTextPaint.setTypeface(face);
+      mFxTextPaint.setTextSize(sizePx * s);
+      mFxTextPaint.setAlpha(Math.min(255, alpha));
+      float x = (cx * s) + mDisplayDX;
+      float y = (cy * s) + mDisplayDY + (sizePx * 0.36f * s);
+      drawOutlinedText(canvas, text, x, y, mFxTextPaint, fill, outline,
+                       Math.max(2f, sizePx * 0.16f) * s);
+      mFxTextPaint.setAlpha(255);
     }
 
     /**

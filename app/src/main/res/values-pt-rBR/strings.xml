@@ -217,16 +217,11 @@
   <string name="restart_network">Isso não pode ser mudado durante um jogo em rede.</string>
   <string name="high_scores">Recordes</string>
   <string name="hs_tab_cpu">Contra CPU</string>
-  <string name="hs_col_shots">Tiros</string>
-  <string name="hs_col_time">Tempo</string>
-  <string name="hs_col_player">Jogador</string>
-  <string name="hs_col_wins">Vitórias</string>
   <string name="hs_none">Nenhum recorde ainda</string>
   <string name="hs_best_ingame">Recorde: %1$d tiros · %2$s · %3$s</string>
   <string name="opt_show_best">Mostrar recorde</string>
   <string name="resume">Continuar</string>
   <string name="quit">Sair</string>
-  <string name="hs_col_points">Pontos</string>
   <string name="hs_best_arcade">Recorde: %1$s · %2$s</string>
   <string name="pack_original">Original</string>
   <string name="pack_easy">Fácil</string>

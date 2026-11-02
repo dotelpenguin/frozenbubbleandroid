@@ -217,16 +217,11 @@
   <string name="restart_network">Impossible de la changer pendant une partie en réseau.</string>
   <string name="high_scores">Records</string>
   <string name="hs_tab_cpu">Contre CPU</string>
-  <string name="hs_col_shots">Tirs</string>
-  <string name="hs_col_time">Temps</string>
-  <string name="hs_col_player">Joueur</string>
-  <string name="hs_col_wins">Victoires</string>
   <string name="hs_none">Pas encore de scores</string>
   <string name="hs_best_ingame">Record : %1$d tirs · %2$s · %3$s</string>
   <string name="opt_show_best">Record</string>
   <string name="resume">Reprendre</string>
   <string name="quit">Quitter</string>
-  <string name="hs_col_points">Points</string>
   <string name="hs_best_arcade">Record : %1$s · %2$s</string>
   <string name="pack_original">Original</string>
   <string name="pack_easy">Facile</string>

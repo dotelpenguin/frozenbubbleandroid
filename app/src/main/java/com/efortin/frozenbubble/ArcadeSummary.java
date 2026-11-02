@@ -101,8 +101,10 @@ public final class ArcadeSummary {
     LinearLayout inBubble = new LinearLayout(activity);
     inBubble.setOrientation(LinearLayout.VERTICAL);
     inBubble.setGravity(Gravity.CENTER);
-    final TextView scoreText = text(activity, format(0), 40, lg,
-                                    Color.WHITE, 0xFF0A1E5A);
+    // The score in a clean bold font (easier to read than the logo's).
+    final TextView scoreText = text(activity, format(0), 38,
+                                    Typeface.DEFAULT_BOLD, Color.WHITE,
+                                    0xFF0A1E5A);
     inBubble.addView(scoreText);
     final TextView bestText;
     if (rank == 1) {
@@ -186,7 +188,7 @@ public final class ArcadeSummary {
   }
 
   private static String format(long n) {
-    return String.format(Locale.getDefault(), "%,d", n);
+    return HighScores.points(n);
   }
 
   /** n / 2 as "1", "1.5", "2"... */
@@ -227,7 +229,8 @@ public final class ArcadeSummary {
     b.setImageResource(bubbleId);
     b.setScaleType(ImageView.ScaleType.FIT_CENTER);
     f.addView(b, new FrameLayout.LayoutParams(size, size));
-    TextView v = text(c, value, 18, lg, Color.WHITE, Color.BLACK);
+    TextView v = text(c, value, 17, Typeface.DEFAULT_BOLD, Color.WHITE,
+                      Color.BLACK);
     f.addView(v, new FrameLayout.LayoutParams(size, size, Gravity.CENTER));
     cell.addView(f, new LinearLayout.LayoutParams(size, size));
     TextView label = text(c, c.getString(labelId), 12, Typeface.DEFAULT_BOLD,

@@ -214,16 +214,11 @@
   <string name="restart_network">网络游戏中无法更改此项。</string>
   <string name="high_scores">高分榜</string>
   <string name="hs_tab_cpu">对战电脑</string>
-  <string name="hs_col_shots">发射</string>
-  <string name="hs_col_time">时间</string>
-  <string name="hs_col_player">玩家</string>
-  <string name="hs_col_wins">胜场</string>
   <string name="hs_none">暂无记录</string>
   <string name="hs_best_ingame">最佳：%1$d 发 · %2$s · %3$s</string>
   <string name="opt_show_best">显示最佳成绩</string>
   <string name="resume">继续</string>
   <string name="quit">退出</string>
-  <string name="hs_col_points">分数</string>
   <string name="hs_best_arcade">最佳：%1$s · %2$s</string>
   <string name="pack_original">原版</string>
   <string name="pack_easy">简单</string>

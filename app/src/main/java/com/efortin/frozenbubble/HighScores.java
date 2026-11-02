@@ -22,15 +22,16 @@ import org.jfedor.frozenbubble.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
-import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 
 /**
@@ -39,8 +40,11 @@ import android.widget.TextView;
  * <ul>
  * <li>Arcade: the top 10 games of every difficulty, by points (the
  *     points include the difficulty multiplier).
- * <li>Vs CPU: wins for each number of colours, and the quickest win.
+ * <li>Vs CPU: the top 10 wins: the harder difficulty first, then the
+ *     fewest shots, then the quickest; each shows its time.
  * </ul>
+ * Both show the top 3 on a podium of medal bubbles, then places 4 to
+ * 10 as rows.
  * Also score helpers used by the game (the "Best" line).
  */
 public class HighScores {
@@ -49,10 +53,14 @@ public class HighScores {
   private static final int TAB_CPU    = 1;
   private static final int ARCADE_TOP = 10;
 
-  /** Fewest shots, then fastest (the quickest Vs CPU win). */
-  public static final Comparator<HighscoreDO> QUICKEST_ORDER = (a, b) ->
-      (a.getShots() != b.getShots()) ? Integer.compare(a.getShots(), b.getShots())
-                                     : Long.compare(a.getTime(), b.getTime());
+  /**
+   * Vs CPU order (wins): the harder difficulty first, then the fewest
+   * shots, then the quickest.
+   */
+  public static final Comparator<HighscoreDO> CPU_ORDER = (a, b) ->
+      (a.getLevel() != b.getLevel()) ? Integer.compare(b.getLevel(), a.getLevel())
+      : (a.getShots() != b.getShots()) ? Integer.compare(a.getShots(), b.getShots())
+      : Long.compare(a.getTime(), b.getTime());
   /** Arcade order: most points, then the quicker game. */
   public static final Comparator<HighscoreDO> ARCADE_ORDER = (a, b) ->
       (a.getScore() != b.getScore()) ? Long.compare(b.getScore(), a.getScore())
@@ -198,20 +206,14 @@ public class HighScores {
       tabs[i].setAlpha((i == tab) ? 1f : 0.5f);
     }
     content.removeAllViews();
-    TableLayout table = new TableLayout(activity);
-    table.setStretchAllColumns(false);
-    table.setColumnShrinkable(3, true);
-    boolean any;
-    switch (tab) {
-      case TAB_CPU:
-        any = fillCpu(table);
-        break;
-      default:
-        any = fillArcade(table);
-        break;
-    }
-    if (any) {
-      content.addView(table);
+    // Both tabs: the top 3 on a podium, then places 4 to 10.
+    View board = (tab == TAB_CPU)
+        ? leaderboard(HighscoreManager.MULTIPLAYER_DATABASE_NAME, CPU_ORDER,
+                      hi -> time(hi.getTime()))
+        : leaderboard(HighscoreManager.ARCADE_DATABASE_NAME, ARCADE_ORDER,
+                      hi -> points(hi.getScore()));
+    if (board != null) {
+      content.addView(board);
     }
     else {
       TextView none = new TextView(activity);
@@ -224,106 +226,170 @@ public class HighScores {
     }
   }
 
-  private boolean fillArcade(TableLayout table) {
-    // One leaderboard for every difficulty: the points include the
-    // difficulty multiplier.
-    List<HighscoreDO> all = loadAll(activity, HighscoreManager.ARCADE_DATABASE_NAME);
-    Collections.sort(all, ARCADE_ORDER);
-    if (all.isEmpty()) {
-      return false;
+  /*
+   * The Arcade leaderboard: the top 3 on a podium of gold, silver and
+   * bronze bubbles (first in the middle, biggest), then places 4 to 10
+   * as rows.  One leaderboard for every difficulty: the points include
+   * the difficulty multiplier.
+   */
+
+  /** Medal bubbles: gold (yellow), silver (white), bronze (orange). */
+  private static final int[] MEDALS = {
+    R.drawable.bubble_5_hd, R.drawable.bubble_2_hd, R.drawable.bubble_8_hd,
+  };
+  /** A dot colour for each difficulty, Easy (4 colours) ... Insane (8). */
+  private static final int[] DIFFICULTY_COLOURS = {
+    0xFF3CBE5F, 0xFF465AD7, 0xFFEBD23C, 0xFFF08C32, 0xFFD73C46,
+  };
+
+  /** Points as "48 210": a thin space between thousands, any language. */
+  public static String points(long n) {
+    String digits = Long.toString(Math.abs(n));
+    StringBuilder out = new StringBuilder();
+    int lead = digits.length() % 3;
+    for (int i = 0; i < digits.length(); i++) {
+      if ((i > 0) && (((i - lead) % 3) == 0)) {
+        out.append('\u2009');
+      }
+      out.append(digits.charAt(i));
     }
-    header(table, 0, R.string.hs_col_points, R.string.opt_difficulty,
-           R.string.hs_col_player);
-    for (int i = 0; (i < all.size()) && (i < ARCADE_TOP); i++) {
-      HighscoreDO hi = all.get(i);
-      row(table, "#" + (i + 1),
-          String.format(Locale.getDefault(), "%,d", hi.getScore()),
-          colours(hi.getLevel()), hi.getName());
-    }
-    return true;
+    return ((n < 0) ? "-" : "") + out;
   }
 
-  private boolean fillCpu(TableLayout table) {
-    Map<Integer, List<HighscoreDO>> byColours = byLevel(
-        loadAll(activity, HighscoreManager.MULTIPLAYER_DATABASE_NAME),
-        QUICKEST_ORDER);
-    if (byColours.isEmpty()) {
-      return false;
+  /**
+   * A leaderboard: the top 3 on the podium, then places 4 to 10.
+   * @param value - what each entry shows: the points (Arcade) or the
+   * time of the win (Vs CPU).
+   */
+  private View leaderboard(String dbName, Comparator<HighscoreDO> order,
+                           java.util.function.Function<HighscoreDO, String> value) {
+    List<HighscoreDO> all = loadAll(activity, dbName);
+    Collections.sort(all, order);
+    if (all.isEmpty()) {
+      return null;
     }
-    header(table, R.string.opt_difficulty, R.string.hs_col_wins,
-           R.string.hs_col_shots, R.string.hs_col_time);
-    for (Map.Entry<Integer, List<HighscoreDO>> e : byColours.entrySet()) {
-      HighscoreDO quickest = e.getValue().get(0);
-      row(table, colours(e.getKey()),
-          Integer.toString(e.getValue().size()),
-          Integer.toString(quickest.getShots()), time(quickest.getTime()));
+    LinearLayout board = new LinearLayout(activity);
+    board.setOrientation(LinearLayout.VERTICAL);
+    board.setGravity(Gravity.CENTER_HORIZONTAL);
+
+    // The podium, in the order 2, 1, 3, bottoms lined up.
+    LinearLayout podium = new LinearLayout(activity);
+    podium.setOrientation(LinearLayout.HORIZONTAL);
+    podium.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM);
+    int[] podiumOrder = { 1, 0, 2 };
+    int[] sizes = { 100, 82, 76 };   // dp, by place
+    for (int place : podiumOrder) {
+      if (place < all.size()) {
+        podium.addView(podiumPlace(place, all.get(place), sizes[place], value));
+      }
     }
-    return true;
+    board.addView(podium);
+
+    // Places 4 to 10.
+    for (int i = 3; (i < all.size()) && (i < ARCADE_TOP); i++) {
+      board.addView(listRow(i, all.get(i), value));
+    }
+    return board;
+  }
+
+  private View podiumPlace(int place, HighscoreDO hi, int sizeDp,
+                           java.util.function.Function<HighscoreDO, String> value) {
+    LinearLayout col = new LinearLayout(activity);
+    col.setOrientation(LinearLayout.VERTICAL);
+    col.setGravity(Gravity.CENTER_HORIZONTAL);
+    int size = (int) (sizeDp * dp);
+    FrameLayout medal = new FrameLayout(activity);
+    ImageView bubble = new ImageView(activity);
+    bubble.setImageResource(MEDALS[place]);
+    bubble.setScaleType(ImageView.ScaleType.FIT_CENTER);
+    medal.addView(bubble, new FrameLayout.LayoutParams(size, size));
+    TextView rank = label(Integer.toString(place + 1), (int) (sizeDp * 0.42f),
+                          ArcadeSummary.titleFont(activity), Color.WHITE);
+    rank.setShadowLayer(4 * dp, 0, 1.5f * dp, 0xFF3C2800);
+    medal.addView(rank, new FrameLayout.LayoutParams(size, size, Gravity.CENTER));
+    col.addView(medal, new LinearLayout.LayoutParams(size, size));
+    col.addView(label(value.apply(hi), (place == 0) ? 20 : 17,
+                      Typeface.DEFAULT_BOLD, Color.WHITE));
+    TextView who = label(hi.getName() + " · " + colours(hi.getLevel()), 12,
+                         Typeface.DEFAULT, 0xFFDCE6F5);
+    who.setMaxLines(2);
+    who.setEllipsize(TextUtils.TruncateAt.END);
+    col.addView(who);
+    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+        (int) (108 * dp), LinearLayout.LayoutParams.WRAP_CONTENT);
+    lp.setMargins((int) (2 * dp), 0, (int) (2 * dp), (int) (8 * dp));
+    col.setLayoutParams(lp);
+    return col;
+  }
+
+  private View listRow(int index, HighscoreDO hi,
+                       java.util.function.Function<HighscoreDO, String> value) {
+    LinearLayout row = new LinearLayout(activity);
+    row.setOrientation(LinearLayout.HORIZONTAL);
+    row.setGravity(Gravity.CENTER_VERTICAL);
+    android.graphics.drawable.GradientDrawable bg =
+        new android.graphics.drawable.GradientDrawable();
+    bg.setCornerRadius(22 * dp);
+    bg.setColor(0x28FFFFFF);
+    bg.setStroke((int) (1.5f * dp), 0x46FFFFFF);
+    row.setBackground(bg);
+    int h = (int) (12 * dp);
+    row.setPadding(h, (int) (6 * dp), (int) (16 * dp), (int) (6 * dp));
+
+    TextView rank = label(Integer.toString(index + 1), 18,
+                          ArcadeSummary.titleFont(activity), 0xFFFFF6E1);
+    rank.setMinWidth((int) (28 * dp));
+    row.addView(rank);
+    TextView name = label(hi.getName(), 15, Typeface.DEFAULT_BOLD, Color.WHITE);
+    name.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+    name.setSingleLine(true);
+    name.setEllipsize(TextUtils.TruncateAt.END);
+    row.addView(name, new LinearLayout.LayoutParams(0,
+        LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+    // The difficulty: a coloured dot and its name.
+    int d = Math.max(org.jfedor.frozenbubble.LevelManager.EASY,
+                     Math.min(org.jfedor.frozenbubble.LevelManager.INSANE,
+                              hi.getLevel()));
+    android.graphics.drawable.GradientDrawable dot =
+        new android.graphics.drawable.GradientDrawable();
+    dot.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+    dot.setColor(DIFFICULTY_COLOURS[d - org.jfedor.frozenbubble.LevelManager.EASY]);
+    View dotView = new View(activity);
+    dotView.setBackground(dot);
+    LinearLayout.LayoutParams dlp = new LinearLayout.LayoutParams(
+        (int) (10 * dp), (int) (10 * dp));
+    dlp.setMargins((int) (6 * dp), 0, (int) (4 * dp), 0);
+    row.addView(dotView, dlp);
+    TextView diff = label(colours(hi.getLevel()), 12, Typeface.DEFAULT, 0xFFD2DCEB);
+    diff.setMinWidth((int) (56 * dp));
+    diff.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+    row.addView(diff);
+    TextView score = label(value.apply(hi), 16, Typeface.DEFAULT_BOLD,
+                           0xFFFFE14D);
+    score.setMinWidth((int) (70 * dp));
+    score.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
+    row.addView(score);
+
+    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+        (int) (316 * dp), LinearLayout.LayoutParams.WRAP_CONTENT);
+    lp.setMargins(0, (int) (3 * dp), 0, (int) (3 * dp));
+    row.setLayoutParams(lp);
+    return row;
+  }
+
+  private TextView label(String text, int sizeDp, Typeface face, int colour) {
+    TextView t = new TextView(activity);
+    t.setText(text);
+    t.setTextSize(android.util.TypedValue.COMPLEX_UNIT_DIP, sizeDp);
+    t.setTypeface(face);
+    t.setTextColor(colour);
+    t.setShadowLayer(3 * dp, 0, 1 * dp, Color.BLACK);
+    t.setGravity(Gravity.CENTER);
+    return t;
   }
 
   private String colours(int difficulty) {
     return OptionsMenus.difficultyName(activity, difficulty);
   }
 
-  /*
-   * Table building.
-   */
-
-  private void header(TableLayout table, int... ids) {
-    String[] texts = new String[ids.length];
-    for (int i = 0; i < ids.length; i++) {
-      texts[i] = (ids[i] == 0) ? "" : activity.getString(ids[i]);
-    }
-    TableRow row = rowOf(texts, 13);
-    for (int i = 0; i < row.getChildCount(); i++) {
-      ((TextView) row.getChildAt(i)).setAlpha(0.75f);
-    }
-    table.addView(row);
-  }
-
-  private void group(TableLayout table, String text) {
-    TextView t = cell(text, 16, true);
-    t.setGravity(Gravity.CENTER_HORIZONTAL);
-    t.setPadding(0, (int) (8 * dp), 0, (int) (2 * dp));
-    TableRow row = new TableRow(activity);
-    TableRow.LayoutParams lp = new TableRow.LayoutParams();
-    lp.span = 4;
-    row.addView(t, lp);
-    table.addView(row);
-  }
-
-  private void row(TableLayout table, String... texts) {
-    table.addView(rowOf(texts, 15));
-  }
-
-  private TableRow rowOf(String[] texts, int sizeDp) {
-    TableRow row = new TableRow(activity);
-    for (int i = 0; i < texts.length; i++) {
-      TextView t = cell(texts[i], sizeDp, i == 0);
-      // Numbers line up on the right, the name on the left.
-      t.setGravity((i == texts.length - 1) && !isNumber(texts[i])
-                   ? Gravity.START : Gravity.END);
-      row.addView(t);
-    }
-    return row;
-  }
-
-  private static boolean isNumber(String s) {
-    return !TextUtils.isEmpty(s) && s.matches("[#0-9:]+");
-  }
-
-  private TextView cell(String text, int sizeDp, boolean bold) {
-    TextView t = new TextView(activity);
-    OptionsMenus.styleText(t, sizeDp);
-    t.setTypeface(null, bold ? Typeface.BOLD : Typeface.NORMAL);
-    t.setText(text);
-    t.setSingleLine(true);
-    t.setEllipsize(TextUtils.TruncateAt.END);
-    t.setMaxWidth((int) (130 * dp));
-    int h = (int) (9 * dp);
-    int v = (int) (2 * dp);
-    t.setPadding(h, v, h, v);
-    t.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
-    return t;
-  }
 }
