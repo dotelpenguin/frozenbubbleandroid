@@ -139,6 +139,7 @@ public class PreferencesActivity extends Activity
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    BackKey.handle(this, this::closeOptions);
     requestWindowFeature(Window.FEATURE_NO_TITLE);
     sp = Prefs.get(this);
     applyFullscreen();
@@ -223,7 +224,7 @@ public class PreferencesActivity extends Activity
 
   @Override
   public boolean onKeyDown(int keyCode, KeyEvent msg) {
-    if (keyCode == KeyEvent.KEYCODE_BACK) {
+    if (BackKey.isLegacy(keyCode)) {
       closeOptions();
       return true;
     }

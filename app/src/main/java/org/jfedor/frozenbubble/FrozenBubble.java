@@ -100,6 +100,7 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
+import com.efortin.frozenbubble.BackKey;
 import com.efortin.frozenbubble.Prefs;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
@@ -414,6 +415,7 @@ public class FrozenBubble extends Activity
     //  Log.i(TAG, "FrozenBubble.onCreate(null)");
     //}
     super.onCreate(savedInstanceState);
+    BackKey.handle(this, this::backPressed);
     setVolumeControlStream(AudioManager.STREAM_MUSIC);
     requestWindowFeature(Window.FEATURE_NO_TITLE);
 
@@ -465,21 +467,24 @@ public class FrozenBubble extends Activity
 
   @Override
   public boolean onKeyDown(int keyCode, KeyEvent event) {
-    boolean handled = false;
-    if (keyCode == KeyEvent.KEYCODE_BACK) {
-      /*
-       * Only show the game exit dialog while a game is in progress,
-       * otherwise simply exit.
-       */
-      if ((mGameThread != null) && mGameThread.gameInProgress()) {
-        exitGameDialog();
-      }
-      else {
-        exit(true);
-      }
-      handled = true;
+    if (BackKey.isLegacy(keyCode)) {
+      backPressed();
+      return true;
     }
-    return handled || super.onKeyDown(keyCode, event);
+    return super.onKeyDown(keyCode, event);
+  }
+
+  /**
+   * Back: show the game exit dialog while a game is in progress,
+   * otherwise simply exit.
+   */
+  private void backPressed() {
+    if ((mGameThread != null) && mGameThread.gameInProgress()) {
+      exitGameDialog();
+    }
+    else {
+      exit(true);
+    }
   }
 
   /* (non-Javadoc)

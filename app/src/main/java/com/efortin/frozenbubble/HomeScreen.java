@@ -1356,12 +1356,11 @@ public class HomeScreen extends Activity {
 
   @Override
   public boolean onKeyDown(int keyCode, KeyEvent event) {
-    boolean handled = false;
-    if (keyCode == KeyEvent.KEYCODE_BACK) {
+    if (BackKey.isLegacy(keyCode)) {
       backKeyPress();
-      handled = true;
+      return true;
     }
-    return handled || super.onKeyDown(keyCode, event);
+    return super.onKeyDown(keyCode, event);
   }
 
   /*
@@ -1378,6 +1377,7 @@ public class HomeScreen extends Activity {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    BackKey.handle(this, this::backKeyPress);
     shownLanguage = LocaleHelper.getLanguage(this);
     finished = false;
     restoreGamePrefs();

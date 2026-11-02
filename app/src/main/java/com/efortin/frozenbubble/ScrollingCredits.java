@@ -89,6 +89,7 @@ public class ScrollingCredits extends Activity implements Runnable {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    BackKey.handle(this, this::end);
     // Configure the window presentation and layout.
     setWindowLayout(R.layout.activity_scrolling_credits);
     // Get the instance of the ScrollingTextView object.
@@ -132,7 +133,7 @@ public class ScrollingCredits extends Activity implements Runnable {
 
   @Override
   public boolean onKeyDown(int keyCode, KeyEvent msg) {
-    if (keyCode == KeyEvent.KEYCODE_BACK) {
+    if (BackKey.isLegacy(keyCode)) {
       end();
       return true;
     }

@@ -25,9 +25,10 @@
   <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
 
   <!--
-    enableOnBackInvokedCallback="false": the game handles the Back key in
-    onKeyDown (exit-game dialog). Apps targeting Android 16 otherwise stop
-    receiving KEYCODE_BACK because predictive back takes over.
+    enableOnBackInvokedCallback="true": Back reaches each screen through
+    BackKey (OnBackInvokedCallback) on Android 13+, and onKeyDown before.
+    appCategory="game": lets Android treat this as a game (Game Mode,
+    Game Dashboard, store and settings grouping).
   -->
   <application
     android:allowBackup="true"
@@ -35,7 +36,8 @@
     android:roundIcon="@mipmap/ic_launcher_round"
     android:label="@string/app_name"
     android:localeConfig="@xml/locales_config"
-    android:enableOnBackInvokedCallback="false">
+    android:appCategory="game"
+    android:enableOnBackInvokedCallback="true">
 
     <activity
       android:name=".FrozenBubble"
