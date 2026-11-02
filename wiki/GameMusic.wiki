@@ -3,13 +3,13 @@
 
 = Music Copyright Notice =
 
-All the music used in this game is available free for download from the [http://modarchive.org/ Mod Archive]. Each song is in its original module format with the information intact with regards to each song's title and author. Each song is the copyright of its respective author, and is not for commercial use unless permission or licensing is granted by the author.  You may distribute this music freely without requiring explicit permission from the original artist as long as:
+All the music used in this game is available free for download from the [https://modarchive.org/ Mod Archive]. Each song is in its original module format with the information intact with regards to each song's title and author. Each song is the copyright of its respective author, and is not for commercial use unless permission or licensing is granted by the author.  You may distribute this music freely without requiring explicit permission from the original artist as long as:
 
   * The songs are not altered in any way.
   * Clear credit is given to the artists for their respective works.
   * No fee is charged for distribution.
 
-The music is licensed under the [http://modarchive.org/index.php?terms-upload Mod Archive distribution license].
+The music is licensed under the [https://modarchive.org/index.php?terms-upload Mod Archive distribution license].
 
 = Frozen Bubble Playlist =
 

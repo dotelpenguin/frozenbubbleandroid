@@ -3,9 +3,13 @@
 The Android port of the Frozen Bubble game, brought up to date for
 Android 16 with HD art, new menus, level packs, Arcade scoring and more.
 
-This fork continues from the original project's last commit (`c3ac715`,
-April 2020, version 4.4).  The work is on the **`modernize`** branch;
-`master` is the original.
+This fork continues from the original project's `master` branch
+([videogameboy76/frozenbubbleandroid](https://github.com/videogameboy76/frozenbubbleandroid),
+commit `c3ac715`, April 2020, version 4.4).  The work is on the
+**`modernize`** branch; `master` here is the original.  The original
+developer has since continued separately on the upstream `android_studio`
+branch (an Android Studio build targeting Android 16, last updated
+September 2026); those changes are not included here.
 
 - **What's new:** [docs/CHANGES.md](docs/CHANGES.md)
 - **Building:** [docs/BUILDING.md](docs/BUILDING.md)
@@ -38,14 +42,17 @@ player is built with CMake from `app/src/main/cpp`.  See
 
 Originally developed with SDK v20.1.0, using API level 4 (version 1.6
 Donut), later with SDK v25.2.5 and NDK r10e using API level 12.  The store
-links below are the original project's releases:
+links below are the original project's releases (Google Play is still
+updated by the original developer; F-Droid has version 4.4 from 2017).
+This fork's builds use the same application ID but a different signing
+key, so they can't install over a store version; uninstall it first.
 
-<a href="https://f-droid.org/repository/browse/?fdid=org.jfedor.frozenbubble" target="_blank">
+<a href="https://f-droid.org/packages/org.jfedor.frozenbubble/" target="_blank">
 <img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80"/></a>
 <a href="https://play.google.com/store/apps/details?id=org.jfedor.frozenbubble" target="_blank">
 <img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" alt="Get it on Google Play" height="80"/></a>
 <a href="https://www.amazon.com/Eric-Fortin-Frozen-Bubble/dp/B00F4ITDME" target="_blank">
-<img src="https://images-na.ssl-images-amazon.com/images/G/01/mobile-apps/devportal2/res/images/amazon-underground-app-us-black.png" alt="Get it on F-Droid" height="80"/></a>
+<img src="https://images-na.ssl-images-amazon.com/images/G/01/mobile-apps/devportal2/res/images/amazon-underground-app-us-black.png" alt="Available at Amazon Appstore" height="80"/></a>
 
 ## Credits and licence
 

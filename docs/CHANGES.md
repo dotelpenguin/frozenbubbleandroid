@@ -1,16 +1,24 @@
 # Changes since the original Frozen Bubble for Android
 
-This fork starts from the last commit of the original project,
+This fork starts from the last commit on the original project's
+`master` branch
+([videogameboy76/frozenbubbleandroid](https://github.com/videogameboy76/frozenbubbleandroid)),
 `c3ac715` "Fixed sound volume bug." (April 2020, version 4.4, built
-with Eclipse/Ant for API level 12).  Everything below was added on the
+with Eclipse/Ant for API level 12).  The original developer later
+continued on the upstream `android_studio` branch (2023-2026: target
+SDK 33 to 36, Bluetooth runtime permissions, a level-parsing fix, a
+frozen top row in Arcade, faster credits, 16 KB page-size native
+build); none of that is merged here.  Everything below was added on the
 `modernize` branch from October 2026 onwards.  To see it all in git:
 
     git log --oneline c3ac715..modernize
     git diff --stat c3ac715 modernize
 
 Version: 4.4 (code 54) became **4.5 (code 55)**.  The application ID is
-unchanged (`org.jfedor.frozenbubble`), so it installs over the original
-and keeps existing settings and progress.
+unchanged (`org.jfedor.frozenbubble`), so it keeps the settings and
+progress of an original build signed with the same key.  It can't
+install over the Google Play or F-Droid versions, which are signed by
+their publishers.
 
 ## Build and platform
 
