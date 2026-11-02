@@ -121,7 +121,7 @@ public class HomeScreen extends Activity {
   private boolean        finished      = false;
   private boolean        homeShown     = false;
   private boolean        playerSave    = false;
-  private ImageView      myImageView   = null;
+  private BackdropImageView myImageView = null;
   private RelativeLayout myLayout      = null;
   private ModPlayer      myModPlayer   = null;
   private Preferences    myPreferences = null;
@@ -1388,7 +1388,7 @@ public class HomeScreen extends Activity {
     myLayout = new RelativeLayout(this);
     myLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
                                               LayoutParams.MATCH_PARENT));
-    myImageView = new ImageView(this);
+    myImageView = new BackdropImageView(this);
 
     /*
      * Restore the player saved and system save flags.
@@ -1556,7 +1556,10 @@ public class HomeScreen extends Activity {
     selectedButton.setSelected(true);
   }
 
-  /** The app's version, small, in the lower right corner. */
+  /**
+   * The app's version, small, in the lower right corner of the home
+   * screen picture (not of the screen, which may have bars around it).
+   */
   private void addVersionLabel() {
     float dp = getResources().getDisplayMetrics().density;
     android.widget.TextView version = new android.widget.TextView(this);
@@ -1570,16 +1573,35 @@ public class HomeScreen extends Activity {
                                         LayoutParams.WRAP_CONTENT);
     lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
     lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-    int m = Math.round(8 * dp);
+    final int m = Math.round(8 * dp);
     lp.setMargins(m, m, m, m);
     myLayout.addView(version, lp);
+    // Keep it inside the picture's corner whenever the layout changes.
+    myImageView.addOnLayoutChangeListener(
+        (v, l, t, r, b, ol, ot, or, ob) -> placeVersionLabel(version, m));
+    myImageView.post(() -> placeVersionLabel(version, m));
+  }
+
+  private void placeVersionLabel(android.widget.TextView version, int m) {
+    android.graphics.Rect img = myImageView.imageRect();
+    if (img.isEmpty() || (version.getParent() == null)) {
+      return;
+    }
+    RelativeLayout.LayoutParams lp =
+        (RelativeLayout.LayoutParams) version.getLayoutParams();
+    int right  = (myImageView.getWidth()  - img.right)  + m;
+    int bottom = (myImageView.getHeight() - img.bottom) + m;
+    if ((lp.rightMargin != right) || (lp.bottomMargin != bottom)) {
+      lp.rightMargin  = right;
+      lp.bottomMargin = bottom;
+      version.setLayoutParams(lp);
+    }
   }
 
   private void setBackgroundImage(int resId) {
     if (myImageView.getParent() != null)
       myLayout.removeView(myImageView);
 
-    myImageView.setBackgroundColor(getColor(R.color.black));
     myImageView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
                                                  LayoutParams.MATCH_PARENT));
     myImageView.setImageResource(resId);
