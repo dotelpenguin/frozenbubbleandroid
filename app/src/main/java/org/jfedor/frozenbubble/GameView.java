@@ -3370,13 +3370,18 @@ public class GameView extends SurfaceView
               }
               return true;
             }
-            setState(stateEnum.RUNNING);
             /*
-             * The tap that dismisses the pause screen only resumes the
+             * The tap that dismisses the pause panel only resumes the
              * game; it must not also aim or fire, since the player
-             * couldn't see the board behind the pause panel.
+             * couldn't see the board behind the panel.  A new game or
+             * level has no panel, so its first tap plays at once.
              */
-            return true;
+            boolean covered = mMenuDim ||
+                ((mFrozenGame1 != null) && mFrozenGame1.pausePanelShown()) ||
+                ((numPlayers > 1) && (mFrozenGame2 != null) &&
+                 mFrozenGame2.pausePanelShown());
+            setState(stateEnum.RUNNING);
+            return covered;
 
           case RUNNING:
             levelStarted = false;

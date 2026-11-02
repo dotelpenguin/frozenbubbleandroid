@@ -870,6 +870,11 @@ public class FrozenGame extends GameScreen {
     this.addSprite(pausedSprite);
   }
 
+  /** Whether the "paused" panel covers the board. */
+  public boolean pausePanelShown() {
+    return (pausedSprite != null) && hasSprite(pausedSprite);
+  }
+
   public void pauseButtonPressed(boolean paused) {
     if (paused) {
       if (pauseButtonSprite != null) {

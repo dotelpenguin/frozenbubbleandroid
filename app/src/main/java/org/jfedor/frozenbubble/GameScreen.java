@@ -125,6 +125,11 @@ public abstract class GameScreen {
     }
   }
 
+  /** Whether the sprite is on screen. */
+  public final boolean hasSprite(Sprite sprite) {
+    return sprites.contains(sprite);
+  }
+
   public final void removeSprite(Sprite sprite) {
     sprites.removeElement(sprite);
   }
