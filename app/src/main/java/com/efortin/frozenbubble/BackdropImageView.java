@@ -11,6 +11,7 @@ package com.efortin.frozenbubble;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -24,11 +25,40 @@ import android.widget.ImageView;
 public class BackdropImageView extends ImageView {
   private Bitmap backdrop;
   private Bitmap backdropSource;
+  private String cornerText;
+  private Paint  cornerPaint;
+  private Paint  cornerOutline;
 
   public BackdropImageView(Context context) {
     super(context);
     setScaleType(ScaleType.FIT_CENTER);
     setBackgroundColor(0xFF000000);
+  }
+
+  /**
+   * Small text drawn inside the picture's lower right corner (the app
+   * version on the home screen); null for none.
+   */
+  public void setCornerText(String text) {
+    cornerText = text;
+    if ((text != null) && (cornerPaint == null)) {
+      android.util.DisplayMetrics dm = getResources().getDisplayMetrics();
+      float dp = dm.density;
+      cornerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+      cornerPaint.setColor(0xFFFFFFFF);
+      cornerPaint.setTextSize(android.util.TypedValue.applyDimension(
+          android.util.TypedValue.COMPLEX_UNIT_SP, 18, dm));
+      cornerPaint.setTextAlign(Paint.Align.RIGHT);
+      cornerPaint.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+      cornerPaint.setShadowLayer(4 * dp, dp, 1.5f * dp, 0xFF000000);
+      // A dark outline under the white text, so it reads on any colour.
+      cornerOutline = new Paint(cornerPaint);
+      cornerOutline.setStyle(Paint.Style.STROKE);
+      cornerOutline.setStrokeWidth(3 * dp);
+      cornerOutline.setStrokeJoin(Paint.Join.ROUND);
+      cornerOutline.setColor(0xCC1E2A50);
+    }
+    invalidate();
   }
 
   /**
@@ -61,6 +91,16 @@ public class BackdropImageView extends ImageView {
       canvas.drawBitmap(bars, 0, 0, null);
     }
     super.onDraw(canvas);
+    if (cornerText != null) {
+      Rect r = imageRect();
+      if (!r.isEmpty()) {
+        float inset = 6 * getResources().getDisplayMetrics().density;
+        float x = r.right - inset;
+        float y = r.bottom - inset - cornerPaint.descent();
+        canvas.drawText(cornerText, x, y, cornerOutline);
+        canvas.drawText(cornerText, x, y, cornerPaint);
+      }
+    }
   }
 
   private Bitmap backdrop(int w, int h) {
