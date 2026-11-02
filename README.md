@@ -1,4 +1,4 @@
-# Frozen Bubble for Android: modernized
+# Frozen Bubble HD for Android
 
 The Android port of the Frozen Bubble game, brought up to date for
 Android 16 with HD art, new menus, level packs, Arcade scoring and more.
@@ -15,6 +15,26 @@ September 2026); those changes are not included here.
 - **Building:** [docs/BUILDING.md](docs/BUILDING.md)
 - **Level packs and level tools:** [docs/LEVEL_PACKS.md](docs/LEVEL_PACKS.md)
 - **Deprecated Android APIs (work list):** [docs/DEPRECATIONS.md](docs/DEPRECATIONS.md)
+
+## Why this port
+
+I have ADHD, and Frozen Bubble has been on my phone for more than 15
+years: a wonderfully simple alternative to doom scrolling.  It's rare to
+find anything on an app store these days that is fun and not littered
+with bloatware and ads, and I wanted to keep this one going.
+
+It started with wanting to play my own music in the game, from my
+collection of MOD files.  Then I found that modern phones didn't scale
+the picture well.  Eventually I was just having fun, and spending more
+time tweaking and developing the game than playing it.
+
+I know this has drifted quite a way from the original, which is why I
+added "HD" to the name.  All the original licensing and restrictions are
+preserved, and I'm open to pull requests and merges from the community.
+I built this mainly for myself, but in the spirit of free and open
+source software, I've set it free.
+
+— Drew Baker
 
 ## Highlights
 
@@ -44,8 +64,8 @@ Originally developed with SDK v20.1.0, using API level 4 (version 1.6
 Donut), later with SDK v25.2.5 and NDK r10e using API level 12.  The store
 links below are the original project's releases (Google Play is still
 updated by the original developer; F-Droid has version 4.4 from 2017).
-This fork's builds use the same application ID but a different signing
-key, so they can't install over a store version; uninstall it first.
+Frozen Bubble HD has its own application ID
+(`io.github.dotelpenguin.frozenbubblehd`), so it installs beside these.
 
 <a href="https://f-droid.org/packages/org.jfedor.frozenbubble/" target="_blank">
 <img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80"/></a>

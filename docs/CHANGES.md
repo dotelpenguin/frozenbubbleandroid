@@ -14,11 +14,12 @@ build); none of that is merged here.  Everything below was added on the
     git log --oneline c3ac715..modernize
     git diff --stat c3ac715 modernize
 
-Version: 4.4 (code 54) became **4.5 (code 55)**.  The application ID is
-unchanged (`org.jfedor.frozenbubble`), so it keeps the settings and
-progress of an original build signed with the same key.  It can't
-install over the Google Play or F-Droid versions, which are signed by
-their publishers.
+Version: 4.4 (code 54) became **4.5 (code 55)**.  The app is now
+**Frozen Bubble HD**, with its own application ID,
+`io.github.dotelpenguin.frozenbubblehd` (was `org.jfedor.frozenbubble`),
+so it installs beside the original rather than over it.  It starts with
+fresh settings and progress; the original's can't be carried over.  The
+Java packages keep their original names (the Gradle `namespace`).
 
 ## Build and platform
 

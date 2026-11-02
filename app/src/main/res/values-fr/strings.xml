@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">Frozen Bubble</string>
+  <string name="app_name">Frozen Bubble HD</string>
   <string name="exit">Quitter</string>
   <string name="install_editor">Redirection vers le Play Store afin de télécharger l\'éditeur de niveau…</string>
   <string name="market_missing">Play Store introuvable! Veuillez installer l\'éditeur de niveau Frozen Bubble manuellement.</string>
@@ -22,8 +22,8 @@
   <string name="play_level_music">Jouer Musique</string>
   <string name="play_sound_effects">Jouer Effets Sonores</string>
   <string name="save_and_exit">Sauvegarder et Quitter</string>
-  <string name="title_activity_frozen_bubble">Frozen Bubble</string>
-  <string name="title_activity_home_screen">Frozen Bubble</string>
+  <string name="title_activity_frozen_bubble">Frozen Bubble HD</string>
+  <string name="title_activity_home_screen">Frozen Bubble HD</string>
   <string name="scrolling_credits">"Développement Original\n"
     "------------------------\n"
     "\nGuillaume Cottenceau - Design et Programmation\n"

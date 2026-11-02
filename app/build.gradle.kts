@@ -7,7 +7,9 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "org.jfedor.frozenbubble"
+        // Its own app ID, so it installs beside the original Frozen Bubble.
+        // (The Java packages keep their original names; see namespace.)
+        applicationId = "io.github.dotelpenguin.frozenbubblehd"
         minSdk = 24
         targetSdk = 36
         versionCode = 55

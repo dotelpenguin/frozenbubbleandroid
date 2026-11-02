@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">Frozen Bubble</string>
+  <string name="app_name">Frozen Bubble HD</string>
   <string name="exit">Beenden</string>
   <string name="install_editor">Weiterleitung zum Android Market für den Download des Level-Editors…</string>
   <string name="market_missing">Android Market nicht gefunden! Bitten installieren Sie den Level-Editor manuell.</string>
@@ -22,8 +22,8 @@
   <string name="play_level_music">Musik Abspielen</string>
   <string name="play_sound_effects">Spielen Soundeffekte</string>
   <string name="save_and_exit">Speichern und Verlassen</string>
-  <string name="title_activity_frozen_bubble">Frozen Bubble</string>
-  <string name="title_activity_home_screen">Frozen Bubble</string>
+  <string name="title_activity_frozen_bubble">Frozen Bubble HD</string>
+  <string name="title_activity_home_screen">Frozen Bubble HD</string>
   <string name="scrolling_credits">"Original Development\n"
     "------------------------\n"
     "\nGuillaume Cottenceau - Design and Programming\n"

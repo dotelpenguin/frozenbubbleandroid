@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">Frozen Bubble</string>
+  <string name="app_name">Frozen Bubble HD</string>
   <string name="exit">Exit</string>
   <string name="game_options">Game Options</string>
   <string name="options">Options</string>
@@ -29,8 +29,8 @@
   <string name="play_level_music">Play Level Music</string>
   <string name="play_sound_effects">Play Sound Effects</string>
   <string name="save_and_exit">Save and Exit</string>
-  <string name="title_activity_frozen_bubble">Frozen Bubble</string>
-  <string name="title_activity_home_screen">Frozen Bubble</string>
+  <string name="title_activity_frozen_bubble">Frozen Bubble HD</string>
+  <string name="title_activity_home_screen">Frozen Bubble HD</string>
   <string name="scrolling_credits">"Original Development\n"
     "------------------------\n"
     "\nGuillaume Cottenceau - Design and Programming\n"

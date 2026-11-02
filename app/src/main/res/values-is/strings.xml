@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">Frostkúlur</string>
+  <string name="app_name">Frostkúlur HD</string>
   <string name="exit">Hætta í forriti</string>
   <string name="install_editor">Beini þér í forritasafn þar sem þú getur sótt ritil fyrir Frostkúlu-borð</string>
   <string name="market_missing">Finn ekki Android Market! Þú verður að setja handvirkt upp ritil fyrir Frostkúlu-borð</string>
@@ -22,8 +22,8 @@
   <string name="play_level_music">Spila tónlist borðs</string>
   <string name="play_sound_effects">Spila leikhljóð</string>
   <string name="save_and_exit">Vista og hætta</string>
-  <string name="title_activity_frozen_bubble">Frostkúlur</string>
-  <string name="title_activity_home_screen">Frostkúlur</string>
+  <string name="title_activity_frozen_bubble">Frostkúlur HD</string>
+  <string name="title_activity_home_screen">Frostkúlur HD</string>
   <string name="scrolling_credits">"Upprunaleg hönnun\n"
     "------------------------\n"
     "\nGuillaume Cottenceau - Hönnun og forritun\n"
