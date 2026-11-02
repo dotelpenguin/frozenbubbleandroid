@@ -64,7 +64,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import android.content.Context;
-import android.net.DhcpInfo;
 import android.net.wifi.WifiManager;
 import android.os.Looper;
 import android.util.Log;
@@ -349,7 +348,7 @@ public class UDPSocket {
   }
 
   /**
-   * Get the broadcast address from the DHCP configuration info.
+   * Get the broadcast address of the local Wi-Fi subnet.
    * @param context - the application context.
    * @param address - the address to get the broadcast address from.
    * @param subnetMask - mask the DHCP subnet mask with this mask.
@@ -360,22 +359,8 @@ public class UDPSocket {
                                           String  address,
                                           int     subnetMask) throws
       IOException {
-    WifiManager wifi =
-        (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-    DhcpInfo    dhcp = wifi.getDhcpInfo();
-
-    if (dhcp != null) {
-      int subnet = dhcp.netmask & subnetMask;
-      int broadcast = (dhcp.ipAddress & subnet) | ~subnet;
-      byte[] quads = new byte[4];
-      for (int k = 0; k < 4; k++) {
-        quads[k] = (byte) (broadcast >> k * 8);
-      }
-      return InetAddress.getByAddress(quads);
-    }
-    else {
-      return InetAddress.getByName(address);
-    }
+    InetAddress broadcast = LocalNetwork.broadcast(context, subnetMask);
+    return (broadcast != null) ? broadcast : InetAddress.getByName(address);
   }
 
   /**

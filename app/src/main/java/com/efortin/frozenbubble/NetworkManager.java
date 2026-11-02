@@ -67,12 +67,6 @@ import org.jfedor.frozenbubble.LevelManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
-import android.os.AsyncTask;
-import android.text.format.Formatter;
 
 import com.efortin.frozenbubble.BluetoothManager.BluetoothListener;
 import com.efortin.frozenbubble.UDPSocket.UDPListener;
@@ -247,15 +241,20 @@ public class NetworkManager extends Thread
                                    (short) 0, (short) 0);
   }
 
-  private class ReconnectTask extends AsyncTask<Void, Void, Void> {
-    @Override
-    protected Void doInBackground(Void... params) {
-      if (session != null) {
-        session.cleanUp();
+  /**
+   * Reconnect the UDP session in the background (it was an AsyncTask,
+   * now deprecated).
+   */
+  private void reconnectInBackground() {
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        if (session != null) {
+          session.cleanUp();
+        }
+        createUDPsocketSession(localPlayer.playerID == VirtualInput.PLAYER1);
       }
-      createUDPsocketSession(localPlayer.playerID == VirtualInput.PLAYER1);
-      return null;
-    }
+    }, "FB-UDP-reconnect").start();
   }
 
   /**
@@ -1094,42 +1093,12 @@ public class NetworkManager extends Thread
    * <code>ACCESS_WIFI_STATE</code>
    * @param context - the application context.
    * @return the local WiFi IP address.
-   * @see WifiManager
+   * @see LocalNetwork
    */
   public static final InetAddress getLocalIpAddress(Context context) {
-    WifiManager wifiManager =
-        (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-    WifiInfo    wifiInfo = wifiManager.getConnectionInfo();
-    InetAddress address  = null;
-    try {
-      address = InetAddress.getByName(
-          Formatter.formatIpAddress(wifiInfo.getIpAddress()));
-    } catch (UnknownHostException e) {
-      /*
-       * Auto-generated catch block.
-       */
-      e.printStackTrace();
-    }
-    return address;
+    return LocalNetwork.address(context);
   }
   
-  /**
-   * Obtain the local IP address from the <code>WiFiManager</code>.
-   * <p>The following <code>uses</code> permission must be addeded to
-   * the Android project manifest to obtain the network connection
-   * status:<br>
-   * <code>ACCESS_WIFI_STATE</code>
-   * @param context - the application context.
-   * @return the local WiFi IP address.
-   * @see WifiManager
-   */
-  public static final int getLocalIpInt(Context context) {
-    WifiManager wifiManager =
-        (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-    WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-    return wifiInfo.getIpAddress();
-  }
-
   /**
    * Peek into the remote action list to see if we have obtained the
    * current expected remote action.
@@ -1251,15 +1220,7 @@ public class NetworkManager extends Thread
    */
   public boolean hasInternetConnection()
   {
-    ConnectivityManager cm =
-        (ConnectivityManager) myContext.getSystemService(Context.
-                                                         CONNECTIVITY_SERVICE);
-    NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-    if ((activeNetwork != null) && activeNetwork.isConnected())
-    {
-      return true;
-    }
-    return false;
+    return LocalNetwork.isConnected(myContext);
   }
 
   /**
@@ -1537,7 +1498,7 @@ public class NetworkManager extends Thread
            */
           mode            = connectEnum.UDP_UNICAST;
           remoteIpAddress = opponentAddress.getHostAddress();
-          new ReconnectTask().execute();
+          reconnectInBackground();
         }
         return;
       }
