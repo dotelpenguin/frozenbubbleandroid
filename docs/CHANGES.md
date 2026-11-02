@@ -14,7 +14,8 @@ October 2026 onwards.  To see it all in git:
     git log --oneline c3ac715..HEAD
     git diff --stat c3ac715 HEAD
 
-Version: 4.4 (code 54) became **4.5 (code 55)**.  The app is now
+Version: the original was 4.4 (code 54); Frozen Bubble HD starts again at
+**1.0 (code 1)**, as a new app.  The app is now
 **Frozen Bubble HD**, with its own application ID,
 `io.github.dotelpenguin.frozenbubblehd` (was `org.jfedor.frozenbubble`),
 so it installs beside the original rather than over it.  It starts with
