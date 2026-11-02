@@ -1556,6 +1556,25 @@ public class HomeScreen extends Activity {
     selectedButton.setSelected(true);
   }
 
+  /** The app's version, small, in the lower right corner. */
+  private void addVersionLabel() {
+    float dp = getResources().getDisplayMetrics().density;
+    android.widget.TextView version = new android.widget.TextView(this);
+    version.setText("v" + org.jfedor.frozenbubble.BuildConfig.VERSION_NAME);
+    version.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 12);
+    version.setTextColor(0xCCFFFFFF);
+    version.setShadowLayer(3 * dp, 0, dp, 0xCC000000);
+    version.setImportantForAccessibility(android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+    RelativeLayout.LayoutParams lp =
+        new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
+                                        LayoutParams.WRAP_CONTENT);
+    lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+    lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+    int m = Math.round(8 * dp);
+    lp.setMargins(m, m, m, m);
+    myLayout.addView(version, lp);
+  }
+
   private void setBackgroundImage(int resId) {
     if (myImageView.getParent() != null)
       myLayout.removeView(myImageView);
@@ -1668,6 +1687,7 @@ public class HomeScreen extends Activity {
       myLayout.setFocusableInTouchMode(true);
       myLayout.requestFocus();
       displayPage(pageSelected);
+      addVersionLabel();
 
       /*
        * Create a sound manager to play sound effects.
