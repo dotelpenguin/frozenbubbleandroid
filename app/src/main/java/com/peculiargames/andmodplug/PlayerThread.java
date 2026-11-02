@@ -184,6 +184,11 @@ public class PlayerThread extends Thread {
   private final static int BUFFERSIZE = 20000;  // the sample buffer size
   private AudioTrack mMyTrack;
   private boolean mLoadOk;
+  /*
+   * The loaded song is an AdLib song (.ROL), played by the AdLib engine
+   * instead of libmodplug.
+   */
+  private boolean mAdlib;
 
   /*
    * Variables for storing info about the MOD file currently loaded.
@@ -360,7 +365,9 @@ public class PlayerThread extends Thread {
   public void closeLibModPlug() {
     synchronized(sRDlock) {
       mLoadOk = false;
+      mAdlib  = false;
       ModPlug_JUnload();
+      AdLib_JUnload();
       ModPlug_CloseDown();
     }
   }
@@ -395,6 +402,7 @@ public class PlayerThread extends Thread {
            * Init the Modplug player for this sample rate.
            */
           ModPlug_Init(try_rates[rateIndex]);
+          AdLib_Init(try_rates[rateIndex]);
           success = true;
         } catch (IllegalArgumentException | UnsupportedOperationException e) {
           rateIndex++;
@@ -410,6 +418,7 @@ public class PlayerThread extends Thread {
        * Init the Modplug player for this sample rate.
        */
       ModPlug_Init(desiredRate);
+      AdLib_Init(desiredRate);
     }
 
     if (desiredRate == 0) {
@@ -493,12 +502,37 @@ public class PlayerThread extends Thread {
   }
 
   /**
+   * Loads an AdLib song (.ROL) and its instrument bank (.BNK) for
+   * playback, as <code>loadModuleData()</code> does for MOD/XM songs.
+   * @return <code>true</code> if the song and bank could be used.
+   */
+  public boolean loadAdlibData(byte[] rol, byte[] bnk) {
+    synchronized(sRDlock) {
+      unLoadMod();
+      mLoadOk = AdLib_JLoad(rol, bnk);
+      mAdlib  = mLoadOk;
+      if (mLoadOk) {
+        mModname        = AdLib_JGetName();
+        mNumChannels    = 9;   // the OPL2 FM chip's voices
+        posWas          = 0;
+        songFinished    = false;
+        songFinishedWas = false;
+      }
+    }
+    synchronized(this) {
+      playerStarted = false;
+    }
+    return mLoadOk;
+  }
+
+  /**
    * Load the module file (data) into libmodplug.
    * <p>If the module loads successfully, initialize module info (name
    * and number of tracks, track playback location, etc.).
    */
   private void loadModuleInfo(byte[] modData) {
     synchronized(sRDlock) {
+      mAdlib  = false;
       mLoadOk = ModPlug_JLoad(modData, modData.length);
 
       if (mLoadOk) {
@@ -693,13 +727,19 @@ public class PlayerThread extends Thread {
          */
         synchronized(sRDlock) {
           if (mRunning && !mPaused && mLoadOk) {
-            ModPlug_JGetSoundData(mBuffer, BUFFERSIZE);
-  
-            if (ModPlug_CheckPatternChange()) {
-              patternChange = true;
+            if (mAdlib) {
+              // True once each time the song ends and starts again.
+              songFinished = AdLib_JGetSoundData(mBuffer, BUFFERSIZE);
             }
+            else {
+              ModPlug_JGetSoundData(mBuffer, BUFFERSIZE);
 
-            checkSongCompleted();
+              if (ModPlug_CheckPatternChange()) {
+                patternChange = true;
+              }
+
+              checkSongCompleted();
+            }
           }
         }
 
@@ -788,7 +828,11 @@ public class PlayerThread extends Thread {
             .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
             .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
             .build())
-        .setBufferSizeInBytes(bufferBytes)
+        // Room for two of our sound packets (about half a second), not
+        // just Android's minimum: the next packet is made while the
+        // track plays, and slower songs (AdLib FM emulation) underran
+        // the minimum buffer and stuttered.
+        .setBufferSizeInBytes(Math.max(bufferBytes, 2 * BUFFERSIZE * 2))
         .setTransferMode(AudioTrack.MODE_STREAM)
         .build();
   }
@@ -872,7 +916,9 @@ public class PlayerThread extends Thread {
      */
     synchronized(sRDlock) {
       mLoadOk = false;
+      mAdlib  = false;
       ModPlug_JUnload();
+      AdLib_JUnload();
     }
   }
 
@@ -1059,6 +1105,16 @@ public class PlayerThread extends Thread {
    */
   public native boolean ModPlug_CloseDown();
   public native boolean ModPlug_Init(int rate);
+
+  /*
+   * The AdLib engine (adlib_jni.cpp): AdLib Visual Composer songs (.ROL)
+   * with their instrument bank (.BNK).
+   */
+  public native void    AdLib_Init(int rate);
+  public native boolean AdLib_JLoad(byte[] rol, byte[] bnk);
+  public native boolean AdLib_JGetSoundData(short[] sndbuffer, int datasize);
+  public native void    AdLib_JUnload();
+  public native String  AdLib_JGetName();
   public native String  ModPlug_JGetName();
   public native int     ModPlug_JGetSoundData(short[] sndbuffer, int datasize);
   public native boolean ModPlug_JLoad(byte[] buffer, int size);

@@ -190,14 +190,39 @@ public class MODResourcePlayer extends PlayerThread {
    * recognized it as a song it can play.
    */
   public boolean loadModuleUri(Uri songUri) {
-    byte[] modData;
-    InputStream in = null;
-
     unLoadMod();
+    byte[] modData = readUri(songUri);
+    if (modData == null) {
+      return false;
+    }
+    setModSize(modData.length);
+    loadModuleData(modData);
+    return isLoadOk();
+  }
+
+  /**
+   * Load an AdLib song (.ROL) and its instrument bank (.BNK) from
+   * content URIs (the player's own music folder).
+   * @return <code>true</code> if both were read and the song can play.
+   */
+  public boolean loadAdlibUri(Uri songUri, Uri bankUri) {
+    unLoadMod();
+    byte[] rol = readUri(songUri);
+    byte[] bnk = (rol == null) ? null : readUri(bankUri);
+    if (bnk == null) {
+      return false;
+    }
+    setModSize(rol.length);
+    return loadAdlibData(rol, bnk);
+  }
+
+  /** A file's contents, or null if it can't be read, is empty or too big. */
+  private byte[] readUri(Uri uri) {
+    InputStream in = null;
     try {
-      in = mContext.getContentResolver().openInputStream(songUri);
+      in = mContext.getContentResolver().openInputStream(uri);
       if (in == null) {
-        return false;
+        return null;
       }
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       byte[] chunk = new byte[64 * 1024];
@@ -205,12 +230,12 @@ public class MODResourcePlayer extends PlayerThread {
       while ((n = in.read(chunk)) > 0) {
         out.write(chunk, 0, n);
         if (out.size() > MAX_SONG_BYTES) {
-          return false;
+          return null;
         }
       }
-      modData = out.toByteArray();
+      return (out.size() > 0) ? out.toByteArray() : null;
     } catch (IOException | SecurityException | OutOfMemoryError e) {
-      return false;
+      return null;
     } finally {
       if (in != null) {
         try {
@@ -220,12 +245,6 @@ public class MODResourcePlayer extends PlayerThread {
         }
       }
     }
-    if (modData.length == 0) {
-      return false;
-    }
-    setModSize(modData.length);
-    loadModuleData(modData);
-    return isLoadOk();
   }
 
   /**

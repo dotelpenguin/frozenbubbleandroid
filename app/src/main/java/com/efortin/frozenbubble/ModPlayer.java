@@ -118,7 +118,7 @@ public class ModPlayer {
     }
     if (!replaced || (resPlayer == null))
       return;
-    if (songUri != null && resPlayer.loadModuleUri(songUri)) {
+    if (songUri != null && loadUri(songUri)) {
       takeOwnership();
     }
     else if (songId != 0) {
@@ -159,7 +159,7 @@ public class ModPlayer {
       return false;
     }
     resPlayer.pausePlay(true);
-    boolean ok = resPlayer.loadModuleUri(songUri);
+    boolean ok = loadUri(songUri);
     if (ok) {
       this.songUri = songUri;
       takeOwnership();
@@ -167,6 +167,16 @@ public class ModPlayer {
     if (ok && startPlaying && musicOn)
       resPlayer.unPausePlay();
     return ok;
+  }
+
+  /**
+   * Load a song from the player's music folder: an AdLib song (.ROL)
+   * with the instrument bank found for it, or a MOD/XM/IT/S3M song.
+   */
+  private boolean loadUri(Uri uri) {
+    Uri bank = CustomMusic.bankFor(uri);
+    return (bank != null) ? resPlayer.loadAdlibUri(uri, bank)
+                          : resPlayer.loadModuleUri(uri);
   }
 
   /**

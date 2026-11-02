@@ -51,7 +51,10 @@
     "\nhttp://www.peculiar-games.com/\n\n"
     "\nMichel Racic - High Score Manager\n"
     "\n"
-    "\nAstigmatic - Luckiest Guy font (Apache 2.0)\n\n\n"
+    "\nAstigmatic - Luckiest Guy font (Apache 2.0)\n\n"
+    "\nAdPlug - AdLib .ROL music player (LGPL 2.1)\n"
+    "\nhttps://github.com/adplug/adplug\n\n"
+    "\nNuke.YKT - Nuked OPL3 FM synthesis (LGPL 2.1)\n\n\n"
     "\nTranslations\n"
     "------------------------\n"
     "\nShanghai Ndoo Network Technology Ltd. - Chinese\n\n"
@@ -182,7 +185,7 @@
   </plurals>
   <string name="hs_name_title">Name für die Bestenliste</string>
   <string name="hs_name_message">Gib deinen Namen ein:</string>
-  <string name="music_no_songs">%1$s: keine .mod/.xm/.it/.s3m-Songs gefunden. Die eingebaute Musik wird gespielt.</string>
+  <string name="music_no_songs">%1$s: keine .mod/.xm/.it/.s3m/.rol-Songs gefunden. Die eingebaute Musik wird gespielt.</string>
   <plurals name="music_songs_found">
     <item quantity="one">%1$s: %2$d Song gefunden.</item>
     <item quantity="other">%1$s: %2$d Songs gefunden.</item>

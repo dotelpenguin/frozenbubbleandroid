@@ -44,7 +44,8 @@ source software, I've set it free.
 - Arcade: points, combos and a difficulty multiplier on one leaderboard, a
   live score and a game over summary.
 - 2 Player: Vs CPU with four skill levels; Bluetooth and Wi-Fi fixes.
-- Your own music folder (`.mod`, `.xm`, `.it`, `.s3m`), a next-song
+- Your own music folder (`.mod`, `.xm`, `.it`, `.s3m`, and AdLib `.rol`
+  songs with their `.bnk` instrument banks), a next-song
   button, a podium High Scores screen, and optional effects.
 
 ## Building

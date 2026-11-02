@@ -14,8 +14,8 @@ android {
         targetSdk = 36
         // Frozen Bubble HD is a new app (its own ID), so its versions start
         // again at 1.0.  Raise versionCode by 1 for every release.
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
     }
 
     buildTypes {

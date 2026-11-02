@@ -21,15 +21,23 @@ import android.provider.DocumentsContract;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Locale;
 import java.util.Set;
 
 /**
- * Lets the player use tracker songs (.mod, .xm, .it, .s3m and other
- * formats libmodplug supports) from a folder on their device in place
- * of the built-in level music.
+ * Lets the player use their own songs from a folder on their device in
+ * place of the built-in level music: tracker songs (.mod, .xm, .it,
+ * .s3m) and AdLib Visual Composer songs (.rol).
+ *
+ * <p>A .rol song needs an instrument bank (.bnk).  For each song the
+ * bank is, in order: one with the same name next to it ("song.bnk"),
+ * "standard.bnk" in its folder or the nearest folder above it, or any
+ * "standard.bnk" found in the music folder.  Songs without a bank are
+ * left out.
  *
  * <p>The folder is chosen with Android's folder picker (Storage Access
  * Framework), so no broad storage permission is needed: the game only
@@ -50,6 +58,14 @@ public final class CustomMusic {
   private static final int MAX_DEPTH = 3;    // subfolder levels scanned
   private static final int MAX_SONGS = 1000;
   private static final long CACHE_MS = 30 * 1000;
+
+  /** AdLib songs' extension, and their instrument banks'. */
+  private static final String ROL = "rol";
+  private static final String BNK = "bnk";
+  private static final String STANDARD_BANK = "standard.bnk";
+
+  /** The instrument bank chosen for each .rol song found so far. */
+  private static final Map<Uri, Uri> banks = new HashMap<Uri, Uri>();
 
   private static String    cachedFolder = null;
   private static long      cachedAt     = 0;
@@ -106,16 +122,47 @@ public final class CustomMusic {
     cachedFolder = null; // force a rescan
   }
 
+  /**
+   * The instrument bank (.bnk) to play an AdLib song with, or null if
+   * the song is not an AdLib song (see {@link #listSongs}).
+   */
+  public static Uri bankFor(Uri song) {
+    synchronized (banks) {
+      return banks.get(song);
+    }
+  }
+
   /** All playable song files in the folder and its subfolders, by name. */
   public static List<Uri> listSongs(Context context, Uri treeUri) {
     final List<String> names = new ArrayList<String>();
     final List<Uri>    uris  = new ArrayList<Uri>();
+    final Scan         scan  = new Scan();
     try {
       collect(context.getContentResolver(), treeUri,
-              DocumentsContract.getTreeDocumentId(treeUri), 0, names, uris);
+              DocumentsContract.getTreeDocumentId(treeUri), 0, null,
+              names, uris, scan);
     } catch (RuntimeException e) {
       // Permission revoked, folder deleted, or provider error.
       return Collections.emptyList();
+    }
+    /*
+     * AdLib songs with no bank of their own or above them: use any
+     * standard bank found elsewhere in the folder, or leave them out.
+     */
+    for (int i = uris.size() - 1; i >= 0; i--) {
+      Uri song = uris.get(i);
+      if (scan.waiting.contains(song)) {
+        if (scan.anyStandard != null) {
+          scan.found.put(song, scan.anyStandard);
+        }
+        else {
+          uris.remove(i);
+          names.remove(i);
+        }
+      }
+    }
+    synchronized (banks) {
+      banks.putAll(scan.found);
     }
     // Sort by file name so the level-to-song order is stable.
     Integer[] order = new Integer[names.size()];
@@ -146,10 +193,29 @@ public final class CustomMusic {
     return context.getString(R.string.folder_chosen);
   }
 
+  /** What a scan has found besides the songs. */
+  private static final class Scan {
+    /** AdLib song -> its bank. */
+    final Map<Uri, Uri> found   = new HashMap<Uri, Uri>();
+    /** AdLib songs with no bank in their folder or above it. */
+    final Set<Uri>      waiting = new HashSet<Uri>();
+    /** The first standard.bnk seen anywhere. */
+    Uri anyStandard = null;
+  }
+
+  /**
+   * Collect the songs in one folder, then in its subfolders.
+   * @param standard - the nearest standard.bnk above this folder.
+   */
   private static void collect(ContentResolver cr, Uri treeUri, String docId,
-                              int depth, List<String> names, List<Uri> uris) {
+                              int depth, Uri standard, List<String> names,
+                              List<Uri> uris, Scan scan) {
     Uri children =
         DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, docId);
+    List<String>     dirs     = new ArrayList<String>();
+    List<String>     rolNames = new ArrayList<String>();
+    List<Uri>        rolUris  = new ArrayList<Uri>();
+    Map<String, Uri> bnks     = new HashMap<String, Uri>();
     try (Cursor c = cr.query(children, new String[] {
           DocumentsContract.Document.COLUMN_DOCUMENT_ID,
           DocumentsContract.Document.COLUMN_DISPLAY_NAME,
@@ -163,9 +229,15 @@ public final class CustomMusic {
         String name = c.getString(1);
         String mime = c.getString(2);
         if (DocumentsContract.Document.MIME_TYPE_DIR.equals(mime)) {
-          if (depth < MAX_DEPTH) {
-            collect(cr, treeUri, id, depth + 1, names, uris);
-          }
+          dirs.add(id);
+        }
+        else if (ROL.equals(extension(name))) {
+          rolNames.add(name);
+          rolUris.add(DocumentsContract.buildDocumentUriUsingTree(treeUri, id));
+        }
+        else if (BNK.equals(extension(name))) {
+          bnks.put(name.toLowerCase(Locale.ROOT),
+                   DocumentsContract.buildDocumentUriUsingTree(treeUri, id));
         }
         else if (isSong(name)) {
           names.add(name);
@@ -173,6 +245,47 @@ public final class CustomMusic {
         }
       }
     }
+    Uri here = bnks.get(STANDARD_BANK);
+    if (here != null) {
+      standard = here;
+      if (scan.anyStandard == null) {
+        scan.anyStandard = here;
+      }
+    }
+    for (int i = 0; (i < rolNames.size()) && (uris.size() < MAX_SONGS); i++) {
+      String name = rolNames.get(i);
+      Uri    song = rolUris.get(i);
+      Uri    bank = bnks.get(name.substring(0, name.length() - ROL.length())
+                                 .toLowerCase(Locale.ROOT) + BNK);
+      if (bank == null) {
+        bank = standard;
+      }
+      if (bank != null) {
+        scan.found.put(song, bank);
+      }
+      else {
+        scan.waiting.add(song);
+      }
+      names.add(name);
+      uris.add(song);
+    }
+    if (depth < MAX_DEPTH) {
+      for (String dir : dirs) {
+        if (uris.size() >= MAX_SONGS) {
+          break;
+        }
+        collect(cr, treeUri, dir, depth + 1, standard, names, uris, scan);
+      }
+    }
+  }
+
+  /** "Song.ROL" -> "rol"; "" if there is none. */
+  private static String extension(String name) {
+    if (name == null) {
+      return "";
+    }
+    int dot = name.lastIndexOf('.');
+    return (dot >= 0) ? name.substring(dot + 1).toLowerCase(Locale.ROOT) : "";
   }
 
   private static boolean isSong(String name) {

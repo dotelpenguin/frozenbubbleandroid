@@ -10,7 +10,7 @@ Everything below was added from October 2026 onwards.  To see it all in git:
     git diff --stat c3ac715 HEAD
 
 Version: the original was 4.4 (code 54); Frozen Bubble HD starts again at
-**1.0 (code 1)**, as a new app.  The app is now
+**1.0 (code 1)**, as a new app; 1.1 (code 2) adds AdLib (.rol) songs.  The app is now
 **Frozen Bubble HD**, with its own application ID,
 `io.github.dotelpenguin.frozenbubblehd` (was `org.jfedor.frozenbubble`),
 so it installs beside the original rather than over it.  It starts with
@@ -97,6 +97,13 @@ Java packages keep their original names (the Gradle `namespace`).
 - **My Music**: choose a folder of your own `.mod`, `.xm`, `.it` or
   `.s3m` songs (Android's folder picker); the built-in songs play if it
   has none.
+- **AdLib songs (1.1)**: the same folder can also hold AdLib Visual
+  Composer songs (`.rol`), played on an emulated AdLib FM chip.  Each
+  needs an instrument bank: `song.bnk` next to `song.rol`, or a
+  `standard.bnk` in its folder, a folder above it, or anywhere in the
+  music folder; songs with no bank are skipped.  Bring your own songs
+  and banks.  Built with AdPlug's ROL player and the Nuked OPL3
+  emulator (LGPL 2.1; see `app/src/main/cpp/adplug/README.md`).
 - A **next song** button, in 1 and 2 player games.
 - Music loops correctly after the credits; volume follows the phone's
   media volume.

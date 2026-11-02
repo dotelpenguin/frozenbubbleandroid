@@ -1,7 +1,7 @@
 # Builds libmodplug (the MOD/XM/IT music player) plus its JNI stubs.
 # Replaces the old ndk-build Android.mk / Application.mk.
 cmake_minimum_required(VERSION 3.22.1)
-project(modplug CXX)
+project(modplug C CXX)
 
 # Java loads this with System.loadLibrary("modplug-1.0").
 #
@@ -18,6 +18,7 @@ add_library(modplug-1.0 SHARED
     snd_dsp.cpp snd_flt.cpp snd_fx.cpp
     sndfile.cpp sndmix.cpp
     jni_stubs.cpp
+    adlib_jni.cpp
 )
 
 target_include_directories(modplug-1.0 PRIVATE
@@ -37,3 +38,21 @@ target_compile_definitions(modplug-1.0 PRIVATE
 target_compile_options(modplug-1.0 PRIVATE -w -Wno-c++11-narrowing)
 
 target_link_libraries(modplug-1.0 PRIVATE log)
+
+# AdLib music (.ROL songs with a .BNK instrument bank) from the player's
+# music folder: AdPlug's ROL player, the Nuked OPL3 FM chip emulator and
+# the parts of libbinio they use (all LGPL 2.1; see adplug/README.md).
+add_library(adlib STATIC
+    adlib_engine.cpp
+    adplug/rol.cpp adplug/composer.cpp adplug/player.cpp
+    adplug/nemuopl.cpp adplug/nukedopl.c
+    adplug/binio.cpp adplug/binstr.cpp
+)
+target_include_directories(adlib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/adplug)
+# AdPlug spells strcasecmp the Windows way.
+target_compile_definitions(adlib PRIVATE stricmp=strcasecmp)
+# Always optimized, also in debug builds: the FM chip emulation runs in
+# real time and stutters when built without optimization.
+target_compile_options(adlib PRIVATE -w -include strings.h -O2
+    $<$<COMPILE_LANGUAGE:CXX>:-fexceptions>)
+target_link_libraries(modplug-1.0 PRIVATE adlib)
