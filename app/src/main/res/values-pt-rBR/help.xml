@@ -2,6 +2,7 @@
 <!-- The Help screen (HelpActivity). -->
 <resources>
   <string name="help">Ajuda</string>
+  <string name="help_about_button">Ajuda e sobre</string>
   <string name="help_version">Frozen Bubble HD %1$s</string>
   <string name="help_play_t">Como jogar</string>
   <string name="help_play">Mire com o lançador lá embaixo e atire. Junte 3 ou mais bolhas da mesma cor e elas estouram; as bolhas que ficam penduradas sem nada que as segure caem.\n\nNão deixe as bolhas passarem da linha de baixo.\n\nToque no lançador para trocar sua bolha pela próxima.</string>

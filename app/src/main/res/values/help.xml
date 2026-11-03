@@ -2,6 +2,7 @@
 <!-- The Help screen (HelpActivity). -->
 <resources>
   <string name="help">Help</string>
+  <string name="help_about_button">Help &amp; About</string>
   <string name="help_version">Frozen Bubble HD %1$s</string>
   <string name="help_play_t">How to Play</string>
   <string name="help_play">Aim the launcher at the bottom and fire. Join 3 or more bubbles of the same color and they pop; bubbles left hanging with nothing holding them up drop away.\n\nDon’t let the bubbles cross the line at the bottom.\n\nTap the launcher to swap your bubble with the next one.</string>

@@ -2,6 +2,7 @@
 <!-- The Help screen (HelpActivity). -->
 <resources>
   <string name="help">Aide</string>
+  <string name="help_about_button">Aide et infos</string>
   <string name="help_version">Frozen Bubble HD %1$s</string>
   <string name="help_play_t">Comment jouer</string>
   <string name="help_play">Vise avec le lanceur en bas et tire. Réunis 3 bulles ou plus de la même couleur et elles éclatent ; les bulles qui ne tiennent plus à rien tombent.\n\nNe laisse pas les bulles franchir la ligne du bas.\n\nTouche le lanceur pour échanger ta bulle avec la suivante.</string>

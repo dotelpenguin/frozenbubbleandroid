@@ -2,6 +2,7 @@
 <!-- The Help screen (HelpActivity). -->
 <resources>
   <string name="help">Hjálp</string>
+  <string name="help_about_button">Hjálp og um</string>
   <string name="help_version">Frozen Bubble HD %1$s</string>
   <string name="help_play_t">Svona á að spila</string>
   <string name="help_play">Miðaðu skotinu neðst og skjóttu. Settu 3 eða fleiri kúlur í sama lit saman og þær springa; kúlur sem hanga þá ekki lengur í neinu detta niður.\n\nEkki láta kúlurnar fara yfir línuna neðst.\n\nPikkaðu á skotið til að skipta á kúlunni þinni og þeirri næstu.</string>

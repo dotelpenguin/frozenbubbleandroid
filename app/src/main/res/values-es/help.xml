@@ -2,6 +2,7 @@
 <!-- The Help screen (HelpActivity). -->
 <resources>
   <string name="help">Ayuda</string>
+  <string name="help_about_button">Ayuda e info</string>
   <string name="help_version">Frozen Bubble HD %1$s</string>
   <string name="help_play_t">Cómo se juega</string>
   <string name="help_play">Apunta con el lanzador de abajo y dispara. Junta 3 o más burbujas del mismo color y explotan; las burbujas que quedan colgando sin nada que las sujete caen.\n\nNo dejes que las burbujas crucen la línea de abajo.\n\nToca el lanzador para cambiar tu burbuja por la siguiente.</string>

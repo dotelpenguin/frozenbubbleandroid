@@ -487,7 +487,7 @@ public class HomeScreen extends Activity {
      * (with the Credits).
      */
     Button helpButton = new Button(this);
-    helpButton.setText(R.string.help);
+    helpButton.setText(R.string.help_about_button);
     MenuButtons.style(helpButton);
     helpButton.setId(BTN16_ID);
     helpButton.setFocusable(true);
@@ -511,11 +511,35 @@ public class HomeScreen extends Activity {
     myParams.bottomMargin = 15;
     myLayout.addView(helpButton, myParams);
     addExitOrBackButton(helpButton.getId());
+    shiftHomeMenuUp();
     /*
      * With a saved game, offer to continue it at the top of the menu.
      */
     // Saved games are offered by each mode's button (see
     // startOrAskToContinue()), not by a separate Continue button.
+  }
+
+  /**
+   * The main menu is centred on 2 Player with more buttons below it than
+   * above, so it sat low: move the whole column up by one button (its
+   * height and the gaps around it).  Moving them as they are drawn keeps
+   * the button layout (and key navigation) as it is.
+   */
+  private void shiftHomeMenuUp() {
+    final View anchor = myLayout.findViewById(BTN3_ID);
+    if (anchor == null) {
+      return;
+    }
+    anchor.post(() -> {
+      float shift = -(anchor.getHeight() + 30);   // margins: 15 above and below
+      for (int id : new int[] { BTN1_ID, BTN2_ID, BTN3_ID, BTN15_ID,
+                                BTN4_ID, BTN16_ID, BTN14_ID }) {
+        View b = myLayout.findViewById(id);
+        if (b != null) {
+          b.setTranslationY(shift);
+        }
+      }
+    });
   }
 
   /**

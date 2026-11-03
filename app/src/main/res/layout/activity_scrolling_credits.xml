@@ -6,7 +6,7 @@
   tools:context=".ScrollingCredits" >
 
   <com.efortin.frozenbubble.ScrollingTextView
-    android:contentDescription="@string/menu_about"
+    android:contentDescription="@string/credits"
     android:gravity="center"
     android:id="@+id/scrolling_credits"
     android:layout_width="fill_parent"

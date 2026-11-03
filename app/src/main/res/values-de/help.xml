@@ -2,6 +2,7 @@
 <!-- The Help screen (HelpActivity). -->
 <resources>
   <string name="help">Hilfe</string>
+  <string name="help_about_button">Hilfe &amp; Info</string>
   <string name="help_version">Frozen Bubble HD %1$s</string>
   <string name="help_play_t">So wird gespielt</string>
   <string name="help_play">Ziele mit der Kanone unten und schieße. Verbinde 3 oder mehr Blasen derselben Farbe, dann platzen sie; Blasen, die danach nirgends mehr hängen, fallen herunter.\n\nLass die Blasen nicht über die Linie unten kommen.\n\nTippe auf die Kanone, um deine Blase mit der nächsten zu tauschen.</string>

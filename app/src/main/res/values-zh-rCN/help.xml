@@ -2,6 +2,7 @@
 <!-- The Help screen (HelpActivity). -->
 <resources>
   <string name="help">帮助</string>
+  <string name="help_about_button">帮助与关于</string>
   <string name="help_version">Frozen Bubble HD %1$s</string>
   <string name="help_play_t">玩法</string>
   <string name="help_play">用底部的发射器瞄准并发射。把 3 个或更多同色泡泡连在一起，它们就会爆掉；失去支撑、悬空的泡泡会掉落。\n\n别让泡泡越过底部的线。\n\n点击发射器，可以把当前泡泡和下一个交换。</string>

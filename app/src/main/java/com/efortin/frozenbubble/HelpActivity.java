@@ -83,7 +83,7 @@ public class HelpActivity extends Activity {
     int pad = px(16);
     column.setPadding(pad, pad, pad, pad);
 
-    column.addView(text(getString(R.string.help), 40, titleFont, TITLE_COLOUR,
+    column.addView(text(getString(R.string.help_about_button), 36, titleFont, TITLE_COLOUR,
                         Gravity.CENTER));
     column.addView(text(getString(R.string.help_version, BuildConfig.VERSION_NAME),
                         14, Typeface.DEFAULT_BOLD, BODY_COLOUR, Gravity.CENTER));

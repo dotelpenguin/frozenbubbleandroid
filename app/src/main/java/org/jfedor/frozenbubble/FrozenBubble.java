@@ -935,7 +935,7 @@ public class FrozenBubble extends Activity
         com.efortin.frozenbubble.MenuButtons.create(this, R.string.level_select_title,
             v -> { menu.hide(); chooseLevelInGame(backHere); }) :
         null,
-      com.efortin.frozenbubble.MenuButtons.create(this, R.string.help,
+      com.efortin.frozenbubble.MenuButtons.create(this, R.string.help_about_button,
           v -> {
             menu.dismiss();
             startActivity(new Intent(this,
