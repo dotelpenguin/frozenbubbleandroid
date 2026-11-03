@@ -109,6 +109,10 @@ Java packages keep their original names (the Gradle `namespace`).
 - A **next song** button, in 1 and 2 player games.
 - Music loops correctly after the credits; volume follows the phone's
   media volume.
+- Songs are chosen and loaded on their own thread, and the music folder
+  is rescanned in the background, so starting a level no longer stalls
+  the game for a moment (with a big folder it could stall for a second
+  or more).
 
 ## Puzzle
 

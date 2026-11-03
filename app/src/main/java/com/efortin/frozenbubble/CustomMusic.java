@@ -67,6 +67,7 @@ public final class CustomMusic {
   /** The instrument bank chosen for each .rol song found so far. */
   private static final Map<Uri, Uri> banks = new HashMap<Uri, Uri>();
 
+  private static boolean   rescanning   = false;
   private static String    cachedFolder = null;
   private static long      cachedAt     = 0;
   private static List<Uri> cachedSongs  = Collections.emptyList();
@@ -80,15 +81,35 @@ public final class CustomMusic {
    */
   public static synchronized List<Uri> getActiveSongs(Context context) {
     SharedPreferences sp = Prefs.get(context);
-    String folder = sp.getString(KEY_FOLDER, null);
+    final String folder = sp.getString(KEY_FOLDER, null);
     if (!sp.getBoolean(KEY_ON, false) || (folder == null)) {
       return Collections.emptyList();
     }
     long now = System.currentTimeMillis();
-    if (!folder.equals(cachedFolder) || ((now - cachedAt) > CACHE_MS)) {
+    if (!folder.equals(cachedFolder)) {
+      // A new folder: scan it now (the caller is the music thread).
       cachedSongs  = listSongs(context, Uri.parse(folder));
       cachedFolder = folder;
       cachedAt     = now;
+    }
+    else if (((now - cachedAt) > CACHE_MS) && !rescanning) {
+      /*
+       * Pick up songs added or removed since the last scan, in the
+       * background: this list is used meanwhile, so a big folder never
+       * delays the music.
+       */
+      rescanning = true;
+      final Context app = context.getApplicationContext();
+      new Thread(() -> {
+        List<Uri> songs = listSongs(app, Uri.parse(folder));
+        synchronized (CustomMusic.class) {
+          if (folder.equals(cachedFolder)) {
+            cachedSongs = songs;
+            cachedAt    = System.currentTimeMillis();
+          }
+          rescanning = false;
+        }
+      }, "FB-music-scan").start();
     }
     return cachedSongs;
   }

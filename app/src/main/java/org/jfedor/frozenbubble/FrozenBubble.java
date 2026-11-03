@@ -357,13 +357,28 @@ public class FrozenBubble extends Activity
   public final static String TAG          = "FrozenBubble.java";
 
   private boolean    activityCustomStarted = false;
-  private boolean    allowUnpause          = true;
+  private volatile boolean allowUnpause    = true;
   private int        currentOrientation;
-  private GameThread mGameThread           = null;
+  private volatile GameThread mGameThread  = null;
   private GameView   mGameView             = null;
-  private ModPlayer  myModPlayer           = null;
-  private int        lastSongIndex         = -1;  // index of the song playing
-  private int        songSkip              = 0;   // songs skipped this game
+  /*
+   * The music player, used only on the music thread (see music()).
+   */
+  private volatile ModPlayer myModPlayer   = null;
+  /*
+   * Music work (choosing, loading, pausing songs) runs here, in order,
+   * off the game's drawing thread and the UI thread: loading a song (and
+   * scanning the player's music folder) used to stall the game for a
+   * moment when a level started.
+   */
+  private final java.util.concurrent.ExecutorService musicThread =
+      java.util.concurrent.Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "FB-music");
+        t.setDaemon(true);
+        return t;
+      });
+  private volatile int lastSongIndex       = -1;  // index of the song playing
+  private volatile int songSkip            = 0;   // songs skipped this game
   private OrientationEventListener myOrientationEventListener = null;
 
   private final int[] MODlist = {
@@ -803,10 +818,22 @@ public class FrozenBubble extends Activity
 
     cleanUpGameView();
 
-    if (myModPlayer != null) {
-      myModPlayer.destroyMusicPlayer();
+    music(() -> {
+      if (myModPlayer != null) {
+        myModPlayer.destroyMusicPlayer();
+      }
+      myModPlayer = null;
+    });
+    musicThread.shutdown();   // after the work queued so far
+  }
+
+  /** Queue music work on the music thread (in order). */
+  private void music(Runnable work) {
+    try {
+      musicThread.execute(work);
+    } catch (java.util.concurrent.RejectedExecutionException e) {
+      // Closing down: no more music.
     }
-    myModPlayer = null;
   }
 
   private void cleanUpGameView() {
@@ -868,9 +895,12 @@ public class FrozenBubble extends Activity
             setTargetModeOrientation();
           }
           else if (com.efortin.frozenbubble.OptionsMenus.KEY_MUSIC.equals(key)) {
-            if (myModPlayer != null) {
-              myModPlayer.setMusicOn(getMusicOn());
-            }
+            final boolean on = getMusicOn();
+            music(() -> {
+              if (myModPlayer != null) {
+                myModPlayer.setMusicOn(on);
+              }
+            });
           }
         }
         @Override
@@ -1513,15 +1543,19 @@ public class FrozenBubble extends Activity
         break;
 
       case GAME_PAUSED:
-        if (myModPlayer != null)
-          myModPlayer.pausePlay();
+        music(() -> {
+          if (myModPlayer != null)
+            myModPlayer.pausePlay();
+        });
         break;
 
       case GAME_RESUME:
-        if (myModPlayer == null)
-          playMusic(true);
-        else if (allowUnpause)
-          myModPlayer.unPausePlay();
+        music(() -> {
+          if (myModPlayer == null)
+            playSong(true, false);
+          else if (allowUnpause)
+            myModPlayer.unPausePlay();
+        });
         break;
 
       case GAME_START:
@@ -1544,11 +1578,12 @@ public class FrozenBubble extends Activity
       com.peculiargames.andmodplug.PlayerThread.eventEnum event) {
       switch (event) {
       case SONG_COMPLETED:
-        if (myModPlayer != null) {
-          if (!songsSequential()) {
-            playMusic(true);
+        // From the music player's own thread: hand it to the music thread.
+        music(() -> {
+          if ((myModPlayer != null) && !songsSequential()) {
+            playSong(true, false);
           }
-        }
+        });
         break;
       case PATTERN_CHANGE:
       case PLAYER_STARTED:
@@ -1567,8 +1602,10 @@ public class FrozenBubble extends Activity
     /*
      * Pause the MOD player.
      */
-    if (myModPlayer != null)
-      myModPlayer.pausePlay();
+    music(() -> {
+      if (myModPlayer != null)
+        myModPlayer.pausePlay();
+    });
   }
 
   /**
@@ -1580,8 +1617,8 @@ public class FrozenBubble extends Activity
    * immediately.  Otherwise it is paused and must be unpaused to start
    * playing.
    */
-  private void playMusic(boolean startPlaying) {
-    playSong(startPlaying, false);
+  private void playMusic(final boolean startPlaying) {
+    music(() -> playSong(startPlaying, false));
   }
 
   /**
@@ -1590,13 +1627,15 @@ public class FrozenBubble extends Activity
    * the new song.
    */
   private void nextSong() {
-    if (myModPlayer == null) {
-      return;
-    }
-    if (songsSequential()) {
-      songSkip++;
-    }
-    playSong(true, true);
+    music(() -> {
+      if (myModPlayer == null) {
+        return;
+      }
+      if (songsSequential()) {
+        songSkip++;
+      }
+      playSong(true, true);
+    });
   }
 
   /**
@@ -1621,13 +1660,14 @@ public class FrozenBubble extends Activity
      * game, or if the game thread has been destroyed, the song is
      * selected at random.  A skip moves on to the next song in the list.
      */
-    boolean sequential = songsSequential();
+    GameThread game       = mGameThread;   // may be cleared meanwhile
+    boolean    sequential = !arcadeGame && (game != null) && (numPlayers == 1);
     int index;
     if (skip && (lastSongIndex >= 0)) {
       index = (lastSongIndex + 1) % count;
     }
     else if (sequential) {
-      index = (mGameThread.getCurrentLevelIndex() + songSkip) % count;
+      index = (game.getCurrentLevelIndex() + songSkip) % count;
     }
     else {
       index = new Random().nextInt(count);
@@ -1913,9 +1953,12 @@ public class FrozenBubble extends Activity
             break;
           case 1:
             setMusicOn(isChecked);
-            if (myModPlayer != null) {
-              myModPlayer.setMusicOn(isChecked);
-            }
+            final boolean on = isChecked;
+            music(() -> {
+              if (myModPlayer != null) {
+                myModPlayer.setMusicOn(on);
+              }
+            });
             prefsUpdated = true;
             break;
         }
