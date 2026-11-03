@@ -66,7 +66,8 @@ public abstract class GameScreen {
     GAME_RESUME,
     GAME_START,
     GAME_EXIT,
-    NEXT_SONG;
+    NEXT_SONG,
+    PACK_COMPLETE;   // the last level of a Puzzle pack was won
   }
 
   public static enum gameEnum {

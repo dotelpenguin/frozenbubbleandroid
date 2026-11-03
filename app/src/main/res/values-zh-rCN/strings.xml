@@ -232,7 +232,8 @@
   <string name="pack_medium">中等</string>
   <string name="pack_hard">困难</string>
   <string name="pack_pictures">图案</string>
-  <string name="pack_complete">%1$s 关卡包已完成！从第 1 关重新开始。</string>
+  <string name="pack_done">关卡包完成！</string>
+  <string name="next_pack">下一个关卡包</string>
   <string name="pack_title_level">%1$s – 第 %2$d 关</string>
   <string name="pack_caption">关卡包</string>
   <string name="restart_level">重新开始本关</string>

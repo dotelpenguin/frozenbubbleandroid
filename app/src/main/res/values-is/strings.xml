@@ -235,7 +235,8 @@
   <string name="pack_medium">Miðlungs</string>
   <string name="pack_hard">Erfitt</string>
   <string name="pack_pictures">Myndir</string>
-  <string name="pack_complete">Pakkinn %1$s er búinn! Aftur á borð 1.</string>
+  <string name="pack_done">Pakkinn er búinn!</string>
+  <string name="next_pack">Næsti pakki</string>
   <string name="pack_title_level">%1$s – Borð %2$d</string>
   <string name="pack_caption">Borðapakki</string>
   <string name="restart_level">Byrja borðið aftur</string>

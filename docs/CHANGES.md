@@ -64,6 +64,8 @@ Java packages keep their original names (the Gradle `namespace`).
 - **Effects** (Options > Effects, each on or off): pop sparkles,
   falling fade, impact wobble, screen shake, shot trail, aiming guide,
   vibration.  The drawing effects need GPU Rendering.
+- The pause button is at the bottom right, on the igloo (at the bottom
+  left the level sign and score hid it).
 - In-game score in a crisp outlined font on a wooden sign, with
   "+points" pop-ups and "COMBO xN!" flashes.
 
@@ -119,7 +121,9 @@ Java packages keep their original names (the Gradle `namespace`).
   ◀ ▶ arrows under the title switch packs.  Each pack keeps its own progress
   and best scores.  See [LEVEL_PACKS.md](LEVEL_PACKS.md).
 - Winning a level goes straight to the next one (no score screen in
-  between).  Finishing a pack starts it again at level 1.
+  between).  Finishing a pack, any pack, shows **Pack Complete!** with
+  Next Pack, Play Again, Choose Level and Quit (the credits no longer
+  play after the Original pack; they are in Options).
 - **Reset Progress** in Options.
 - Fixed: a crash after the last level of a pack.
 

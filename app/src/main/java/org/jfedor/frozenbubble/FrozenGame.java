@@ -223,8 +223,7 @@ public class FrozenGame extends GameScreen {
      * Create objects for all the game graphics.
      */
     if (pauseButton_arg != null) {
-      pauseButtonSprite = new ImageSprite(new Rect(167, 444, 32, 32),
-                                          pauseButton_arg);
+      pauseButtonSprite = new ImageSprite(pauseButtonRect(), pauseButton_arg);
       this.addSprite(pauseButtonSprite);
     }
     else {
@@ -232,8 +231,7 @@ public class FrozenGame extends GameScreen {
     }
 
     if (playButton_arg != null) {
-      playButtonSprite = new ImageSprite(new Rect(167, 444, 32, 32),
-                                         playButton_arg);
+      playButtonSprite = new ImageSprite(pauseButtonRect(), playButton_arg);
     }
     else {
       playButtonSprite  = null;
@@ -676,6 +674,15 @@ public class FrozenGame extends GameScreen {
    * it all: Easy x1, Normal x1.5, Medium x2, Hard x2.5, Insane x3.
    */
   public static final int COMBO_MAX     = 5;   // x3
+
+  /*
+   * The pause / play button.  1 player: bottom right, on the igloo (at
+   * the bottom left the level sign covered it), mirroring the back
+   * button at the top right.  2 player: where it always was.
+   */
+  public static final int PAUSE_BUTTON_X    = 447;
+  public static final int PAUSE_BUTTON_Y    = 444;
+  public static final int PAUSE_BUTTON_2P_X = 167;
   /** How long the "+points" and combo texts show, in game steps. */
   public static final int SCORE_FX_TIME = 30;
 
@@ -881,6 +888,12 @@ public class FrozenGame extends GameScreen {
   public void pause() {
     this.removeSprite(pausedSprite);
     this.addSprite(pausedSprite);
+  }
+
+  /** Where the pause / play button goes (x, y, width, height). */
+  private Rect pauseButtonRect() {
+    return new Rect((malusBar != null) ? PAUSE_BUTTON_2P_X : PAUSE_BUTTON_X,
+                    PAUSE_BUTTON_Y, 32, 32);
   }
 
   /** Whether the "paused" panel covers the board. */
@@ -1436,19 +1449,23 @@ public class FrozenGame extends GameScreen {
     bubbleManager.restoreState(map, player);
     int pauseButtonId =
         map.getInt(String.format("%d-pauseButtonId", player));
-    if (pauseButtonId < 1) {
+    // Sprite ids start at 0 (the pause button is usually sprite 0).
+    if (pauseButtonId < 0) {
       pauseButtonSprite = null;
     }
     else {
       pauseButtonSprite = (ImageSprite) savedSprites.elementAt(pauseButtonId);
+      // Games saved before the button moved: put it in its new place.
+      pauseButtonSprite.changeSpriteArea(pauseButtonRect());
     }
     int playButtonId =
         map.getInt(String.format("%d-playButtonId", player));
-    if (playButtonId < 1) {
+    if (playButtonId < 0) {
       playButtonSprite = null;
     }
     else {
       playButtonSprite = (ImageSprite) savedSprites.elementAt(playButtonId);
+      playButtonSprite.changeSpriteArea(pauseButtonRect());
     }
     fixedBubbles   = map.getInt(String.format("%d-fixedBubbles", player));
     nbBubbles      = map.getInt(String.format("%d-nbBubbles", player));

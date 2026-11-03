@@ -598,8 +598,11 @@ public class GameView extends SurfaceView
     public static final int    NEXT_SONG_2P_P1_X          = 0;
     public static final int    NEXT_SONG_2P_P2_X          = 606;
     public static final int    NEXT_SONG_2P_Y             = 0;
-    public static final int    PAUSE_TOUCH_X              = 183;
-    public static final int    PAUSE_TOUCH_Y              = 460;
+    // The middle of the pause / play button (see FrozenGame).
+    public static final int    PAUSE_TOUCH_X              = FrozenGame.PAUSE_BUTTON_X + 16;
+    public static final int    PAUSE_TOUCH_2P_X           = FrozenGame.PAUSE_BUTTON_2P_X + 16;
+    public static final int    PAUSE_TOUCH_Y              = FrozenGame.PAUSE_BUTTON_Y + 16;
+    public static final double PAUSE_TOUCH_THRESHOLD      = 20;
     public static final double TRACKBALL_COEFFICIENT      = 5;
     public static final double TOUCH_BUTTON_THRESHOLD     = 16;
     public static final double TOUCH_FIRE_Y_THRESHOLD     = 380;
@@ -1038,7 +1041,10 @@ public class GameView extends SurfaceView
       mGameLostOrig = loadArt(res, R.drawable.lose_panel_hd, R.drawable.lose_panel, options);
       mGamePausedOrig = loadArt(res, R.drawable.pause_panel_hd, R.drawable.pause_panel, options);
       mHurryOrig = loadArt(res, R.drawable.hurry_hd, R.drawable.hurry, options);
-      mPauseButtonOrig = null;
+      // The pause icon too: the original 1 player game only showed the
+      // play icon (while paused), so there was nothing to see or tap.
+      mPauseButtonOrig = BitmapFactory.decodeResource(
+          res, art(R.drawable.pause_button_hd, R.drawable.pause_button), options);
       mPlayButtonOrig = BitmapFactory.decodeResource(
           res, art(R.drawable.play_button_hd, R.drawable.play_button), options);
       mPenguinsOrig = loadArt(res, R.drawable.penguins_hd, R.drawable.penguins, options);
@@ -1081,7 +1087,7 @@ public class GameView extends SurfaceView
       mGameLost       = NewBmpWrap();
       mGamePaused     = NewBmpWrap();
       mHurry          = NewBmpWrap();
-      mPauseButton    = null;
+      mPauseButton    = NewBmpWrap();
       mPlayButton     = NewBmpWrap();
       mPenguins       = NewBmpWrap();
       mPenguins2      = null;
@@ -1562,8 +1568,9 @@ public class GameView extends SurfaceView
        * that aren't on the pause button sprite.
        */
       if (event.getAction() == MotionEvent.ACTION_DOWN) {
-        if ((Math.abs(x - PAUSE_TOUCH_X) <= TOUCH_BUTTON_THRESHOLD) &&
-            (Math.abs(y - PAUSE_TOUCH_Y) <= TOUCH_BUTTON_THRESHOLD)) {
+        int pauseTouchX = (numPlayers > 1) ? PAUSE_TOUCH_2P_X : PAUSE_TOUCH_X;
+        if ((Math.abs(x - pauseTouchX) <= PAUSE_TOUCH_THRESHOLD) &&
+            (Math.abs(y - PAUSE_TOUCH_Y) <= PAUSE_TOUCH_THRESHOLD)) {
           toggleKeyPress(KeyEvent.KEYCODE_P, false, true);
         }
         else if (toggleKeyState(KeyEvent.KEYCODE_P)) {
@@ -2393,6 +2400,16 @@ public class GameView extends SurfaceView
     public void playSound(String id, int resId) {
       if (mSoundManager != null) {
         mSoundManager.playSound(id, resId);
+      }
+    }
+
+    /** Play the pack again from level 1 (after "Pack Complete!"). */
+    public void playPackAgain() {
+      synchronized(mSurfaceHolder) {
+        setState(stateEnum.RUNNING);
+      }
+      if (mGameListener != null) {
+        mGameListener.onGameEvent(eventEnum.GAME_START);
       }
     }
 
@@ -3401,6 +3418,7 @@ public class GameView extends SurfaceView
       }
 
       boolean startedNextLevel = false;   // a Puzzle level was won
+      boolean packComplete     = false;   // ... and it was the pack's last
       boolean actionLeft;
       boolean actionRight;
       boolean actionUp;
@@ -3581,9 +3599,14 @@ public class GameView extends SurfaceView
           game1Status = gameEnum.WON;
           nextLevel();
           if (getCurrentLevelIndex() == 0) {
-            pause();
+            // The last level of the pack: wait while the activity shows
+            // "Pack Complete!" (Next Pack, Play Again, Choose Level, Quit).
+            pauseForGameOver();
+            packComplete = true;
           }
-          startedNextLevel = true;
+          else {
+            startedNextLevel = true;
+          }
         }
         else {
           game1Status = gameEnum.LOST;
@@ -3600,6 +3623,9 @@ public class GameView extends SurfaceView
         }
         if (startedNextLevel) {
           mGameListener.onGameEvent(eventEnum.GAME_START);
+        }
+        if (packComplete) {
+          mGameListener.onGameEvent(eventEnum.PACK_COMPLETE);
         }
       }
     }

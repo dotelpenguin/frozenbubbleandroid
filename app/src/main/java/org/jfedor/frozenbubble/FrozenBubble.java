@@ -120,7 +120,6 @@ import com.efortin.frozenbubble.HomeScreen;
 import com.efortin.frozenbubble.ModPlayer;
 import com.efortin.frozenbubble.Preferences;
 import com.efortin.frozenbubble.PreferencesActivity;
-import com.efortin.frozenbubble.ScrollingCredits;
 import com.efortin.frozenbubble.VirtualInput;
 import com.peculiargames.andmodplug.PlayerThread;
 import com.peculiargames.andmodplug.PlayerThread.PlayerListener;
@@ -1116,6 +1115,80 @@ public class FrozenBubble extends Activity
     dialog.show();
   }
 
+  /**
+   * The last level of a Puzzle pack was won (any pack; the game is
+   * already back at its level 1): Next Pack, Play Again, Choose Level
+   * or Quit.  Back quits.
+   */
+  private void showPackComplete() {
+    if ((mGameThread == null) || isFinishing()) {
+      return;
+    }
+    final String pack = com.efortin.frozenbubble.LevelPacks.current(this);
+    java.util.List<String> ids = com.efortin.frozenbubble.LevelPacks.ids(this);
+    int at = ids.indexOf(pack);
+    final String next = ((at >= 0) && ((at + 1) < ids.size())) ?
+                        ids.get(at + 1) : null;
+    setMenuDim(true);
+    final AlertDialog dialog = new AlertDialog.Builder(FrozenBubble.this).create();
+    android.view.View content = com.efortin.frozenbubble.ArcadeSummary.packComplete(
+        this, com.efortin.frozenbubble.LevelPacks.name(this, pack),
+        (next == null) ? null : com.efortin.frozenbubble.LevelPacks.name(this, next),
+        new com.efortin.frozenbubble.ArcadeSummary.PackHost() {
+      @Override
+      public void nextPack() {
+        dialog.dismiss();
+        setMenuDim(false);
+        // This pack starts again at level 1 next time; the next pack
+        // carries on where its progress left off.
+        selectPuzzleLevel(FrozenBubble.this, 0);
+        com.efortin.frozenbubble.LevelPacks.setCurrent(FrozenBubble.this, next);
+        startPuzzleLevel();
+      }
+      @Override
+      public void playAgain() {
+        dialog.dismiss();
+        setMenuDim(false);
+        if (mGameThread != null) {
+          mGameThread.playPackAgain();
+        }
+      }
+      @Override
+      public void chooseLevel() {
+        dialog.dismiss();
+        // Back from Choose Level comes back here.
+        chooseLevelInGame(FrozenBubble.this::showPackComplete);
+      }
+      @Override
+      public void quit() {
+        dialog.dismiss();
+        autoSave();
+        exit(true);
+      }
+      @Override
+      public void applause() {
+        if (mGameThread != null) {
+          mGameThread.playSound("applause", R.raw.applause);
+        }
+      }
+    });
+    android.widget.ScrollView scroll = new android.widget.ScrollView(this);
+    scroll.addView(content);
+    dialog.setView(scroll);
+    dialog.setOnCancelListener(d -> {   // Back
+      autoSave();
+      exit(true);
+    });
+    dialog.setCanceledOnTouchOutside(false);
+    if (dialog.getWindow() != null) {
+      dialog.getWindow().setBackgroundDrawable(
+          new android.graphics.drawable.ColorDrawable(
+              android.graphics.Color.TRANSPARENT));
+      centerOverDimmedGame(dialog.getWindow());
+    }
+    dialog.show();
+  }
+
   private void exitGameDialog() {
     /*
      * Resume, Options and Quit (which always saves) as a column of buttons in
@@ -1453,54 +1526,12 @@ public class FrozenBubble extends Activity
 
       case GAME_START:
         gameOver = false;
-        if (!arcadeGame && (mGameView != null) && (mGameThread != null) &&
-            (numPlayers == 1)) {
-          if ((mGameThread.getCurrentLevelIndex() == 0) &&
-              !com.efortin.frozenbubble.LevelPacks.isOriginal(com.efortin.frozenbubble.LevelPacks.current(this))) {
-            // The end of a level pack: it starts again at level 1.  (The
-            // credits are for finishing the Original levels.)
-            // This event comes from the game thread, which can't show a
-            // toast (that crashed): show it on the UI thread.
-            final String done = getString(R.string.pack_complete,
-                com.efortin.frozenbubble.LevelPacks.name(this,
-                    com.efortin.frozenbubble.LevelPacks.current(this)));
-            runOnUiThread(() -> android.widget.Toast.makeText(
-                FrozenBubble.this, done, android.widget.Toast.LENGTH_LONG).show());
-          }
-          else if (mGameThread.getCurrentLevelIndex() == 0) {
-            // The end of the Original levels: the credits (on the UI
-            // thread, as this event comes from the game thread).
-            runOnUiThread(() -> {
-              /*
-               * Destroy the current music player, which will free audio
-               * stream resources and allow the system to use them.
-               */
-              if (myModPlayer != null)
-                myModPlayer.destroyMusicPlayer();
-              myModPlayer = null;
-              /*
-               * Clear the game screen and suspend input processing for
-               * three seconds.
-               *
-               * Afterwards,  the "About" screen will be displayed as a
-               * backup just in case anything goes awry with displaying
-               * the end-of-game credits.  It will be displayed after the
-               * user touches the screen when the credits are finished.
-               */
-              if (mGameView != null) {
-                mGameView.clearGameScreen(true, 3000);
-              }
-              /*
-               * Create an intent to launch the activity to display the
-               * credits screen.
-               */
-              Intent intent = new Intent(FrozenBubble.this, ScrollingCredits.class);
-              startActivity(intent);
-            });
-            break;
-          }
-        }
         playMusic(true);
+        break;
+
+      case PACK_COMPLETE:
+        // From the game thread: show the popup on the UI thread.
+        runOnUiThread(this::showPackComplete);
         break;
 
       default:

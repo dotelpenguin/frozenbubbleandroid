@@ -50,6 +50,15 @@ public final class ArcadeSummary {
     void applause();
   }
 
+  /** What the game provides to the "Pack Complete!" popup. */
+  public interface PackHost {
+    void nextPack();
+    void playAgain();
+    void chooseLevel();
+    void quit();
+    void applause();
+  }
+
   private static Typeface sTitleFont = null;
 
   /** Luckiest Guy (assets/fonts), the lettering of the "HD" logo. */
@@ -184,6 +193,69 @@ public final class ArcadeSummary {
       }
     });
     count.start();
+    return root;
+  }
+
+  /**
+   * "Pack Complete!": the pack's name in a big bubble, with a burst of
+   * sparkles and applause, then Next Pack (when there is one), Play
+   * Again, Choose Level and Quit.
+   * @param nextName - the next pack's name, or null for none.
+   */
+  public static View packComplete(final Activity activity, String packName,
+                                  String nextName, final PackHost host) {
+    final float dp = activity.getResources().getDisplayMetrics().density;
+    Typeface lg = titleFont(activity);
+
+    LinearLayout root = new LinearLayout(activity);
+    root.setOrientation(LinearLayout.VERTICAL);
+    root.setGravity(Gravity.CENTER_HORIZONTAL);
+    int pad = (int) (8 * dp);
+    root.setPadding(pad, pad, pad, pad);
+
+    root.addView(text(activity, activity.getString(R.string.pack_done),
+                      36, lg, 0xFFFFF6E1, 0xFF142864));
+
+    FrameLayout big = new FrameLayout(activity);
+    int bigSize = (int) (230 * dp);
+    final SparkleView sparkles = new SparkleView(activity);
+    big.addView(sparkles, new FrameLayout.LayoutParams(bigSize, bigSize));
+    ImageView bubble = new ImageView(activity);
+    bubble.setImageResource(R.drawable.bubble_5_hd);
+    bubble.setScaleType(ImageView.ScaleType.FIT_CENTER);
+    int bubbleSize = (int) (170 * dp);
+    big.addView(bubble, new FrameLayout.LayoutParams(bubbleSize, bubbleSize,
+                                                     Gravity.CENTER));
+    TextView name = text(activity, packName, 30, lg, Color.WHITE, 0xFF5A2800);
+    name.setMaxWidth((int) (150 * dp));
+    big.addView(name, new FrameLayout.LayoutParams(bubbleSize, bubbleSize,
+                                                   Gravity.CENTER));
+    root.addView(big, new LinearLayout.LayoutParams(bigSize, bigSize));
+
+    java.util.List<Button> buttons = new java.util.ArrayList<Button>();
+    if (nextName != null) {
+      buttons.add(MenuButtons.create(activity, R.string.next_pack,
+                                     v -> host.nextPack()));
+    }
+    buttons.add(MenuButtons.create(activity, R.string.play_again,
+                                   v -> host.playAgain()));
+    buttons.add(MenuButtons.create(activity, R.string.level_select_title,
+                                   v -> host.chooseLevel()));
+    buttons.add(MenuButtons.create(activity, R.string.quit, v -> host.quit()));
+    for (Button b : buttons) {
+      OptionsMenus.widen(b);
+    }
+    root.addView(MenuButtons.column(activity, buttons.toArray(new Button[0])));
+
+    // The pack's name pops in, then sparkles and applause.
+    name.setScaleX(0f);
+    name.setScaleY(0f);
+    name.animate().scaleX(1f).scaleY(1f).setStartDelay(250).setDuration(400)
+        .setInterpolator(new OvershootInterpolator(2.5f))
+        .withEndAction(() -> {
+          sparkles.burst();
+          host.applause();
+        }).start();
     return root;
   }
 

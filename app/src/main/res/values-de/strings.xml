@@ -235,7 +235,8 @@
   <string name="pack_medium">Mittel</string>
   <string name="pack_hard">Schwer</string>
   <string name="pack_pictures">Bilder</string>
-  <string name="pack_complete">Paket „%1$s“ geschafft! Weiter mit Level 1.</string>
+  <string name="pack_done">Paket geschafft!</string>
+  <string name="next_pack">Nächstes Paket</string>
   <string name="pack_title_level">%1$s – Level %2$d</string>
   <string name="pack_caption">Level-Paket</string>
   <string name="restart_level">Level neu starten</string>

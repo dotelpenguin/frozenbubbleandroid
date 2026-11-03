@@ -235,7 +235,8 @@
   <string name="pack_medium">Médio</string>
   <string name="pack_hard">Difícil</string>
   <string name="pack_pictures">Desenhos</string>
-  <string name="pack_complete">Pacote %1$s concluído! Voltando ao nível 1.</string>
+  <string name="pack_done">Pacote concluído!</string>
+  <string name="next_pack">Próximo pacote</string>
   <string name="pack_title_level">%1$s – Nível %2$d</string>
   <string name="pack_caption">Pacote de níveis</string>
   <string name="restart_level">Reiniciar nível</string>
