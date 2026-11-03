@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- High Scores > Stats (Stats.java, HighScores.java). -->
+<resources>
+  <string name="hs_tab_stats">Tölfræði</string>
+  <string name="st_games">Leikir</string>
+  <string name="st_time">Spilatími</string>
+  <string name="st_cleared">Kúlur hreinsaðar</string>
+  <string name="st_accuracy">Hittni</string>
+  <string name="st_won_lost">%1$s unnin · %2$s töpuð</string>
+  <string name="st_levels">Borð</string>
+  <string name="st_best_score">Besta skor</string>
+  <string name="st_biggest_drop">Stærsta fall</string>
+  <string name="st_best_combo">Besta runa</string>
+  <string name="st_reset">Endurstilla</string>
+  <string name="st_reset_q">Endurstilla alla tölfræði? Stigataflan og framvinda í borðum haldast.</string>
+  <string name="st_time_h">%1$d klst. %2$02d mín.</string>
+  <string name="st_time_m">%1$d mín.</string>
+</resources>

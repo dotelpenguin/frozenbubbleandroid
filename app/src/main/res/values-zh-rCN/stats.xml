@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- High Scores > Stats (Stats.java, HighScores.java). -->
+<resources>
+  <string name="hs_tab_stats">统计</string>
+  <string name="st_games">局数</string>
+  <string name="st_time">游戏时长</string>
+  <string name="st_cleared">消除泡泡</string>
+  <string name="st_accuracy">命中率</string>
+  <string name="st_won_lost">胜 %1$s · 负 %2$s</string>
+  <string name="st_levels">关卡</string>
+  <string name="st_best_score">最高分</string>
+  <string name="st_biggest_drop">最多掉落</string>
+  <string name="st_best_combo">最佳连击</string>
+  <string name="st_reset">重置统计</string>
+  <string name="st_reset_q">重置所有统计？高分榜和关卡进度会保留。</string>
+  <string name="st_time_h">%1$d 小时 %2$02d 分</string>
+  <string name="st_time_m">%1$d 分钟</string>
+</resources>

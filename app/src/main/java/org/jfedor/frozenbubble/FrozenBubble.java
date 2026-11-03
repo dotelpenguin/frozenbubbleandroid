@@ -415,6 +415,7 @@ public class FrozenBubble extends Activity
     //  Log.i(TAG, "FrozenBubble.onCreate(null)");
     //}
     super.onCreate(savedInstanceState);
+    com.efortin.frozenbubble.Stats.init(this);
     BackKey.handle(this, this::backPressed);
     setVolumeControlStream(AudioManager.STREAM_MUSIC);
     requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -504,6 +505,7 @@ public class FrozenBubble extends Activity
     //Log.i(TAG, "FrozenBubble.onPause()");
     super.onPause();
     pause();
+    com.efortin.frozenbubble.Stats.save();
     /*
      * Leaving the game any way (Home, switching apps, screen off) saves
      * it, so it survives the app being closed; Continue resumes it.

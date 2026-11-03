@@ -1432,6 +1432,7 @@ public class HomeScreen extends Activity {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     BackKey.handle(this, this::backKeyPress);
+    Stats.init(this);
     shownLanguage = LocaleHelper.getLanguage(this);
     finished = false;
     restoreGamePrefs();

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- High Scores > Stats (Stats.java, HighScores.java). -->
+<resources>
+  <string name="hs_tab_stats">Stats</string>
+  <string name="st_games">Games</string>
+  <string name="st_time">Time played</string>
+  <string name="st_cleared">Bubbles cleared</string>
+  <string name="st_accuracy">Accuracy</string>
+  <string name="st_won_lost">%1$s won · %2$s lost</string>
+  <string name="st_levels">Levels</string>
+  <string name="st_best_score">Best score</string>
+  <string name="st_biggest_drop">Biggest drop</string>
+  <string name="st_best_combo">Best combo</string>
+  <string name="st_reset">Reset Stats</string>
+  <string name="st_reset_q">Reset all stats? High scores and level progress are kept.</string>
+  <string name="st_time_h">%1$d h %2$02d min</string>
+  <string name="st_time_m">%1$d min</string>
+</resources>

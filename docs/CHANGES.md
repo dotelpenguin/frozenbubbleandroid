@@ -10,7 +10,8 @@ Everything below was added from October 2026 onwards.  To see it all in git:
     git diff --stat c3ac715 HEAD
 
 Version: the original was 4.4 (code 54); Frozen Bubble HD starts again at
-**1.0 (code 1)**, as a new app; 1.1 (code 2) adds AdLib (.rol) songs.  The app is now
+**1.0 (code 1)**, as a new app; 1.1 (code 2) adds AdLib (.rol) songs; 1.2 (code 3) adds the frozen
+Arcade row, Pack Complete, Help & About and Stats.  The app is now
 **Frozen Bubble HD**, with its own application ID,
 `io.github.dotelpenguin.frozenbubblehd` (was `org.jfedor.frozenbubble`),
 so it installs beside the original rather than over it.  It starts with
@@ -174,6 +175,12 @@ Java packages keep their original names (the Gradle `namespace`).
   CPU, then fewest shots, then fastest).  Scores use
   thin spaces (12 345) instead of commas.  Puzzle best scores show per
   level in Choose Level.
+- **Stats** tab on High Scores: games played, time played, bubbles
+  cleared and accuracy in big bubbles; Puzzle levels won and lost and
+  each pack's progress (with a bar); Arcade games, best score, biggest
+  drop and best combo; 2 Player wins and losses against the CPU, locally
+  and over Wi-Fi / Bluetooth.  Only your own play counts.  Reset Stats
+  clears them (scores and level progress are kept).
 - The scores database gained a points column (version 2); old Arcade
   scores, which counted something different, were cleared.
 

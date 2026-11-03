@@ -51,6 +51,7 @@ public class HighScores {
 
   private static final int TAB_ARCADE = 0;
   private static final int TAB_CPU    = 1;
+  private static final int TAB_STATS  = 2;
   private static final int ARCADE_TOP = 10;
 
   /**
@@ -82,6 +83,7 @@ public class HighScores {
     this.click     = click;
     this.showPopup = showPopup;
     this.dp       = activity.getResources().getDisplayMetrics().density;
+    Stats.init(activity);
   }
 
   /*
@@ -149,7 +151,8 @@ public class HighScores {
     LinearLayout tabRow = new LinearLayout(activity);
     tabRow.setOrientation(LinearLayout.HORIZONTAL);
     tabRow.setGravity(Gravity.CENTER);
-    int[] names = { R.string.home_arcade, R.string.hs_tab_cpu };
+    int[] names = { R.string.home_arcade, R.string.hs_tab_cpu,
+                    R.string.hs_tab_stats };
     tabs = new Button[names.length];
     for (int i = 0; i < names.length; i++) {
       final int which = i;
@@ -160,7 +163,7 @@ public class HighScores {
       });
       tabs[i].setTextSize(android.util.TypedValue.COMPLEX_UNIT_DIP, 16);
       tabs[i].setSingleLine(true);
-      tabs[i].setWidth((int) (tabs[i].getTextSize() * 8.5f));
+      tabs[i].setWidth((int) (tabs[i].getTextSize() * 6.5f));
       tabRow.addView(tabs[i]);
     }
     box.addView(tabRow);
@@ -206,7 +209,11 @@ public class HighScores {
       tabs[i].setAlpha((i == tab) ? 1f : 0.5f);
     }
     content.removeAllViews();
-    // Both tabs: the top 3 on a podium, then places 4 to 10.
+    if (tab == TAB_STATS) {
+      content.addView(statsView());
+      return;
+    }
+    // The score tabs: the top 3 on a podium, then places 4 to 10.
     View board = (tab == TAB_CPU)
         ? leaderboard(HighscoreManager.MULTIPLAYER_DATABASE_NAME, CPU_ORDER,
                       hi -> time(hi.getTime()))
@@ -375,6 +382,219 @@ public class HighScores {
     lp.setMargins(0, (int) (3 * dp), 0, (int) (3 * dp));
     row.setLayoutParams(lp);
     return row;
+  }
+
+  /*
+   * The Stats tab: four headline bubbles, then a few lines per mode, the
+   * level packs' progress, and Reset Stats.
+   */
+
+  private View statsView() {
+    LinearLayout box = new LinearLayout(activity);
+    box.setOrientation(LinearLayout.VERTICAL);
+    box.setGravity(Gravity.CENTER_HORIZONTAL);
+
+    long shots  = Stats.get(Stats.SHOTS);
+    long clears = Stats.get(Stats.CLEARS);
+    LinearLayout tiles = new LinearLayout(activity);
+    tiles.setOrientation(LinearLayout.HORIZONTAL);
+    tiles.setGravity(Gravity.CENTER_HORIZONTAL);
+    tiles.addView(tile(R.drawable.bubble_3_hd, count(Stats.gamesPlayed()),
+                       R.string.st_games));
+    tiles.addView(tile(R.drawable.bubble_8_hd, playTime(Stats.get(Stats.TIME_MS)),
+                       R.string.st_time));
+    tiles.addView(tile(R.drawable.bubble_7_hd,
+                       count(Stats.get(Stats.POPPED) + Stats.get(Stats.DROPPED)),
+                       R.string.st_cleared));
+    tiles.addView(tile(R.drawable.bubble_4_hd,
+                       (shots > 0) ? Math.round(100.0 * clears / shots) + "%" : "–",
+                       R.string.st_accuracy));
+    box.addView(tiles);
+
+    // Puzzle: levels won and lost, then each pack's progress.
+    box.addView(heading(R.string.home_puzzle));
+    box.addView(statRow(activity.getString(R.string.st_levels),
+                        wonLost(Stats.PUZZLE_WON, Stats.PUZZLE_LOST)));
+    for (String pack : LevelPacks.ids(activity)) {
+      box.addView(packRow(pack));
+    }
+
+    // Arcade.
+    box.addView(heading(R.string.home_arcade));
+    box.addView(statRow(activity.getString(R.string.st_games),
+                        count(Stats.get(Stats.ARCADE_GAMES))));
+    long best = 0;
+    for (HighscoreDO hi : loadAll(activity, HighscoreManager.ARCADE_DATABASE_NAME)) {
+      best = Math.max(best, hi.getScore());
+    }
+    box.addView(statRow(activity.getString(R.string.st_best_score),
+                        (best > 0) ? points(best) : "–"));
+    long drop = Stats.get(Stats.BIGGEST_DROP);
+    box.addView(statRow(activity.getString(R.string.st_biggest_drop),
+                        (drop > 0) ? count(drop) : "–"));
+    long combo = Stats.get(Stats.BEST_COMBO);
+    box.addView(statRow(activity.getString(R.string.st_best_combo),
+                        (combo > 1) ? "×" + half((int) combo + 1) : "–"));
+
+    // 2 Player.
+    box.addView(heading(R.string.home_2player));
+    box.addView(statRow(activity.getString(R.string.home_vs_cpu),
+                        wonLost(Stats.CPU_WON, Stats.CPU_LOST)));
+    box.addView(statRow(activity.getString(R.string.home_local),
+                        wonLost(Stats.LOCAL_WON, Stats.LOCAL_LOST)));
+    box.addView(statRow(activity.getString(R.string.home_wifi) + " / " +
+                        activity.getString(R.string.home_bluetooth),
+                        wonLost(Stats.NET_WON, Stats.NET_LOST)));
+
+    Button reset = MenuButtons.create(activity, R.string.st_reset, v -> {
+      click.run();
+      new AlertDialog.Builder(activity)
+          .setMessage(R.string.st_reset_q)
+          .setPositiveButton(R.string.st_reset, (d, w) -> {
+            Stats.reset();
+            render();
+          })
+          .setNegativeButton(R.string.cancel, null)
+          .show();
+    });
+    OptionsMenus.widen(reset);
+    LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.WRAP_CONTENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT);
+    rlp.topMargin = (int) (12 * dp);
+    box.addView(MenuButtons.column(activity, reset), rlp);
+    return box;
+  }
+
+  /** A headline number in a bubble, its name under it. */
+  private View tile(int bubbleId, String value, int labelId) {
+    LinearLayout cell = new LinearLayout(activity);
+    cell.setOrientation(LinearLayout.VERTICAL);
+    cell.setGravity(Gravity.CENTER_HORIZONTAL);
+    int size = (int) (66 * dp);
+    android.widget.FrameLayout f = new android.widget.FrameLayout(activity);
+    android.widget.ImageView b = new android.widget.ImageView(activity);
+    b.setImageResource(bubbleId);
+    b.setScaleType(android.widget.ImageView.ScaleType.FIT_CENTER);
+    f.addView(b, new android.widget.FrameLayout.LayoutParams(size, size));
+    TextView v = label(value, (value.length() > 6) ? 12 : 15,
+                       Typeface.DEFAULT_BOLD, Color.WHITE);
+    v.setSingleLine(true);
+    f.addView(v, new android.widget.FrameLayout.LayoutParams(size, size,
+                                                            Gravity.CENTER));
+    cell.addView(f, new LinearLayout.LayoutParams(size, size));
+    TextView name = label(activity.getString(labelId), 12, Typeface.DEFAULT_BOLD,
+                          Color.WHITE);
+    name.setMaxLines(2);
+    cell.addView(name);
+    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+        (int) (80 * dp), LinearLayout.LayoutParams.WRAP_CONTENT);
+    lp.setMargins((int) (1 * dp), (int) (4 * dp), (int) (1 * dp), (int) (4 * dp));
+    cell.setLayoutParams(lp);
+    return cell;
+  }
+
+  private TextView heading(int textId) {
+    TextView t = label(activity.getString(textId), 18,
+                       ArcadeSummary.titleFont(activity), 0xFFFFF6E1);
+    t.setPadding(0, (int) (10 * dp), 0, (int) (2 * dp));
+    return t;
+  }
+
+  /** A line: a name on the left, its value on the right. */
+  private LinearLayout statRow(String name, String value) {
+    LinearLayout row = new LinearLayout(activity);
+    row.setOrientation(LinearLayout.HORIZONTAL);
+    row.setGravity(Gravity.CENTER_VERTICAL);
+    android.graphics.drawable.GradientDrawable bg =
+        new android.graphics.drawable.GradientDrawable();
+    bg.setCornerRadius(18 * dp);
+    bg.setColor(0x28FFFFFF);
+    bg.setStroke((int) (1.5f * dp), 0x46FFFFFF);
+    row.setBackground(bg);
+    row.setPadding((int) (14 * dp), (int) (6 * dp), (int) (14 * dp),
+                   (int) (6 * dp));
+    TextView n = label(name, 14, Typeface.DEFAULT_BOLD, Color.WHITE);
+    n.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+    n.setSingleLine(true);
+    n.setEllipsize(TextUtils.TruncateAt.END);
+    row.addView(n, new LinearLayout.LayoutParams(0,
+        LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+    TextView v = label(value, 14, Typeface.DEFAULT_BOLD, 0xFFFFE14D);
+    v.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
+    row.addView(v);
+    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+        (int) (316 * dp), LinearLayout.LayoutParams.WRAP_CONTENT);
+    lp.setMargins(0, (int) (3 * dp), 0, (int) (3 * dp));
+    row.setLayoutParams(lp);
+    return row;
+  }
+
+  /** A level pack: its name, levels completed of all, and a bar. */
+  private View packRow(String pack) {
+    int total = LevelPacks.countLevels(activity, pack);
+    java.util.Set<Integer> done = new java.util.HashSet<Integer>();
+    for (HighscoreDO hi : loadAll(activity, LevelPacks.dbName(pack))) {
+      if ((hi.getLevel() >= 0) && (hi.getLevel() < total)) {
+        done.add(hi.getLevel());
+      }
+    }
+    LinearLayout row = statRow(LevelPacks.name(activity, pack),
+                               done.size() + " / " + total);
+    LinearLayout wrap = new LinearLayout(activity);
+    wrap.setOrientation(LinearLayout.VERTICAL);
+    wrap.setLayoutParams(row.getLayoutParams());
+    row.setLayoutParams(new LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT));
+    wrap.addView(row);
+    // The progress bar, under the row.
+    LinearLayout bar = new LinearLayout(activity);
+    bar.setOrientation(LinearLayout.HORIZONTAL);
+    android.graphics.drawable.GradientDrawable track =
+        new android.graphics.drawable.GradientDrawable();
+    track.setCornerRadius(3 * dp);
+    track.setColor(0x33FFFFFF);
+    bar.setBackground(track);
+    View fill = new View(activity);
+    android.graphics.drawable.GradientDrawable f =
+        new android.graphics.drawable.GradientDrawable();
+    f.setCornerRadius(3 * dp);
+    f.setColor(0xFF6FD3FF);
+    fill.setBackground(f);
+    float part = (total > 0) ? (float) done.size() / total : 0f;
+    bar.addView(fill, new LinearLayout.LayoutParams(0, (int) (5 * dp), part));
+    bar.addView(new View(activity), new LinearLayout.LayoutParams(0,
+        (int) (5 * dp), 1f - part));
+    LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT, (int) (5 * dp));
+    blp.setMargins((int) (16 * dp), (int) (2 * dp), (int) (16 * dp), 0);
+    wrap.addView(bar, blp);
+    return wrap;
+  }
+
+  private String wonLost(String wonKey, String lostKey) {
+    return activity.getString(R.string.st_won_lost,
+                              count(Stats.get(wonKey)), count(Stats.get(lostKey)));
+  }
+
+  /** A count with thin spaces, like the scores: "12 345". */
+  private static String count(long n) {
+    return points(n);
+  }
+
+  /** "45 min" or "3 h 05 min". */
+  private String playTime(long millis) {
+    long minutes = Math.max(0, millis) / 60000;
+    return (minutes >= 60)
+        ? activity.getString(R.string.st_time_h, (int) (minutes / 60),
+                             (int) (minutes % 60))
+        : activity.getString(R.string.st_time_m, (int) minutes);
+  }
+
+  /** n / 2 as "1", "1.5", "2"... */
+  private static String half(int n) {
+    return ((n % 2) == 0) ? Integer.toString(n / 2) : (n / 2) + ".5";
   }
 
   private TextView label(String text, int sizeDp, Typeface face, int colour) {

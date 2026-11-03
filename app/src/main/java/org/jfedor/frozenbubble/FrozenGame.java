@@ -714,6 +714,9 @@ public class FrozenGame extends GameScreen {
 
   /** A shot cleared bubbles: popped and dropped, at (x, y). */
   void scoreClear(int popped, int dropped, double x, double y) {
+    if (localPlayer && !endOfGame) {
+      com.efortin.frozenbubble.Stats.clear(popped, dropped);
+    }
     if (!isArcade || endOfGame) {
       return;
     }
@@ -722,6 +725,9 @@ public class FrozenGame extends GameScreen {
     totalPopped  += popped;
     totalDropped += dropped;
     bestCombo     = Math.max(bestCombo, c);
+    if (localPlayer) {
+      com.efortin.frozenbubble.Stats.best(com.efortin.frozenbubble.Stats.BEST_COMBO, c);
+    }
     int d = Math.max(LevelManager.EASY,
                      Math.min(LevelManager.INSANE, levelManager.getLevelIndex()));
     // x (c + 1) / 2 for the combo, x (d - 2) / 2 for the difficulty.
@@ -1018,6 +1024,9 @@ public class FrozenGame extends GameScreen {
       if ((move[FIRE] == KEY_UP) || (hurryTime > HURRY_ME_TIME)) {
         if (getOkToFire()) {
           nbBubbles++;
+          if (localPlayer) {
+            com.efortin.frozenbubble.Stats.add(com.efortin.frozenbubble.Stats.SHOTS, 1);
+          }
           movingBubble = new BubbleSprite(new Rect(302, 390, 32, 32),
                                           launchBubblePosition,
                                           currentColor,

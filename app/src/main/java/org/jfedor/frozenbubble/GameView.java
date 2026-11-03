@@ -75,6 +75,7 @@
 package org.jfedor.frozenbubble;
 
 import com.efortin.frozenbubble.Prefs;
+import com.efortin.frozenbubble.Stats;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -2243,6 +2244,26 @@ public class GameView extends SurfaceView
       }
     }
 
+    /**
+     * Count a 2 player round in the stats, from the local player's side
+     * (player 1 in a game on one phone).
+     */
+    private void countRound(boolean player1Won) {
+      boolean localIsPlayer1 = (mNetworkManager == null) ||
+                               (mLocalInput.playerID == VirtualInput.PLAYER1);
+      boolean won = (player1Won == localIsPlayer1);
+      if (mNetworkManager != null) {
+        Stats.add(won ? Stats.NET_WON : Stats.NET_LOST, 1);
+      }
+      else if (mRemoteInput.isCPU) {
+        Stats.add(won ? Stats.CPU_WON : Stats.CPU_LOST, 1);
+      }
+      else {
+        Stats.add(won ? Stats.LOCAL_WON : Stats.LOCAL_LOST, 1);
+      }
+      Stats.save();
+    }
+
     /** Play the pack again from level 1 (after "Pack Complete!"). */
     public void playPackAgain() {
       synchronized(mSurfaceHolder) {
@@ -2438,6 +2459,7 @@ public class GameView extends SurfaceView
     }
 
     public void pause() {
+      Stats.save();
       synchronized(mSurfaceHolder) {
         if (mMode == stateEnum.RUNNING) {
           setState(stateEnum.PAUSED);
@@ -2631,6 +2653,7 @@ public class GameView extends SurfaceView
                       }
                       tickGameSprites();
                       updateGameState();
+                      Stats.add(Stats.TIME_MS, FRAME_DELAY);
                     }
                   }
                   /*
@@ -3383,13 +3406,15 @@ public class GameView extends SurfaceView
              (!mRemoteInput.isCPU &&
               ((game2State == gameEnum.NEXT_LOST) ||
                (game2State == gameEnum.NEXT_WON))))) {
-          if ((game1State == gameEnum.NEXT_WON) ||
-              (game2State == gameEnum.NEXT_LOST)) {
+          boolean player1Won = (game1State == gameEnum.NEXT_WON) ||
+                               (game2State == gameEnum.NEXT_LOST);
+          if (player1Won) {
             numPlayer1GamesWon++;
           }
           else {
             numPlayer2GamesWon++;
           }
+          countRound(player1Won);
 
           if (mNetworkManager == null) {
             mShowScores = true;
@@ -3406,8 +3431,12 @@ public class GameView extends SurfaceView
           // FrozenBubble.showArcadeSummary()) instead of the score table.
           game1Status = gameEnum.WON;
           pauseForGameOver();
+          Stats.add(Stats.ARCADE_GAMES, 1);
+          Stats.save();
         }
         else if (game1State == gameEnum.NEXT_WON) {
+          Stats.add(Stats.PUZZLE_WON, 1);
+          Stats.save();
           /*
            * Puzzle: straight on to the next level, with no high score
            * screen in between (the best scores show in Choose Level).
@@ -3427,6 +3456,8 @@ public class GameView extends SurfaceView
           }
         }
         else {
+          Stats.add(Stats.PUZZLE_LOST, 1);
+          Stats.save();
           game1Status = gameEnum.LOST;
           newGame(false);
         }
