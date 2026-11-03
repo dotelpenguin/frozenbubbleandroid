@@ -370,6 +370,7 @@ public class FrozenGame extends GameScreen {
           new Rect(columnX[colIdx], 44 - 28 + rowMove, 32, 32),
           color, bubbles[color], bubblesBlind[color], frozenBubbles[color],
           bubbleBlink, bubbleManager, soundManager, this);
+        tempBubble.setIced(true);   // can't be hit until it joins the field
         scrolling[column] = tempBubble;
         this.addSprite(tempBubble);
         this.spriteToBack(tempBubble);
@@ -572,6 +573,18 @@ public class FrozenGame extends GameScreen {
 
   public Random getRandom() {
     return random;
+  }
+
+  /**
+   * Arcade: the extra downward offset (0 to 1 game pixel) to draw the
+   * bubbles fixed in the field with, so the field slides down smoothly
+   * (see Compressor.scrollFraction()).  0 in other modes.
+   */
+  float scrollShift() {
+    if (!isArcade || (compressor == null)) {
+      return 0f;
+    }
+    return compressor.scrollFraction(Sprite.interpolationAlpha());
   }
 
   public int getRowOffset() {
@@ -1389,6 +1402,7 @@ public class FrozenGame extends GameScreen {
             map.getInt(String.format("%d-scrolling-%d", player, i));
         if (spriteIdx != -1) {
           scrolling[i] = (BubbleSprite)savedSprites.elementAt(spriteIdx);
+          scrolling[i].setIced(true);
         }
         else {
           scrolling[i] = null;
@@ -1632,6 +1646,10 @@ public class FrozenGame extends GameScreen {
       }
       for (int column = 0; column < LevelManager.NUM_COLS; column++) {
         bubblePlay[column][0] = scrolling[column];
+        if (scrolling[column] != null) {
+          // In play now: melt the ice, as a quick wave from the left.
+          scrolling[column].melt(column);
+        }
       }
       addScrollRow();
     }

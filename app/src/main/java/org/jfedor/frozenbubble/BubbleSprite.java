@@ -96,6 +96,19 @@ public class BubbleSprite extends Sprite {
    * the game logic.
    */
   private boolean dropping = false;  // popped or cut loose, falling away
+
+  /*
+   * Arcade: the incoming row is iced over (drawn with the frozen bubble
+   * image on top) until it joins the play field, then the ice melts
+   * away.  Only the look changes: the bubble's colour and the rules are
+   * not affected.
+   */
+  private static final int MELT_TICKS     = 8;    // about a third of a second
+  private static final int ICE_ALPHA      = 235;
+  private static final int ICE_ALPHA_BLIND = 165; // let the symbols show
+  private boolean iced       = false;
+  private int     meltDelay  = 0;
+  private int     meltTicks  = 0;
   private static final int WOBBLE_TICKS = 8;
   private double  wobbleX, wobbleY;
   private int     wobbleTicks = 0;
@@ -298,6 +311,25 @@ public class BubbleSprite extends Sprite {
 
   public boolean fixed() {
     return fixed;
+  }
+
+  /** Ice the bubble over (the waiting Arcade row). */
+  public void setIced(boolean iced) {
+    this.iced = iced;
+    meltTicks = 0;
+    meltDelay = 0;
+  }
+
+  /**
+   * Melt the ice away, after <code>delayTicks</code> game steps (so a
+   * row can melt as a quick wave).
+   */
+  public void melt(int delayTicks) {
+    if (iced) {
+      iced      = false;
+      meltDelay = Math.max(0, delayTicks);
+      meltTicks = MELT_TICKS;
+    }
   }
 
   public void frozenify() {
@@ -589,6 +621,12 @@ public class BubbleSprite extends Sprite {
     if (wobbleTicks > 0) {
       wobbleTicks--;
     }
+    if (meltDelay > 0) {
+      meltDelay--;
+    }
+    else if (meltTicks > 0) {
+      meltTicks--;
+    }
     if (fixedAnim != -1) {
       fixedAnim++;
       if (fixedAnim >= 6) {
@@ -614,6 +652,16 @@ public class BubbleSprite extends Sprite {
   @Override
   public float getDrawY() {
     int top = getSpriteArea().top;
+    /*
+     * Bubbles fixed in an Arcade field creep down one pixel every few
+     * steps: draw them sliding smoothly between those steps instead.
+     */
+    if (fixed && !dropping && (frozen != null)) {
+      float shift = frozen.scrollShift();
+      if (shift > 0f) {
+        return top + shift;
+      }
+    }
     if (hasPrevReal && smoothMove(realX - prevRealX, realY - prevRealY)) {
       return (float) (lerp(prevRealY, realY) + (top - (int) realY));
     }
@@ -651,6 +699,35 @@ public class BubbleSprite extends Sprite {
     if (fixedAnim != -1) {
       drawImage(bubbleFixed[fixedAnim], x, y, c, scale, dx, dy);
     }
+
+    paintIce(c, x, y, scale, dx, dy, alpha);
+  }
+
+  /**
+   * The ice over a waiting Arcade bubble, or what is left of it while it
+   * melts: it fades out and its icicles drip down a little.
+   */
+  private void paintIce(Canvas c, float x, float y, double scale,
+                        int dx, int dy, int alpha) {
+    if ((frozenFace == null) || (bubbleFace == frozenFace)) {
+      return;   // no ice, or the whole bubble is frozen (game over)
+    }
+    float ice;
+    if (iced || (meltDelay > 0)) {
+      ice = 1f;
+    }
+    else if (meltTicks > 0) {
+      ice = Math.max(0f, Math.min(1f,
+          (meltTicks - Sprite.interpolationAlpha()) / MELT_TICKS));
+    }
+    else {
+      return;
+    }
+    boolean blind = (FrozenBubble.getColorMode() != FrozenBubble.GAME_NORMAL);
+    int a = (int) ((blind ? ICE_ALPHA_BLIND : ICE_ALPHA) * ice * alpha / 255f);
+    // The frozen image is 34 x 42 (icicles below), one pixel up and left.
+    float drip = (1f - ice) * 4f;
+    drawImageAlpha(frozenFace, x - 1, y - 1 + drip, c, scale, dx, dy, a);
   }
 
   /** The image this bubble shows now (normal, colorblind or frozen). */

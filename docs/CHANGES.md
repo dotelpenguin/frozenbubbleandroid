@@ -132,6 +132,9 @@ Java packages keep their original names (the Gradle `namespace`).
   difficulty multiplier (x1 Easy to x3 Insane).  The speed no longer
   increases.  So all difficulties share one leaderboard.
 - **Live score** on a wooden sign above "1 UP".
+- The incoming row is **iced over** while it slides out of the
+  compressor (it can't be hit yet) and **melts** in a quick wave when it
+  joins the play field.
 - **Game over summary**: the score in a big bubble, counting up, with
   the details, a NEW BEST burst and applause, and Play Again / Quit
   buttons, in place of the old high score screen.

@@ -87,6 +87,17 @@ public class Compressor {
     return scroll == 0;
   }
 
+  /**
+   * How far (0 to 1 game pixel) the Arcade field has crept toward its
+   * next one-pixel step, so it can be drawn sliding smoothly instead of
+   * jumping a pixel every few steps.
+   * @param alpha - progress through the current game step (0 to 1).
+   */
+  public float scrollFraction(float alpha) {
+    float cycle = scrollMax + 2;   // checkScroll() steps once per cycle
+    return Math.max(0f, Math.min(1f, (scroll + alpha) / cycle));
+  }
+
   public double getMoveDown() {
     return moveDown;
   }
