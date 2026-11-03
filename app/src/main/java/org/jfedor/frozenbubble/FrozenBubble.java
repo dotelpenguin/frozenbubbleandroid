@@ -104,8 +104,6 @@ import com.efortin.frozenbubble.BackKey;
 import com.efortin.frozenbubble.Prefs;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.OrientationEventListener;
 import android.view.Surface;
 import android.view.Window;
@@ -130,18 +128,6 @@ public class FrozenBubble extends Activity
              PlayerListener{
   public final static boolean GAME_NORMAL     = false;
   public final static boolean GAME_COLORBLIND = true;
-
-  public final static int MENU_COLORBLIND_ON  = 1;
-  public final static int MENU_COLORBLIND_OFF = 2;
-  public final static int MENU_FULLSCREEN_ON  = 3;
-  public final static int MENU_FULLSCREEN_OFF = 4;
-  public final static int MENU_SOUND_OPTIONS  = 5;
-  public final static int MENU_DONT_RUSH_ME   = 6;
-  public final static int MENU_RUSH_ME        = 7;
-  public final static int MENU_NEW_GAME       = 8;
-  public final static int MENU_ABOUT          = 9;
-  public final static int MENU_EDITOR         = 10;
-  public final static int MENU_TARGET_MODE    = 11;
 
   public final static int AIM_TO_SHOOT    = 0;
   public final static int POINT_TO_SHOOT  = 1;
@@ -452,22 +438,6 @@ public class FrozenBubble extends Activity
     }
   }
 
-  @Override
-  public boolean onCreateOptionsMenu(Menu menu) {
-    super.onCreateOptionsMenu(menu);
-    menu.add(0, MENU_COLORBLIND_ON,  0, R.string.menu_colorblind_on);
-    menu.add(0, MENU_COLORBLIND_OFF, 0, R.string.menu_colorblind_off);
-    menu.add(0, MENU_FULLSCREEN_ON,  0, R.string.menu_fullscreen_on);
-    menu.add(0, MENU_FULLSCREEN_OFF, 0, R.string.menu_fullscreen_off);
-    menu.add(0, MENU_SOUND_OPTIONS,  0, R.string.menu_sound_options);
-    menu.add(0, MENU_TARGET_MODE,    0, R.string.menu_target_mode);
-    menu.add(0, MENU_DONT_RUSH_ME,   0, R.string.menu_dont_rush_me);
-    menu.add(0, MENU_RUSH_ME,        0, R.string.menu_rush_me);
-    menu.add(0, MENU_ABOUT,          0, R.string.menu_about);
-    menu.add(0, MENU_NEW_GAME,       0, R.string.menu_new_game);
-    return true;
-  }
-
   /**
    * Invoked when the Activity is finishing or being destroyed by the
    * system.
@@ -526,79 +496,6 @@ public class FrozenBubble extends Activity
     }
   }
 
-  @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
-    return handleMenuAction(item.getItemId());
-  }
-
-  /**
-   * Carry out an in-game menu action.  Shared by the options menu (the
-   * hardware Menu key, on devices that still have one) and the Game
-   * Options list reached from the exit dialog.
-   */
-  private boolean handleMenuAction(int itemId) {
-    boolean prefsUpdated = false;
-
-    switch (itemId) {
-      case MENU_NEW_GAME:
-        newGameDialog(null);
-        return true;
-      case MENU_COLORBLIND_ON:
-        prefs.colorMode = GAME_COLORBLIND;
-        prefsUpdated = true;
-        break;
-      case MENU_COLORBLIND_OFF:
-        prefs.colorMode = GAME_NORMAL;
-        prefsUpdated = true;
-        break;
-      case MENU_FULLSCREEN_ON:
-        prefs.fullscreen = true;
-        setFullscreen();
-        prefsUpdated = true;
-        break;
-      case MENU_FULLSCREEN_OFF:
-        prefs.fullscreen = false;
-        setFullscreen();
-        prefsUpdated = true;
-        break;
-      case MENU_SOUND_OPTIONS:
-        soundOptionsDialog();
-        return true;
-      case MENU_ABOUT:
-        if (mGameThread != null)
-          mGameThread.setState(stateEnum.ABOUT);
-        return true;
-      case MENU_TARGET_MODE:
-        targetOptionsDialog();
-        return true;
-      case MENU_DONT_RUSH_ME:
-        prefs.dontRushMe = true;
-        prefsUpdated = true;
-        break;
-      case MENU_RUSH_ME:
-        prefs.dontRushMe = false;
-        prefsUpdated = true;
-        break;
-      case MENU_EDITOR:
-        // The level editor apps are gone; nothing to open.
-        return true;
-    }
-
-    if (prefsUpdated) {
-      SharedPreferences sp =
-          Prefs.get(this);
-      PreferencesActivity.saveDefaultPreferences(prefs, sp);
-    }
-
-    return prefsUpdated;
-  }
-
-  @Override
-  public void onOptionsMenuClosed(Menu menu) {
-    super.onOptionsMenuClosed(menu);
-    allowUnpause = true;
-  }
-
   /**
    * Invoked when the Activity loses user focus.
    */
@@ -649,21 +546,6 @@ public class FrozenBubble extends Activity
       editor.remove(SAVED_GAME_MODE);
     }
     editor.commit();
-  }
-
-  @Override
-  public boolean onPrepareOptionsMenu(Menu menu) {
-    super.onPrepareOptionsMenu(menu);
-    allowUnpause = false;
-    menu.findItem(MENU_COLORBLIND_ON ).setVisible(prefs.colorMode == GAME_NORMAL);
-    menu.findItem(MENU_COLORBLIND_OFF).setVisible(prefs.colorMode != GAME_NORMAL);
-    menu.findItem(MENU_FULLSCREEN_ON ).setVisible(!prefs.fullscreen);
-    menu.findItem(MENU_FULLSCREEN_OFF).setVisible(prefs.fullscreen);
-    menu.findItem(MENU_SOUND_OPTIONS ).setVisible(true);
-    menu.findItem(MENU_TARGET_MODE   ).setVisible(true);
-    menu.findItem(MENU_DONT_RUSH_ME  ).setVisible(!prefs.dontRushMe);
-    menu.findItem(MENU_RUSH_ME       ).setVisible(prefs.dontRushMe);
-    return true;
   }
 
   /**
@@ -1053,8 +935,12 @@ public class FrozenBubble extends Activity
         com.efortin.frozenbubble.MenuButtons.create(this, R.string.level_select_title,
             v -> { menu.hide(); chooseLevelInGame(backHere); }) :
         null,
-      com.efortin.frozenbubble.MenuButtons.create(this, R.string.menu_about,
-          v -> { menu.dismiss(); handleMenuAction(MENU_ABOUT); }),
+      com.efortin.frozenbubble.MenuButtons.create(this, R.string.help,
+          v -> {
+            menu.dismiss();
+            startActivity(new Intent(this,
+                com.efortin.frozenbubble.HelpActivity.class));
+          }),
       com.efortin.frozenbubble.MenuButtons.create(this, R.string.back,
           v -> { menu.dismiss(); exitGameDialog(); }),
     };
@@ -1927,62 +1813,6 @@ public class FrozenBubble extends Activity
     return(!arcadeGame && (mGameThread != null) && (numPlayers == 1));
   }
 
-  private void soundOptionsDialog() {
-    boolean isCheckedItem[] = {getSoundOn(), getMusicOn()};
-
-    AlertDialog.Builder builder = new AlertDialog.Builder(FrozenBubble.this);
-    /*
-     * Set the dialog title.
-     */
-    builder.setTitle(R.string.menu_sound_options)
-    /*
-     * Specify the list array, the items to be selected by default (null
-     * for none), and the listener through which to receive callbacks
-     * when items are selected.
-     */
-    .setMultiChoiceItems(R.array.sound_options_array, isCheckedItem,
-                         new DialogInterface.OnMultiChoiceClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-        boolean prefsUpdated = false;
-
-        switch (which) {
-          case 0:
-            setSoundOn(isChecked);
-            prefsUpdated = true;
-            break;
-          case 1:
-            setMusicOn(isChecked);
-            final boolean on = isChecked;
-            music(() -> {
-              if (myModPlayer != null) {
-                myModPlayer.setMusicOn(on);
-              }
-            });
-            prefsUpdated = true;
-            break;
-        }
-        
-        if (prefsUpdated) {
-          SharedPreferences sp =
-              Prefs.get(getApplication());
-          PreferencesActivity.saveDefaultPreferences(prefs, sp);
-        }
-      }
-    })
-    /*
-     * Set the action buttons.
-     */
-    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int id) {
-        // User clicked OK.
-      }
-    });
-    builder.create();
-    builder.show();
-  }
-
   /**
    * Update the game preferences to the desired values.
    * @param prefs - the desired game preferences.
@@ -2118,49 +1948,4 @@ public class FrozenBubble extends Activity
     playMusic(false);
   }
 
-  private void targetOptionsDialog() {
-    AlertDialog.Builder builder = new AlertDialog.Builder(FrozenBubble.this);
-    /*
-     * Set the dialog title.
-     */
-    builder.setTitle(R.string.menu_target_mode)
-    /*
-     * Specify the list array, the item to be selected by default, and
-     * the listener through which to receive callbacks when the item is
-     * selected.
-     */
-    .setSingleChoiceItems(R.array.shoot_mode_array, prefs.targetMode,
-                          new DialogInterface.OnClickListener() {
-      @Override
-      public void onClick(DialogInterface builder, int which) {
-        switch (which) {
-          case 0:
-            setTargetMode(AIM_TO_SHOOT);
-            break;
-          case 1:
-            setTargetMode(POINT_TO_SHOOT);
-            break;
-          case 2:
-            setTargetMode(ROTATE_TO_SHOOT);
-            break;
-        }
-        setTargetModeOrientation();
-      }
-    })
-    /*
-     * Set the action buttons.
-     */
-    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-      @Override
-      public void onClick(DialogInterface builder, int id) {
-        // User clicked OK.
-        SharedPreferences sp =
-            Prefs.get(getApplicationContext());
-        PreferencesActivity.saveDefaultPreferences(prefs, sp);
-      }
-    });
-
-    builder.create();
-    builder.show();
-  }
 }

@@ -2,27 +2,10 @@
 <resources>
   <string name="app_name">Frozen Bubble HD</string>
   <string name="exit">Salir</string>
-  <string name="install_editor">Redireccionando a Google Play para descargar el editor de niveles...</string>
-  <string name="market_missing">No se puede encontrar la aplicación de Google Play. Por favor, instala el editor de niveles manualmente.</string>
   <string name="menu_bluetooth_device">Dispositivo Bluetooth</string>
   <string name="menu_new_game">Nuevo juego</string>
-  <string name="menu_colorblind_on">Activar modo daltónico</string>
-  <string name="menu_colorblind_off">Desactivar modo daltónico</string>
-  <string name="menu_fullscreen_on">Pantalla completa</string>
-  <string name="menu_fullscreen_off">Quitar pantalla completa</string>
-  <string name="menu_sound_options">Opciones de sonido</string>
-  <string name="menu_about">Acerca de</string>
-  <string name="menu_target_mode">Modo de orientación</string>
-  <string name="menu_dont_rush_me">Sin prisas</string>
-  <string name="menu_rush_me">Con prisas</string>
-  <string name="menu_editor">Editor de niveles</string>
-  <string name="menu_settings">Parámetros</string>
   <string name="cancel">Cancelar</string>
   <string name="ok">OK</string>
-  <string name="play_level_music">Tocar Música</string>
-  <string name="play_sound_effects">Tocar Efectos Sonoros</string>
-  <string name="save_and_exit">Guardar y Salir</string>
-  <string name="title_activity_frozen_bubble">Frozen Bubble HD</string>
   <string name="title_activity_home_screen">Frozen Bubble HD</string>
   <string name="scrolling_credits">"Original Development\n"
     "------------------------\n"
@@ -92,23 +75,12 @@
     <item>Tocar y tirar</item>
     <item>Girar y tirar</item>
   </string-array>
-  <string-array name="sound_options_array">
-    <item>@string/play_sound_effects</item>
-    <item>@string/play_level_music</item>
-  </string-array>
-  <string-array name="targeting_values_array">
-    <item>0</item>
-    <item>1</item>
-    <item>2</item>
-   </string-array>
-  <string name="game_options">Opciones de juego</string>
   <string name="options">Opciones</string>
   <string name="back">Atrás</string>
   <string name="cpu_easy">Fácil</string>
   <string name="cpu_normal">Normal</string>
   <string name="cpu_hard">Difícil</string>
   <string name="cpu_expert">Experto</string>
-  <string name="about">Acerca de</string>
   <string name="credits">Créditos</string>
   <string name="opt_music_sound">Audio</string>
   <string name="opt_display">Pantalla</string>

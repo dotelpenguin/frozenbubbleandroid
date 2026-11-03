@@ -2,27 +2,10 @@
 <resources>
   <string name="app_name">Frozen Bubble HD</string>
   <string name="exit">Beenden</string>
-  <string name="install_editor">Weiterleitung zum Android Market für den Download des Level-Editors…</string>
-  <string name="market_missing">Android Market nicht gefunden! Bitten installieren Sie den Level-Editor manuell.</string>
   <string name="menu_bluetooth_device">Bluetooth-Gerät</string>
   <string name="menu_new_game">Neues Spiel</string>
-  <string name="menu_colorblind_on">Darstellung mit Symbolen</string>
-  <string name="menu_colorblind_off">Darstellung ohne Symbole</string>
-  <string name="menu_fullscreen_on">Vollbild An</string>
-  <string name="menu_fullscreen_off">Vollbild Aus</string>
-  <string name="menu_sound_options">Soundoptionen</string>
-  <string name="menu_about">Info</string>
-  <string name="menu_target_mode">Schießen Methode</string>
-  <string name="menu_dont_rush_me">Kein Zeitdruck</string>
-  <string name="menu_rush_me">Zeitdruck</string>
-  <string name="menu_editor">Level-Editor</string>
-  <string name="menu_settings">Einstellungen</string>
   <string name="cancel">Abbrechen</string>
   <string name="ok">OK</string>
-  <string name="play_level_music">Musik Abspielen</string>
-  <string name="play_sound_effects">Spielen Soundeffekte</string>
-  <string name="save_and_exit">Speichern und Verlassen</string>
-  <string name="title_activity_frozen_bubble">Frozen Bubble HD</string>
   <string name="title_activity_home_screen">Frozen Bubble HD</string>
   <string name="scrolling_credits">"Original Development\n"
     "------------------------\n"
@@ -92,23 +75,12 @@
     <item>Antippen</item>
     <item>Drehen</item>
   </string-array>
-  <string-array name="sound_options_array">
-    <item>@string/play_sound_effects</item>
-    <item>@string/play_level_music</item>
-  </string-array>
-  <string-array name="targeting_values_array">
-    <item>0</item>
-    <item>1</item>
-    <item>2</item>
-   </string-array>
-  <string name="game_options">Spieloptionen</string>
   <string name="options">Optionen</string>
   <string name="back">Zurück</string>
   <string name="cpu_easy">Leicht</string>
   <string name="cpu_normal">Normal</string>
   <string name="cpu_hard">Schwer</string>
   <string name="cpu_expert">Experte</string>
-  <string name="about">Info</string>
   <string name="credits">Mitwirkende</string>
   <string name="opt_music_sound">Audio</string>
   <string name="opt_display">Anzeige</string>

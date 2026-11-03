@@ -2,27 +2,10 @@
 <resources>
   <string name="app_name">冰冻泡泡 HD</string>
   <string name="exit">退出</string>
-  <string name="install_editor">推荐您直接到市场上下载关卡编辑器…</string>
-  <string name="market_missing">找不到Android市场! 请手动安装冰冻泡泡编辑器.</string>
   <string name="menu_bluetooth_device">蓝牙设备</string>
   <string name="menu_new_game">开始新游戏</string>
-  <string name="menu_colorblind_on">色盲模式开启</string>
-  <string name="menu_colorblind_off">色盲模式关闭</string>
-  <string name="menu_fullscreen_on">全屏模式开启</string>
-  <string name="menu_fullscreen_off">全屏模式关闭</string>
-  <string name="menu_sound_options">音效选项</string>
-  <string name="menu_about">关于冰冻泡泡</string>
-  <string name="menu_target_mode">瞄准模式</string>
-  <string name="menu_dont_rush_me">不要催我</string>
-  <string name="menu_rush_me">敦促我</string>
-  <string name="menu_editor">关卡编辑器</string>
-  <string name="menu_settings">设置</string>
   <string name="cancel">取消</string>
   <string name="ok">行</string>
-  <string name="play_level_music">奏乐</string>
-  <string name="play_sound_effects">播放声音效果</string>
-  <string name="save_and_exit">保存并戒烟</string>
-  <string name="title_activity_frozen_bubble">冰冻泡泡 HD</string>
   <string name="title_activity_home_screen">冰冻泡泡 HD</string>
   <string name="scrolling_credits">"Original Development\n"
     "------------------------\n"
@@ -92,23 +75,12 @@
     <item>点击射击</item>
     <item>旋转和射击</item>
   </string-array>
-  <string-array name="sound_options_array">
-    <item>@string/play_sound_effects</item>
-    <item>@string/play_level_music</item>
-  </string-array>
-  <string-array name="targeting_values_array">
-    <item>0</item>
-    <item>1</item>
-    <item>2</item>
-   </string-array>
-  <string name="game_options">游戏选项</string>
   <string name="options">选项</string>
   <string name="back">返回</string>
   <string name="cpu_easy">简单</string>
   <string name="cpu_normal">普通</string>
   <string name="cpu_hard">困难</string>
   <string name="cpu_expert">专家</string>
-  <string name="about">关于</string>
   <string name="credits">制作人员</string>
   <string name="opt_music_sound">音频</string>
   <string name="opt_display">显示</string>

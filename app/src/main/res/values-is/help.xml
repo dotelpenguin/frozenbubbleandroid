@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The Help screen (HelpActivity). -->
+<resources>
+  <string name="help">Hjálp</string>
+  <string name="help_version">Frozen Bubble HD %1$s</string>
+  <string name="help_play_t">Svona á að spila</string>
+  <string name="help_play">Miðaðu skotinu neðst og skjóttu. Settu 3 eða fleiri kúlur í sama lit saman og þær springa; kúlur sem hanga þá ekki lengur í neinu detta niður.\n\nEkki láta kúlurnar fara yfir línuna neðst.\n\nPikkaðu á skotið til að skipta á kúlunni þinni og þeirri næstu.</string>
+  <string name="help_btn_next">Næsta lag</string>
+  <string name="help_btn_menu">Valmynd</string>
+  <string name="help_btn_pause">Hlé</string>
+  <string name="help_puzzle_t">Þrautir</string>
+  <string name="help_puzzle">Hreinsaðu allar kúlurnar til að vinna borðið. Á nokkurra skota fresti lækkar loftið, svo hugsaðu fram í tímann.\n\nVelja borð sýnir hvert borð: pikkaðu á borð sem þú hefur náð til að spila það. Notaðu ◀ ▶ til að skipta um borðapakka:\n• Upprunaleg: 100 klassísku borðin\n• Létt, Miðlungs og Erfitt: 30 borð hver\n• Myndir: 24 pixlamyndaþrautir\n\nHver pakki geymir eigin framvindu og met. Þegar pakki klárast geturðu haldið áfram í þann næsta eða spilað hann aftur.</string>
+  <string name="help_arcade_t">Arcade</string>
+  <string name="help_arcade">Veldu erfiðleikastig, frá Létt (4 litir) til Brjálað (8 litir), og haltu út eins lengi og þú getur. Kúlurnar færast hægt niður, og hver ný röð kemur frosin út að ofan og bráðnar þegar hún kemst í leikinn. Leiknum lýkur þegar kúlurnar fara yfir línuna.</string>
+  <string name="help_scoring_t">Stig í Arcade</string>
+  <string name="help_scoring">• Hver sprungin kúla: 10 stig\n• Kúlur sem detta: 20 hver, auk bónuss fyrir stór föll (10 í einu: 600)\n• Runa: skot í röð sem hreinsa kúlur margfalda stigin, upp í ×3. Skot sem hreinsar ekkert núllstillir rununa.\n• Erfiðleiki: Létt ×1, Venjulegt ×1,5, Miðlungs ×2, Erfitt ×2,5, Brjálað ×3\n\nStór föll og langar runur gefa meira en mörg lítil skot.</string>
+  <string name="help_2p_t">2 leikmenn</string>
+  <string name="help_2p">• Gegn tölvu: á móti mörgæsinni, Auðvelt, Venjulegt, Erfitt eða Sérfræðingur\n• Staðbundið: tveir leikmenn á einu tæki, með leikjastýringum\n• Wi-Fi og Bluetooth: á móti vini í öðrum síma (fyrir Bluetooth þarf fyrst að para símana í stillingum Android)\n\nEf fleiri en 3 springa í einu lenda aukakúlurnar hjá andstæðingnum. Sá tapar lotunni sem fyrst fær kúlur yfir línuna.</string>
+  <string name="help_scores_t">Stigatafla</string>
+  <string name="help_scores">10 bestu skorin í Arcade og bestu sigrarnir gegn tölvunni: erfiðasta tölvan fyrst, svo fæst skot, svo fljótast. Metið þitt í hverju þrautaborði sést í Velja borð.</string>
+  <string name="help_options_t">Stillingar</string>
+  <string name="help_options">• Hljóð: tónlist, hljóðbrellur og Mín tónlist\n• Skjár: allur skjárinn, GPU-teikning (mýkri, og þarf fyrir sum áhrif), klassísk grafík og litblindustilling\n• Stýringar: Miða (strjúktu neðst til að miða, pikkaðu ofar til að skjóta), Benda (pikkaðu þangað sem kúlan á að fara) eða Snúa (hallaðu símanum). Næmni stjórnar hve nálægt skot þarf að fara til að festast.\n• Spilun: nafnið þitt, Flýtistilling (ef þú bíður of lengi skýtur kúlan sjálf), Þjappa (2 leikm.), Sýna met og Endurstilla\n• Áhrif: neistar, hristingur, skotslóð, miðunarhjálp, titringur og fleira\n• Tungumál</string>
+  <string name="help_music_t">Mín tónlist</string>
+  <string name="help_music">Kveiktu á Mín tónlist í Stillingar › Hljóð og veldu möppu með eigin lögum: .mod, .xm, .it, .s3m eða AdLib .rol. Lag af gerðinni .rol þarf hljóðfærabanka: .bnk með sama nafni við hliðina, eða standard.bnk í möppunni eða möppu fyrir ofan. Undirmöppur eru teknar með.\n\nAndroid leyfir ekki sjálfa Download-möppuna: notaðu möppu inni í henni eða í Music.</string>
+  <string name="help_save_t">Vistun</string>
+  <string name="help_save">Leikur er alltaf vistaður þegar þú hættir. Veldu sama ham aftur til að halda áfram eða byrja nýjan leik. Þrautir, Arcade og 2 leikmenn eiga hver sína vistun.</string>
+  <string name="help_about_t">Um leikinn</string>
+  <string name="help_about">Frozen Bubble var búinn til af Guillaume Cottenceau, Alexis Younes, Amaury Amblard-Ladurantie og Matthias Le Bidan. Java-útgáfa eftir Glenn Sanson. Android-útgáfa eftir Pawel Aleksander Fedorynski og Eric Fortin. Frozen Bubble HD eftir Drew Baker.\n\nFrjáls hugbúnaður samkvæmt GNU General Public License, útgáfu 2 eða 3.\n\nFrumkóði: https://github.com/dotelpenguin/frozenbubbleandroid</string>
+</resources>

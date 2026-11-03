@@ -80,8 +80,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.Vector;
 
 import org.gsanson.frozenbubble.MalusBar;
@@ -128,7 +126,6 @@ public class GameView extends SurfaceView
   public static final int  EXTENDED_GAMEFIELD_WIDTH = 640;
 
   private boolean         levelStarted   = false;
-  private boolean         mBlankScreen   = false;
   private boolean         muteKeyToggle  = false;
   private boolean         pauseKeyToggle = false;
   private int             gameLocale;
@@ -1660,59 +1657,6 @@ public class GameView extends SurfaceView
       return handled;
     }
 
-    private void drawAboutScreen(Canvas canvas) {
-      canvas.drawRGB(0, 0, 0);
-      if (!mBlankScreen) {
-        int x      = drawTextOffsetX();
-        int y      = 20;
-        int ysp    = 26;
-        int indent = 10;
-        mFont.print("original frozen bubble:", x, y, canvas,
-                    mDisplayScale, mDisplayDX, mDisplayDY);
-        y += ysp;
-        mFont.print("guillaume cottenceau", x + indent, y, canvas,
-                    mDisplayScale, mDisplayDX, mDisplayDY);
-        y += ysp;
-        mFont.print("alexis younes", x + indent, y, canvas,
-                    mDisplayScale, mDisplayDX, mDisplayDY);
-        y += ysp;
-        mFont.print("amaury amblard-ladurantie", x + indent, y, canvas,
-                    mDisplayScale, mDisplayDX, mDisplayDY);
-        y += ysp;
-        mFont.print("matthias le bidan", x + indent, y, canvas,
-                    mDisplayScale, mDisplayDX, mDisplayDY);
-        y += ysp;
-        y += ysp;
-        mFont.print("java version:", x, y, canvas,
-                    mDisplayScale, mDisplayDX, mDisplayDY);
-        y += ysp;
-        mFont.print("glenn sanson", x + indent, y, canvas,
-                    mDisplayScale, mDisplayDX, mDisplayDY);
-        y += ysp;
-        y += ysp;
-        mFont.print("android port:", x, y, canvas,
-                    mDisplayScale, mDisplayDX, mDisplayDY);
-        y += ysp;
-        mFont.print("aleksander fedorynski", x + indent, y, canvas,
-                    mDisplayScale, mDisplayDX, mDisplayDY);
-        y += ysp;
-        mFont.print("eric fortin", x + indent, y, canvas,
-                    mDisplayScale, mDisplayDX, mDisplayDY);
-        y += 2 * ysp;
-        mFont.print("android port source code", x, y, canvas,
-                    mDisplayScale, mDisplayDX, mDisplayDY);
-        y += ysp;
-        mFont.print("is available at:", x, y, canvas,
-                    mDisplayScale, mDisplayDX, mDisplayDY);
-        y += ysp;
-        mFont.print("http://code.google.com", x, y, canvas,
-                    mDisplayScale, mDisplayDX, mDisplayDY);
-        y += ysp;
-        mFont.print("/p/frozenbubbleandroid", x, y, canvas,
-                    mDisplayScale, mDisplayDX, mDisplayDY);
-      }
-    }
-
     /**
      * Fill any screen area outside the game's background image with a
      * blurred, darkened copy of that background instead of black.
@@ -1995,116 +1939,12 @@ public class GameView extends SurfaceView
       mFxTextPaint.setAlpha(255);
     }
 
-    /**
-     * The Arcade high scores at the end of a game: the top 10 of every
-     * difficulty, with this game's score marked.
-     */
-    private void drawArcadeScoreScreen(Canvas canvas) {
-      if (mHighScoreManager == null) {
-        mShowScores = false;
-        return;
-      }
-      canvas.drawRGB(0, 0, 0);
-      int x   = drawTextOffsetX();
-      int y   = 10;
-      int ysp = 26;
-      mFont.print("arcade high scores", x, y, canvas,
-                  mDisplayScale, mDisplayDX, mDisplayDY);
-      y += 1.5f * ysp;
-      long lastId = mHighScoreManager.getLastScoreId();
-      boolean shown = false;
-      int i = 1;
-      for (HighscoreDO hdo : mHighScoreManager.getTopScores(10)) {
-        String you = "";
-        if (lastId == hdo.getId()) {
-          you   = "|";
-          shown = true;
-        }
-        mFont.print(you + i++ + " - " + scoreText(hdo.getScore()) + " - " +
-                    hdo.getName().toLowerCase(java.util.Locale.ROOT),
-                    x + 10, y, canvas, mDisplayScale, mDisplayDX, mDisplayDY);
-        y += ysp;
-      }
-      HighscoreDO mine = mHighScoreManager.getLastScoreDO();
-      if (!shown && (mine != null)) {
-        mFont.print("|  - " + scoreText(mine.getScore()), x + 10, y, canvas,
-                    mDisplayScale, mDisplayDX, mDisplayDY);
-      }
-    }
-
     private void drawDifficulty(Canvas canvas) {
       int y     = 433;
       int x     = 159;
       int level = mLevelManager.getLevelIndex();
       mFont.print(LevelManager.DifficultyStrings[level], x, y, canvas,
                   mDisplayScale, mDisplayDX, mDisplayDY);
-    }
-
-    /**
-     * Draw the high score screen for puzzle game mode.
-     * <p>The objective of puzzle game mode is efficiency - fire as few
-     * bubbles as possible as quickly as possible.  Thus the high score
-     * will exhibit the fewest shots fired the quickest.
-     * @param canvas - the drawing canvas to display the scores on.
-     * @param level - the level index.
-     */
-    private void drawHighScoreScreen(Canvas canvas, int level) {
-      if (mHighScoreManager == null) {
-        mShowScores = false;
-        return;
-      }
-
-      canvas.drawRGB(0, 0, 0);
-      int         x      = drawTextOffsetX();
-      int         y      = 10;
-      int         ysp    = 26;
-      int         indent = 10;
-      HighscoreDO myDO   = null;
-
-      mFont.print("highscore for level " + (level + 1), x, y, canvas,
-                  mDisplayScale, mDisplayDX, mDisplayDY);
-      y += 1.5f * ysp;
-
-      List<HighscoreDO> hlist = mHighScoreManager.getHighScore(level, 15);
-      long lastScoreId = mHighScoreManager.getLastScoreId();
-      int  i           = 1;
-
-      for (HighscoreDO hdo : hlist) {
-        String you = "";
-        if (lastScoreId == hdo.getId()) {
-          myDO = hdo;
-          you  = "|";
-        }
-        // TODO: Add player name support.
-        // mFont.print(you + i++ + " - " + hdo.getName().toLowerCase()
-        // + " - "
-        // + hdo.getShots()
-        // + " - " + (hdo.getTime() / 1000)
-        // + " sec", x + indent,
-        // y, canvas,
-        // mDisplayScale, mDisplayDX, mDisplayDY);
-        mFont.print(you + i++ + " - "
-          + hdo.getShots()
-          + " shots - "
-          + (hdo.getTime() / 1000)
-          + " sec", x + indent,
-          y, canvas,
-          mDisplayScale, mDisplayDX, mDisplayDY);
-        y += ysp;
-      }
-
-      if (myDO == null) {
-        myDO = mHighScoreManager.getLastScoreDO();
-        if (myDO != null) {
-          mFont.print("|" + "  - "
-              + myDO.getShots()
-              + " shots - "
-              + (myDO.getTime() / 1000)
-              + " sec", x + indent,
-              y, canvas,
-              mDisplayScale, mDisplayDX, mDisplayDY);
-        }
-      }
     }
 
     private void drawLevelNumber(Canvas canvas) {
@@ -2799,10 +2639,7 @@ public class GameView extends SurfaceView
                    */
                   Sprite.setInterpolation(
                       (smooth && (mMode == stateEnum.RUNNING)) ? alpha : 1f);
-                  if (mMode == stateEnum.ABOUT) {
-                    drawAboutScreen(c);
-                  }
-                  else if (mMode == stateEnum.PAUSED) {
+                  if (mMode == stateEnum.PAUSED) {
                     if (mNetworkManager != null) {
                       if (mShowNetwork) {
                         drawNetworkScreen(c);
@@ -2812,15 +2649,10 @@ public class GameView extends SurfaceView
                       }
                     }
                     else if ((mHighScoreManager != null) && mShowScores) {
-                      if (FrozenBubble.arcadeGame) {
-                        drawArcadeScoreScreen(c);
-                      }
-                      else if (numPlayers > 1) {
-                        drawLowScoreScreen(c, mHighScoreManager.getLevel());
-                      }
-                      else {
-                        drawHighScoreScreen(c, mHighScoreManager.getLevel());
-                      }
+                      // Only 2 player games still show a score screen
+                      // between rounds (Puzzle goes straight on, Arcade
+                      // shows its summary).
+                      drawLowScoreScreen(c, mHighScoreManager.getLevel());
                     }
                     else {
                       doDraw(c);
@@ -3341,20 +3173,6 @@ public class GameView extends SurfaceView
 
       if (event_action_down) {
         switch (mMode) {
-          case ABOUT:
-            levelStarted = true;
-            if (numPlayers > 1) {
-              setState(stateEnum.RUNNING);
-              return true;
-            }
-            else {
-              if (!mBlankScreen) {
-                setState(stateEnum.RUNNING);
-                return true;
-              }
-            }
-            break;
-
           case PAUSED:
             levelStarted = true;
             if (mNetworkManager != null) {
@@ -3735,31 +3553,6 @@ public class GameView extends SurfaceView
   }
 
   /**
-   * Display a blank screen (black background) for the specified wait
-   * interval.
-   * @param clearScreen - If <code>true</code>, show a blank screen for
-   * the specified wait interval.  If <code>false</code>, show the
-   * normal screen.
-   * @param wait - The amount of time to display the blank screen.
-   */
-  public void clearGameScreen(boolean clearScreen, int wait) {
-    mBlankScreen = clearScreen;
-    try {
-      if (clearScreen) {
-        mGameThread.setState(stateEnum.ABOUT);
-        Timer timer = new Timer();
-        timer.schedule(new ResumeGameScreenTask(), wait, wait + 1);
-      }
-    } catch (IllegalArgumentException illArgEx) {
-      illArgEx.printStackTrace();
-      mBlankScreen = false;
-    } catch (IllegalStateException illStateEx) {
-      illStateEx.printStackTrace();
-      mBlankScreen = false;
-    }
-  }
-
-  /**
    * <code>GameView</code> object initialization.
    * @param context - the application context.
    * @param numPlayers - the number of players (1 or 2).
@@ -3984,20 +3777,6 @@ public class GameView extends SurfaceView
       mNetworkManager.unPause();
     }
   }
-
-  /**
-   * This is a class that extends TimerTask to resume displaying the
-   * game screen as normal after it has been shown as a blank screen.
-   * @author Eric Fortin
-   *
-   */
-  class ResumeGameScreenTask extends TimerTask {
-    @Override
-    public void run() {
-      mBlankScreen = false;
-      cancel();
-    }
-  };
 
   /**
    * Set the player action for a remote player - as in a person playing

@@ -2,34 +2,16 @@
 <resources>
   <string name="app_name">Frozen Bubble HD</string>
   <string name="exit">Exit</string>
-  <string name="game_options">Game Options</string>
   <string name="options">Options</string>
   <string name="back">Back</string>
   <string name="cpu_easy">Easy</string>
   <string name="cpu_normal">Normal</string>
   <string name="cpu_hard">Hard</string>
   <string name="cpu_expert">Expert</string>
-  <string name="install_editor">Redirecting you to the Market to download the Frozen Bubble Level Editor…</string>
-  <string name="market_missing">Cannot find Android Market! Please install Frozen Bubble Level Editor manually.</string>
   <string name="menu_bluetooth_device">Bluetooth Device</string>
   <string name="menu_new_game">New Game</string>
-  <string name="menu_colorblind_on">Colorblind Mode On</string>
-  <string name="menu_colorblind_off">Colorblind Mode Off</string>
-  <string name="menu_fullscreen_on">Fullscreen On</string>
-  <string name="menu_fullscreen_off">Fullscreen Off</string>
-  <string name="menu_sound_options">Sound Options</string>
-  <string name="menu_about">About</string>
-  <string name="menu_target_mode">Targeting Mode</string>
-  <string name="menu_dont_rush_me">Don\'t Rush Me</string>
-  <string name="menu_rush_me">Rush Me</string>
-  <string name="menu_editor">Level Editor</string>
-  <string name="menu_settings">Settings</string>
   <string name="cancel">Cancel</string>
   <string name="ok">OK</string>
-  <string name="play_level_music">Play Level Music</string>
-  <string name="play_sound_effects">Play Sound Effects</string>
-  <string name="save_and_exit">Save and Exit</string>
-  <string name="title_activity_frozen_bubble">Frozen Bubble HD</string>
   <string name="title_activity_home_screen">Frozen Bubble HD</string>
   <string name="scrolling_credits">"Original Development\n"
     "------------------------\n"
@@ -99,16 +81,6 @@
     <item>Tap to Shoot</item>
     <item>Rotate &amp; Shoot</item>
   </string-array>
-  <string-array name="sound_options_array">
-    <item>@string/play_sound_effects</item>
-    <item>@string/play_level_music</item>
-  </string-array>
-  <string-array name="targeting_values_array">
-    <item>0</item>
-    <item>1</item>
-    <item>2</item>
-   </string-array>
-  <string name="about">About</string>
   <string name="credits">Credits</string>
   <string name="opt_music_sound">Audio</string>
   <string name="opt_display">Display</string>

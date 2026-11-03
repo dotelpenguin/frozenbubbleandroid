@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The Help screen (HelpActivity). -->
+<resources>
+  <string name="help">Aide</string>
+  <string name="help_version">Frozen Bubble HD %1$s</string>
+  <string name="help_play_t">Comment jouer</string>
+  <string name="help_play">Vise avec le lanceur en bas et tire. Réunis 3 bulles ou plus de la même couleur et elles éclatent ; les bulles qui ne tiennent plus à rien tombent.\n\nNe laisse pas les bulles franchir la ligne du bas.\n\nTouche le lanceur pour échanger ta bulle avec la suivante.</string>
+  <string name="help_btn_next">Morceau suivant</string>
+  <string name="help_btn_menu">Menu</string>
+  <string name="help_btn_pause">Pause</string>
+  <string name="help_puzzle_t">Puzzle</string>
+  <string name="help_puzzle">Fais disparaître toutes les bulles pour gagner le niveau. Tous les quelques tirs, le plafond descend : prévois tes coups.\n\nNiveaux montre un aperçu de chaque niveau : touche un niveau déjà atteint pour le jouer. Utilise ◀ ▶ pour changer de pack :\n• Original : les 100 niveaux classiques\n• Facile, Moyen et Difficile : 30 niveaux chacun\n• Images : 24 puzzles en pixel art\n\nChaque pack garde sa progression et ses records. À la fin d’un pack, passe au suivant ou rejoue-le.</string>
+  <string name="help_arcade_t">Arcade</string>
+  <string name="help_arcade">Choisis une difficulté, de Facile (4 couleurs) à Démentiel (8 couleurs), et tiens le plus longtemps possible. Les bulles descendent lentement, et chaque nouvelle rangée sort gelée par le haut puis fond en entrant dans le jeu. La partie se termine quand les bulles franchissent la ligne.</string>
+  <string name="help_scoring_t">Points en Arcade</string>
+  <string name="help_scoring">• Chaque bulle éclatée : 10 points\n• Bulles qui tombent : 20 chacune, plus un bonus pour les grosses chutes (10 d’un coup : 600)\n• Combo : les tirs réussis à la suite multiplient les points, jusqu’à ×3. Un tir qui n’enlève rien le remet à zéro.\n• Difficulté : Facile ×1, Normal ×1,5, Moyen ×2, Difficile ×2,5, Démentiel ×3\n\nLes grosses chutes et les longs combos rapportent plus que beaucoup de petites bulles.</string>
+  <string name="help_2p_t">2 joueurs</string>
+  <string name="help_2p">• Contre CPU : contre le pingouin, en Facile, Normal, Difficile ou Expert\n• Local : deux joueurs sur un même appareil, avec des manettes\n• Wi-Fi et Bluetooth : contre un ami sur un autre téléphone (pour le Bluetooth, associe d’abord les téléphones dans les paramètres Android)\n\nÉclate plus de 3 bulles d’un coup et les bulles en trop arrivent chez l’adversaire. Le premier dont les bulles franchissent la ligne perd la manche.</string>
+  <string name="help_scores_t">Records</string>
+  <string name="help_scores">Les 10 meilleurs scores en Arcade, et les meilleures victoires contre le CPU : CPU le plus fort d’abord, puis le moins de tirs, puis le plus rapide. Ton record pour chaque niveau de Puzzle s’affiche dans Niveaux.</string>
+  <string name="help_options_t">Options</string>
+  <string name="help_options">• Audio : musique, effets sonores et Ma musique\n• Affichage : plein écran, rendu GPU (plus fluide, et nécessaire pour certains effets), art original et mode daltonien\n• Commandes : Viser et tirer (glisse en bas pour viser, touche au-dessus pour tirer), Toucher et tirer (touche l’endroit où la bulle doit aller) ou Pivoter et tirer (incline le téléphone). La sensibilité règle à quelle distance un tir doit passer pour coller.\n• Jeu : ton nom, Mode pressé (si tu attends trop, la bulle part toute seule), Compresseur 2J, Record et Remise à zéro\n• Effets : étincelles, secousses, traînée, aide à la visée, vibration et plus\n• Langue</string>
+  <string name="help_music_t">Ma musique</string>
+  <string name="help_music">Active Ma musique dans Options › Audio et choisis un dossier avec tes morceaux : .mod, .xm, .it, .s3m ou AdLib .rol. Un morceau .rol a besoin de sa banque d’instruments : un .bnk du même nom à côté, ou un standard.bnk dans son dossier ou un dossier au-dessus. Les sous-dossiers sont inclus.\n\nAndroid n’autorise pas le dossier Download lui-même : utilise un dossier à l’intérieur, ou dans Music.</string>
+  <string name="help_save_t">Sauvegarde</string>
+  <string name="help_save">Quitter une partie la sauvegarde toujours. Choisis le même mode pour la reprendre ou en commencer une nouvelle. Puzzle, Arcade et 2 joueurs ont chacun leur propre sauvegarde.</string>
+  <string name="help_about_t">À propos</string>
+  <string name="help_about">Frozen Bubble a été créé par Guillaume Cottenceau, Alexis Younes, Amaury Amblard-Ladurantie et Matthias Le Bidan. Version Java de Glenn Sanson. Version Android de Pawel Aleksander Fedorynski et Eric Fortin. Frozen Bubble HD de Drew Baker.\n\nLogiciel libre sous la licence publique générale GNU, version 2 ou 3.\n\nCode source : https://github.com/dotelpenguin/frozenbubbleandroid</string>
+</resources>

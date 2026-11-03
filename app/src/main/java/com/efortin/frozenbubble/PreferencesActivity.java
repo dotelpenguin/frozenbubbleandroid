@@ -172,8 +172,6 @@ public class PreferencesActivity extends Activity
                            v -> { openCategory(); menus.showEffectsMenu(backToMain); }),
         MenuButtons.create(this, R.string.opt_language,
                            v -> { openCategory(); menus.showLanguageMenu(backToMain); }),
-        MenuButtons.create(this, R.string.credits,
-                           v -> { click(); showCredits(); }),
         MenuButtons.create(this, R.string.back,
                            v -> { click(); closeOptions(); }));
     ScrollView scroll = new ScrollView(this);
@@ -297,12 +295,6 @@ public class PreferencesActivity extends Activity
   /*
    * Credits.
    */
-
-  private void showCredits() {
-    Intent intent = new Intent(this, ScrollingCredits.class);
-    intent.putExtra(ScrollingCredits.EXTRA_FROM_OPTIONS, true);
-    startActivity(intent);
-  }
 
   /*
    * Custom music folder.

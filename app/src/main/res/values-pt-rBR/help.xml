@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The Help screen (HelpActivity). -->
+<resources>
+  <string name="help">Ajuda</string>
+  <string name="help_version">Frozen Bubble HD %1$s</string>
+  <string name="help_play_t">Como jogar</string>
+  <string name="help_play">Mire com o lançador lá embaixo e atire. Junte 3 ou mais bolhas da mesma cor e elas estouram; as bolhas que ficam penduradas sem nada que as segure caem.\n\nNão deixe as bolhas passarem da linha de baixo.\n\nToque no lançador para trocar sua bolha pela próxima.</string>
+  <string name="help_btn_next">Próxima música</string>
+  <string name="help_btn_menu">Menu</string>
+  <string name="help_btn_pause">Pausa</string>
+  <string name="help_puzzle_t">Puzzle</string>
+  <string name="help_puzzle">Elimine todas as bolhas para vencer o nível. A cada poucos tiros o teto desce, então planeje.\n\nEscolher nível mostra uma prévia de cada nível: toque em qualquer nível já alcançado para jogá-lo. Use ◀ ▶ para trocar de pacote:\n• Original: os 100 níveis clássicos\n• Fácil, Médio e Difícil: 30 níveis cada\n• Desenhos: 24 quebra-cabeças em pixel art\n\nCada pacote guarda seu próprio progresso e recordes. Ao terminar um pacote, siga para o próximo ou jogue de novo.</string>
+  <string name="help_arcade_t">Arcade</string>
+  <string name="help_arcade">Escolha uma dificuldade, de Fácil (4 cores) a Insano (8 cores), e aguente o máximo que puder. As bolhas descem devagar, e cada nova fileira sai congelada lá de cima e derrete quando entra no jogo. A partida acaba quando as bolhas passam da linha.</string>
+  <string name="help_scoring_t">Pontos no Arcade</string>
+  <string name="help_scoring">• Cada bolha estourada: 10 pontos\n• Bolhas que caem: 20 cada, mais um bônus para quedas grandes (10 de uma vez: 600)\n• Combo: tiros seguidos que eliminam bolhas multiplicam os pontos, até ×3. Um tiro que não elimina nada zera o combo.\n• Dificuldade: Fácil ×1, Normal ×1,5, Médio ×2, Difícil ×2,5, Insano ×3\n\nQuedas grandes e combos longos valem mais que muitos estouros pequenos.</string>
+  <string name="help_2p_t">2 jogadores</string>
+  <string name="help_2p">• Contra CPU: contra o pinguim, em Fácil, Normal, Difícil ou Especialista\n• Local: dois jogadores no mesmo aparelho, com controles\n• Wi-Fi e Bluetooth: contra um amigo em outro celular (para Bluetooth, pareie os celulares nas configurações do Android antes)\n\nEstoure mais de 3 de uma vez e as bolhas extras caem no lado do adversário. Perde a rodada quem tiver as bolhas passando da linha primeiro.</string>
+  <string name="help_scores_t">Recordes</string>
+  <string name="help_scores">As 10 melhores pontuações do Arcade e as melhores vitórias contra a CPU: CPU mais difícil primeiro, depois menos tiros, depois mais rápido. Seu recorde em cada nível do Puzzle aparece em Escolher nível.</string>
+  <string name="help_options_t">Opções</string>
+  <string name="help_options">• Áudio: música, efeitos sonoros e Minhas músicas\n• Tela: tela cheia, usar GPU (mais suave, e necessário para alguns efeitos), arte original e modo daltônico\n• Controles: Mirar e atirar (deslize embaixo para mirar, toque acima para atirar), Tocar e atirar (toque onde a bolha deve ir) ou Girar e atirar (incline o celular). A sensibilidade define o quão perto um tiro precisa passar para grudar.\n• Jogo: seu nome, Modo pressa (se demorar demais, a bolha é atirada sozinha), Compressor (2J), Mostrar recorde e Zerar progresso\n• Efeitos: brilhos, tremor, rastro do tiro, guia de mira, vibração e mais\n• Idioma</string>
+  <string name="help_music_t">Minhas músicas</string>
+  <string name="help_music">Ative Minhas músicas em Opções › Áudio e escolha uma pasta com suas músicas: .mod, .xm, .it, .s3m ou AdLib .rol. Uma música .rol precisa do seu banco de instrumentos: um .bnk com o mesmo nome ao lado, ou um standard.bnk na pasta dela ou numa pasta acima. As subpastas também entram.\n\nO Android não permite escolher a própria pasta Download: use uma pasta dentro dela ou dentro de Music.</string>
+  <string name="help_save_t">Salvamento</string>
+  <string name="help_save">Sair de uma partida sempre a salva. Escolha o mesmo modo de novo para continuar ou começar outra. Puzzle, Arcade e 2 jogadores têm cada um seu próprio jogo salvo.</string>
+  <string name="help_about_t">Sobre</string>
+  <string name="help_about">Frozen Bubble foi criado por Guillaume Cottenceau, Alexis Younes, Amaury Amblard-Ladurantie e Matthias Le Bidan. Versão Java de Glenn Sanson. Versão Android de Pawel Aleksander Fedorynski e Eric Fortin. Frozen Bubble HD de Drew Baker.\n\nSoftware livre sob a Licença Pública Geral GNU, versão 2 ou 3.\n\nCódigo-fonte: https://github.com/dotelpenguin/frozenbubbleandroid</string>
+</resources>

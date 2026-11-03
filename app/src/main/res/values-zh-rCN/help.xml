@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The Help screen (HelpActivity). -->
+<resources>
+  <string name="help">帮助</string>
+  <string name="help_version">Frozen Bubble HD %1$s</string>
+  <string name="help_play_t">玩法</string>
+  <string name="help_play">用底部的发射器瞄准并发射。把 3 个或更多同色泡泡连在一起，它们就会爆掉；失去支撑、悬空的泡泡会掉落。\n\n别让泡泡越过底部的线。\n\n点击发射器，可以把当前泡泡和下一个交换。</string>
+  <string name="help_btn_next">下一首</string>
+  <string name="help_btn_menu">菜单</string>
+  <string name="help_btn_pause">暂停</string>
+  <string name="help_puzzle_t">解谜</string>
+  <string name="help_puzzle">清除所有泡泡即可过关。每隔几发，天花板就会下压，要提前计划。\n\n选择关卡会显示每一关的预览：点击已解锁的关卡即可开始。用 ◀ ▶ 切换关卡包：\n• 原版：100 个经典关卡\n• 简单、中等、困难：各 30 关\n• 图案：24 个像素画谜题\n\n每个关卡包单独保存进度和最佳成绩。完成一个关卡包后，可以继续下一个，或再玩一次。</string>
+  <string name="help_arcade_t">街机</string>
+  <string name="help_arcade">选择难度，从简单（4 种颜色）到疯狂（8 种颜色），尽量坚持下去。泡泡会慢慢下移，每一行新泡泡都会冻着从顶部滑出，进入游戏时融化。泡泡越过底线时游戏结束。</string>
+  <string name="help_scoring_t">街机计分</string>
+  <string name="help_scoring">• 每个爆掉的泡泡：10 分\n• 掉落的泡泡：每个 20 分，大量掉落另有奖励（一次掉 10 个：600 分）\n• 连击：连续命中消除可让得分翻倍，最高 ×3。一发没有消除任何泡泡就会重置连击。\n• 难度：简单 ×1，普通 ×1.5，中等 ×2，困难 ×2.5，疯狂 ×3\n\n大量掉落和长连击比很多小爆破更划算。</string>
+  <string name="help_2p_t">双人游戏</string>
+  <string name="help_2p">• 对战电脑：和企鹅对战，可选简单、普通、困难或专家\n• 本地：两名玩家在同一台设备上用游戏手柄对战\n• Wi-Fi 和蓝牙：和朋友用另一部手机对战（蓝牙需先在 Android 设置里配对手机）\n\n一次爆掉超过 3 个，多出的泡泡会落到对手那边。谁的泡泡先越过底线，谁就输掉这一局。</string>
+  <string name="help_scores_t">高分榜</string>
+  <string name="help_scores">街机前 10 名的分数，以及对战电脑的最佳胜利：先比电脑难度，再比射击次数，再比用时。每个解谜关卡的最佳成绩显示在选择关卡里。</string>
+  <string name="help_options_t">选项</string>
+  <string name="help_options">• 音频：音乐、音效和我的音乐文件夹\n• 显示：全屏、GPU 渲染（更流畅，部分特效需要）、原版画面和色盲模式\n• 操作：瞄准后射击（在底部滑动瞄准，点击上方发射）、点击射击（点击泡泡要去的位置）或旋转和射击（倾斜手机）。灵敏度决定发射的泡泡离多近才会粘住。\n• 玩法：玩家名字、催促模式（等太久泡泡会自动发射）、压缩器（双人）、显示最佳成绩和重置关卡进度\n• 特效：闪光、震动、轨迹、瞄准辅助、振动等\n• 语言</string>
+  <string name="help_music_t">我的音乐</string>
+  <string name="help_music">在选项 › 音频中打开我的音乐文件夹，并选择一个放有你自己歌曲的文件夹：.mod、.xm、.it、.s3m 或 AdLib .rol。.rol 歌曲需要乐器库：旁边一个同名的 .bnk，或它所在文件夹或上级文件夹里的 standard.bnk。子文件夹也会被包含。\n\nAndroid 不允许直接选择 Download 文件夹本身：请使用其中的子文件夹，或 Music 里的文件夹。</string>
+  <string name="help_save_t">存档</string>
+  <string name="help_save">离开游戏时总会自动存档。再次选择同一模式即可继续或开始新游戏。解谜、街机和双人游戏各自保存一个存档。</string>
+  <string name="help_about_t">关于</string>
+  <string name="help_about">Frozen Bubble 由 Guillaume Cottenceau、Alexis Younes、Amaury Amblard-Ladurantie 和 Matthias Le Bidan 创作。Java 版本：Glenn Sanson。Android 移植：Pawel Aleksander Fedorynski 和 Eric Fortin。Frozen Bubble HD：Drew Baker。\n\n自由软件，以 GNU 通用公共许可证第 2 或第 3 版发布。\n\n源代码：https://github.com/dotelpenguin/frozenbubbleandroid</string>
+</resources>

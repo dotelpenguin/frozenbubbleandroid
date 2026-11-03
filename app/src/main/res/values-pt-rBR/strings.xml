@@ -2,27 +2,10 @@
 <resources>
   <string name="app_name">Frozen Bubble HD</string>
   <string name="exit">Sair</string>
-  <string name="install_editor">Redirecionando-o para o Android Market para baixar o Editor de Níveis do Frozen Bubble…</string>
-  <string name="market_missing">Não foi possível encontrar o Android Market! Instale o Editor de Níveis do Frozen Bubble manualmente.</string>
   <string name="menu_bluetooth_device">Dispositivo Bluetooth</string>
   <string name="menu_new_game">Nova partida</string>
-  <string name="menu_colorblind_on">Modo Daltônico ligado</string>
-  <string name="menu_colorblind_off">Modo Daltônico desligado</string>
-  <string name="menu_fullscreen_on">Tela inteira ligada</string>
-  <string name="menu_fullscreen_off">Tela inteira desligada</string>
-  <string name="menu_sound_options">Opções de som</string>
-  <string name="menu_about">Sobre</string>
-  <string name="menu_target_mode">Modo de acionamento</string>
-  <string name="menu_dont_rush_me">Não me apresse</string>
-  <string name="menu_rush_me">Me apresse</string>
-  <string name="menu_editor">Editor de Níveis</string>
-  <string name="menu_settings">Configurações</string>
   <string name="cancel">Cancelar</string>
   <string name="ok">OK</string>
-  <string name="play_level_music">Reproduzir música do nível</string>
-  <string name="play_sound_effects">Reproduzir efeitos de som</string>
-  <string name="save_and_exit">Salvar e sair</string>
-  <string name="title_activity_frozen_bubble">Frozen Bubble HD</string>
   <string name="title_activity_home_screen">Frozen Bubble HD</string>
   <string name="scrolling_credits">"Desenvolvimento inicial\n"
     "------------------------\n"
@@ -92,23 +75,12 @@
     <item>Tocar e atirar</item>
     <item>Girar e atirar</item>
   </string-array>
-  <string-array name="sound_options_array">
-    <item>@string/play_sound_effects</item>
-    <item>@string/play_level_music</item>
-  </string-array>
-  <string-array name="targeting_values_array">
-    <item>0</item>
-    <item>1</item>
-    <item>2</item>
-   </string-array>
-  <string name="game_options">Opções do jogo</string>
   <string name="options">Opções</string>
   <string name="back">Voltar</string>
   <string name="cpu_easy">Fácil</string>
   <string name="cpu_normal">Normal</string>
   <string name="cpu_hard">Difícil</string>
   <string name="cpu_expert">Especialista</string>
-  <string name="about">Sobre</string>
   <string name="credits">Créditos</string>
   <string name="opt_music_sound">Áudio</string>
   <string name="opt_display">Tela</string>

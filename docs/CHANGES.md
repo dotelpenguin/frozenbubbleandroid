@@ -73,24 +73,31 @@ Java packages keep their original names (the Gradle `namespace`).
 
 - **First start setup**: language, player name, and the Bluetooth
   permission.
-- **Home screen**: Resume (the saved game, named by mode, level or
-  difficulty), Puzzle, Arcade, 2 Player (Local, Vs CPU, Wi-Fi,
-  Bluetooth), High Scores, Options, Exit.  The phone's Back key goes
+- **Home screen**: Arcade, Puzzle, 2 Player (Local, Vs CPU, Wi-Fi,
+  Bluetooth), High Scores, Options, Help, Exit.  A mode with a saved
+  game asks to resume it or start a new one.  The phone's Back key goes
   back a page.
+- **Help**: a scrolling page over a blurred home screen picture: how to
+  play (with the game's buttons), each mode, Arcade scoring, 2 Player,
+  High Scores, the options, My Music, saving, and About (version,
+  authors, licence, source code link) with the Credits.  Translated into
+  all seven languages.
 - **Options** (home screen): Audio (music, sound effects, My Music and
   its folder), Display (full screen, GPU rendering, original art,
   colour-blind), Controls (aim & shoot / tap to shoot / rotate & shoot,
   sensitivity), Gameplay (player name, hurry mode, 2P compressor, best
-  score in game, reset progress), Effects, Language, and Credits.
+  score in game, reset progress), Effects and Language.  (Credits moved
+  to Help.)
 - **In-game menu**: Resume, Options, Quit.  In-game Options has the
-  same groups plus High Scores, About, and Restart Level and Choose
+  same groups plus High Scores, Help, and Restart Level and Choose
   Level in Puzzle (New Game in the other modes).  Options that only
   apply to a new game offer to restart it.
 - **Language**: chosen in Options or follows the phone; all new text is
   translated into German, Spanish, French, Icelandic, Brazilian
   Portuguese and Simplified Chinese.
-- The old phone Menu-key menu is still in the code but replaced by the
-  above; it is due to be removed.
+- The old phone Menu-key menu, its dialogs and other unused code and
+  resources are removed.  The About screen lists the current source
+  code address (GitHub).
 - The Difficulty option was removed: Arcade asks for the difficulty
   when a game starts (Normal by default).
 

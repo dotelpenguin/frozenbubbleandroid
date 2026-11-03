@@ -62,7 +62,14 @@
       android:name="com.efortin.frozenbubble.ScrollingCredits"
       android:exported="false"
       android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize"
-      android:label="@string/menu_about">
+      android:label="@string/credits">
+    </activity>
+
+    <activity
+      android:name="com.efortin.frozenbubble.HelpActivity"
+      android:exported="false"
+      android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize"
+      android:label="@string/help">
     </activity>
 
     <activity

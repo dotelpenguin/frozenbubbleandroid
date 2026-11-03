@@ -59,20 +59,25 @@ Not a problem: `startActivityForResult` / `onActivityResult` and
 `requestPermissions` are only deprecated in AndroidX, which the app
 doesn't use.  `Vibrator.vibrate(long)` only runs on Android 7.
 
-## 3. Probably dead code (delete)
+## 3. Dead code (removed)
 
-- [ ] [X] The old options menu (hardware Menu key): `onCreateOptionsMenu`,
-  `onPrepareOptionsMenu`, `handleMenuAction` (except About), the
-  `MENU_*` constants, `soundOptionsDialog`, `targetOptionsDialog`, and
-  their `menu_*` strings.  Replaced by the bubble Options menus.
-- [ ] [X] Level Editor install prompt: `MENU_EDITOR`, `install_editor`,
-  `market_missing` (the old editor app and Android Market are gone).
-  Keep the `EDITORACTION` intent path only if we keep accepting levels
-  from other apps.
-- [ ] [X] `drawLowScoreScreen` / `drawHighScoreScreen` / `drawArcadeScoreScreen`
-  for Puzzle and Arcade (no longer shown); check the 2 player use.
-- [ ] [X] `res/layout/seek_bar_preference.xml` and other old Preferences
-  screen leftovers.
+- [x] [X] The old options menu (hardware Menu key): `onCreateOptionsMenu`,
+  `onPrepareOptionsMenu`, `onOptionsItemSelected`, `handleMenuAction`,
+  the `MENU_*` constants, `soundOptionsDialog`, `targetOptionsDialog`,
+  and their `menu_*` strings.  The in-game About button now calls
+  `showAbout()`.
+- [x] [X] Level Editor install prompt: `MENU_EDITOR`, `install_editor`,
+  `market_missing`.  The `EDITORACTION` intent (levels sent by other
+  apps) is kept for now, for a future level editor.
+- [x] [X] `drawHighScoreScreen` / `drawArcadeScoreScreen` (Puzzle and
+  Arcade no longer show them).  `drawLowScoreScreen` stays: 2 player
+  games show it between rounds.
+- [x] [X] The credits-at-the-end-of-Original path: `clearGameScreen`,
+  `ResumeGameScreenTask`, the blank About screen (`mBlankScreen`).
+- [x] [X] Unused resources: `seek_bar_preference.xml`,
+  `activity_splash_screen.xml`, the old launcher icon
+  (`app_frozen_bubble`), `close_eyes`, `void_panel`, `round_button`, and
+  20 unused strings in every language.
 
 ## 4. Other things to know
 

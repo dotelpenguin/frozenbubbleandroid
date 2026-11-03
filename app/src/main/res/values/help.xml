@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The Help screen (HelpActivity). -->
+<resources>
+  <string name="help">Help</string>
+  <string name="help_version">Frozen Bubble HD %1$s</string>
+  <string name="help_play_t">How to Play</string>
+  <string name="help_play">Aim the launcher at the bottom and fire. Join 3 or more bubbles of the same color and they pop; bubbles left hanging with nothing holding them up drop away.\n\nDon’t let the bubbles cross the line at the bottom.\n\nTap the launcher to swap your bubble with the next one.</string>
+  <string name="help_btn_next">Next song</string>
+  <string name="help_btn_menu">Menu</string>
+  <string name="help_btn_pause">Pause</string>
+  <string name="help_puzzle_t">Puzzle</string>
+  <string name="help_puzzle">Clear every bubble to win the level. Every few shots the ceiling pushes down, so plan ahead.\n\nChoose Level shows a preview of each level: tap any level you have reached to play it. Use ◀ ▶ to switch level packs:\n• Original: the 100 classic levels\n• Easy, Medium and Hard: 30 levels each\n• Pictures: 24 pixel-art puzzles\n\nEach pack keeps its own progress and best scores. Finish a pack to go on to the next one, or play it again.</string>
+  <string name="help_arcade_t">Arcade</string>
+  <string name="help_arcade">Pick a difficulty, from Easy (4 colors) to Insane (8 colors), and play for as long as you can. The bubbles slowly creep down, and each new row slides out of the top frozen, then melts when it joins the game. The game ends when the bubbles cross the line.</string>
+  <string name="help_scoring_t">Arcade Scoring</string>
+  <string name="help_scoring">• Each popped bubble: 10 points\n• Dropped bubbles: 20 each, plus a bonus for big drops (10 at once: 600)\n• Combo: clearing shots in a row multiply your points, up to ×3. A shot that clears nothing resets it.\n• Difficulty: Easy ×1, Normal ×1.5, Medium ×2, Hard ×2.5, Insane ×3\n\nBig drops and long combos beat lots of small pops.</string>
+  <string name="help_2p_t">2 Player</string>
+  <string name="help_2p">• Vs CPU: play the penguin, at Easy, Normal, Hard or Expert\n• Local: two players on one device, with game controllers\n• Wi-Fi and Bluetooth: play a friend on another phone (for Bluetooth, pair the phones in Android’s settings first)\n\nPop more than 3 at once and the extra bubbles land on your opponent’s side. The first player whose bubbles cross the line loses the round.</string>
+  <string name="help_scores_t">High Scores</string>
+  <string name="help_scores">The top 10 Arcade scores, and the best wins against the CPU: hardest CPU first, then fewest shots, then fastest. Your best for each Puzzle level shows in Choose Level.</string>
+  <string name="help_options_t">Options</string>
+  <string name="help_options">• Audio: music, sound effects and My Music\n• Display: full screen, GPU rendering (smoother, and needed for some effects), the original art and colorblind bubbles\n• Controls: Aim &amp; Shoot (slide at the bottom to aim, tap above to fire), Tap to Shoot (tap where the bubble should go) or Rotate &amp; Shoot (tilt the phone). Sensitivity sets how close a shot must pass to stick.\n• Gameplay: your name, Hurry Mode (wait too long and the bubble fires by itself), 2P Compressor, Best Score and Reset Progress\n• Effects: sparkles, shake, shot trail, aiming guide, vibration and more\n• Language</string>
+  <string name="help_music_t">My Music</string>
+  <string name="help_music">Turn on My Music in Options › Audio and choose a folder of your own songs: .mod, .xm, .it, .s3m or AdLib .rol. A .rol song needs its instrument bank: a .bnk with the same name next to it, or a standard.bnk in its folder or a folder above it. Folders inside the music folder are included.\n\nAndroid doesn’t allow the Download folder itself: use a folder inside it, or inside Music.</string>
+  <string name="help_save_t">Saving</string>
+  <string name="help_save">Leaving a game always saves it. Choose the same mode again to resume it or to start a new game. Puzzle, Arcade and 2 Player each keep their own saved game.</string>
+  <string name="help_about_t">About</string>
+  <string name="help_about">Frozen Bubble was created by Guillaume Cottenceau, Alexis Younes, Amaury Amblard-Ladurantie and Matthias Le Bidan. Java version by Glenn Sanson. Android port by Pawel Aleksander Fedorynski and Eric Fortin. Frozen Bubble HD by Drew Baker.\n\nFree software under the GNU General Public License, version 2 or 3.\n\nSource code: https://github.com/dotelpenguin/frozenbubbleandroid</string>
+</resources>

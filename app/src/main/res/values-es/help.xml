@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The Help screen (HelpActivity). -->
+<resources>
+  <string name="help">Ayuda</string>
+  <string name="help_version">Frozen Bubble HD %1$s</string>
+  <string name="help_play_t">Cómo se juega</string>
+  <string name="help_play">Apunta con el lanzador de abajo y dispara. Junta 3 o más burbujas del mismo color y explotan; las burbujas que quedan colgando sin nada que las sujete caen.\n\nNo dejes que las burbujas crucen la línea de abajo.\n\nToca el lanzador para cambiar tu burbuja por la siguiente.</string>
+  <string name="help_btn_next">Siguiente canción</string>
+  <string name="help_btn_menu">Menú</string>
+  <string name="help_btn_pause">Pausa</string>
+  <string name="help_puzzle_t">Puzle</string>
+  <string name="help_puzzle">Elimina todas las burbujas para ganar el nivel. Cada pocos disparos el techo baja, así que planifica.\n\nElegir nivel muestra una vista previa de cada nivel: toca cualquier nivel que hayas alcanzado para jugarlo. Usa ◀ ▶ para cambiar de paquete:\n• Original: los 100 niveles clásicos\n• Fácil, Medio y Difícil: 30 niveles cada uno\n• Dibujos: 24 puzles de pixel art\n\nCada paquete guarda su propio progreso y sus récords. Al terminar un paquete puedes pasar al siguiente o jugarlo otra vez.</string>
+  <string name="help_arcade_t">Arcade</string>
+  <string name="help_arcade">Elige una dificultad, de Fácil (4 colores) a Demencial (8 colores), y aguanta todo lo que puedas. Las burbujas bajan poco a poco, y cada fila nueva sale congelada por arriba y se derrite al entrar en juego. La partida termina cuando las burbujas cruzan la línea.</string>
+  <string name="help_scoring_t">Puntos en Arcade</string>
+  <string name="help_scoring">• Cada burbuja explotada: 10 puntos\n• Burbujas que caen: 20 cada una, más un bonus por caídas grandes (10 a la vez: 600)\n• Combo: los disparos seguidos que eliminan burbujas multiplican los puntos, hasta ×3. Un disparo que no elimina nada lo reinicia.\n• Dificultad: Fácil ×1, Normal ×1,5, Medio ×2, Difícil ×2,5, Demencial ×3\n\nLas caídas grandes y los combos largos valen más que muchas explosiones pequeñas.</string>
+  <string name="help_2p_t">2 jugadores</string>
+  <string name="help_2p">• Contra CPU: contra el pingüino, en Fácil, Normal, Difícil o Experto\n• Local: dos jugadores en un mismo dispositivo, con mandos\n• Wi-Fi y Bluetooth: contra un amigo en otro teléfono (para Bluetooth, empareja antes los teléfonos en los ajustes de Android)\n\nSi explotas más de 3 a la vez, las burbujas de más caen en el lado del rival. Pierde la ronda el primero cuyas burbujas crucen la línea.</string>
+  <string name="help_scores_t">Récords</string>
+  <string name="help_scores">Las 10 mejores puntuaciones de Arcade y las mejores victorias contra la CPU: primero la CPU más difícil, después menos disparos y después más rápido. Tu récord de cada nivel de Puzle aparece en Elegir nivel.</string>
+  <string name="help_options_t">Opciones</string>
+  <string name="help_options">• Audio: música, efectos de sonido y Mi música\n• Pantalla: pantalla completa, usar GPU (más fluido, y necesario para algunos efectos), gráficos clásicos y modo daltónico\n• Controles: Apuntar y tirar (desliza abajo para apuntar, toca arriba para disparar), Tocar y tirar (toca adonde debe ir la burbuja) o Girar y tirar (inclina el teléfono). La sensibilidad indica lo cerca que debe pasar un disparo para pegarse.\n• Juego: tu nombre, Modo prisa (si esperas demasiado, la burbuja sale sola), Compresor (2J), Mostrar récord y Reiniciar progreso\n• Efectos: destellos, temblor, estela, guía de puntería, vibración y más\n• Idioma</string>
+  <string name="help_music_t">Mi música</string>
+  <string name="help_music">Activa Mi música en Opciones › Audio y elige una carpeta con tus canciones: .mod, .xm, .it, .s3m o AdLib .rol. Una canción .rol necesita su banco de instrumentos: un .bnk con el mismo nombre al lado, o un standard.bnk en su carpeta o en una carpeta superior. También se incluyen las subcarpetas.\n\nAndroid no permite elegir la carpeta Download en sí: usa una carpeta dentro de ella o dentro de Music.</string>
+  <string name="help_save_t">Guardado</string>
+  <string name="help_save">Al salir de una partida siempre se guarda. Elige el mismo modo otra vez para continuarla o empezar una nueva. Puzle, Arcade y 2 jugadores guardan cada uno su propia partida.</string>
+  <string name="help_about_t">Acerca de</string>
+  <string name="help_about">Frozen Bubble fue creado por Guillaume Cottenceau, Alexis Younes, Amaury Amblard-Ladurantie y Matthias Le Bidan. Versión Java de Glenn Sanson. Versión para Android de Pawel Aleksander Fedorynski y Eric Fortin. Frozen Bubble HD de Drew Baker.\n\nSoftware libre bajo la Licencia Pública General de GNU, versión 2 o 3.\n\nCódigo fuente: https://github.com/dotelpenguin/frozenbubbleandroid</string>
+</resources>

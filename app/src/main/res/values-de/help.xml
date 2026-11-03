@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The Help screen (HelpActivity). -->
+<resources>
+  <string name="help">Hilfe</string>
+  <string name="help_version">Frozen Bubble HD %1$s</string>
+  <string name="help_play_t">So wird gespielt</string>
+  <string name="help_play">Ziele mit der Kanone unten und schieße. Verbinde 3 oder mehr Blasen derselben Farbe, dann platzen sie; Blasen, die danach nirgends mehr hängen, fallen herunter.\n\nLass die Blasen nicht über die Linie unten kommen.\n\nTippe auf die Kanone, um deine Blase mit der nächsten zu tauschen.</string>
+  <string name="help_btn_next">Nächstes Lied</string>
+  <string name="help_btn_menu">Menü</string>
+  <string name="help_btn_pause">Pause</string>
+  <string name="help_puzzle_t">Puzzle</string>
+  <string name="help_puzzle">Entferne alle Blasen, um das Level zu gewinnen. Alle paar Schüsse senkt sich die Decke – plane voraus.\n\n„Level wählen“ zeigt eine Vorschau jedes Levels: Tippe auf ein erreichtes Level, um es zu spielen. Mit ◀ ▶ wechselst du das Level-Paket:\n• Original: die 100 klassischen Level\n• Leicht, Mittel und Schwer: je 30 Level\n• Bilder: 24 Pixel-Art-Rätsel\n\nJedes Paket merkt sich seinen eigenen Fortschritt und seine Rekorde. Am Ende eines Pakets geht es mit dem nächsten weiter oder noch einmal von vorn.</string>
+  <string name="help_arcade_t">Arcade</string>
+  <string name="help_arcade">Wähle eine Schwierigkeit, von Leicht (4 Farben) bis Wahnsinnig (8 Farben), und spiele so lange du kannst. Die Blasen rücken langsam nach unten, und jede neue Reihe kommt gefroren oben heraus und taut auf, sobald sie ins Spiel kommt. Das Spiel endet, wenn die Blasen über die Linie kommen.</string>
+  <string name="help_scoring_t">Arcade-Punkte</string>
+  <string name="help_scoring">• Jede geplatzte Blase: 10 Punkte\n• Herabfallende Blasen: je 20, plus Bonus für große Mengen (10 auf einmal: 600)\n• Kombo: Treffer, die hintereinander Blasen entfernen, vervielfachen die Punkte, bis ×3. Ein Schuss ohne Treffer setzt sie zurück.\n• Schwierigkeit: Leicht ×1, Normal ×1,5, Mittel ×2, Schwer ×2,5, Wahnsinnig ×3\n\nGroße Abstürze und lange Kombos schlagen viele kleine Treffer.</string>
+  <string name="help_2p_t">2 Spieler</string>
+  <string name="help_2p">• Gegen CPU: gegen den Pinguin, auf Leicht, Normal, Schwer oder Experte\n• Lokal: zwei Spieler auf einem Gerät, mit Controllern\n• WLAN und Bluetooth: gegen Freunde auf einem anderen Handy (für Bluetooth die Handys vorher in den Android-Einstellungen koppeln)\n\nPlatzen mehr als 3 Blasen auf einmal, landen die zusätzlichen beim Gegner. Wessen Blasen zuerst über die Linie kommen, verliert die Runde.</string>
+  <string name="help_scores_t">Bestenliste</string>
+  <string name="help_scores">Die 10 besten Arcade-Ergebnisse und die besten Siege gegen die CPU: schwerste CPU zuerst, dann wenigste Schüsse, dann schnellste Zeit. Deinen Rekord für jedes Puzzle-Level siehst du unter „Level wählen“.</string>
+  <string name="help_options_t">Optionen</string>
+  <string name="help_options">• Audio: Musik, Soundeffekte und Eigene Musik\n• Anzeige: Vollbild, GPU-Grafik (flüssiger, und für manche Effekte nötig), Originalgrafik und Farbenblind-Blasen\n• Steuerung: Zielen (unten wischen zum Zielen, oben tippen zum Schießen), Antippen (dorthin tippen, wo die Blase hin soll) oder Drehen (Handy neigen). Die Empfindlichkeit legt fest, wie nah ein Schuss vorbeigehen muss, um hängen zu bleiben.\n• Spiel: dein Name, Eile-Modus (wer zu lange wartet, dem schießt die Kanone selbst), Presse (2P), Rekord anzeigen und Fortschritt löschen\n• Effekte: Funkeln, Wackeln, Schussspur, Zielhilfe, Vibration und mehr\n• Sprache</string>
+  <string name="help_music_t">Eigene Musik</string>
+  <string name="help_music">Schalte Eigene Musik unter Optionen › Audio ein und wähle einen Ordner mit eigenen Liedern: .mod, .xm, .it, .s3m oder AdLib-.rol. Ein .rol-Lied braucht seine Instrumentenbank: eine .bnk-Datei mit demselben Namen daneben, oder eine standard.bnk in seinem Ordner oder einem Ordner darüber. Unterordner werden mitgelesen.\n\nAndroid erlaubt den Download-Ordner selbst nicht: Nimm einen Ordner darin oder in Music.</string>
+  <string name="help_save_t">Speichern</string>
+  <string name="help_save">Ein verlassenes Spiel wird immer gespeichert. Wähle denselben Modus erneut, um weiterzuspielen oder neu zu beginnen. Puzzle, Arcade und 2 Spieler haben je einen eigenen Spielstand.</string>
+  <string name="help_about_t">Über</string>
+  <string name="help_about">Frozen Bubble stammt von Guillaume Cottenceau, Alexis Younes, Amaury Amblard-Ladurantie und Matthias Le Bidan. Java-Version von Glenn Sanson. Android-Umsetzung von Pawel Aleksander Fedorynski und Eric Fortin. Frozen Bubble HD von Drew Baker.\n\nFreie Software unter der GNU General Public License, Version 2 oder 3.\n\nQuellcode: https://github.com/dotelpenguin/frozenbubbleandroid</string>
+</resources>

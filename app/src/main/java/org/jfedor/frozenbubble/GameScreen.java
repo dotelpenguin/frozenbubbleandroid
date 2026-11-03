@@ -80,8 +80,7 @@ public abstract class GameScreen {
 
   public static enum stateEnum {
     RUNNING,
-    PAUSED,
-    ABOUT;
+    PAUSED;
   }
 
   private Vector<Sprite> sprites;

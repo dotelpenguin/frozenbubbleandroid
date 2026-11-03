@@ -2,27 +2,10 @@
 <resources>
   <string name="app_name">Frostkúlur HD</string>
   <string name="exit">Hætta í forriti</string>
-  <string name="install_editor">Beini þér í forritasafn þar sem þú getur sótt ritil fyrir Frostkúlu-borð</string>
-  <string name="market_missing">Finn ekki Android Market! Þú verður að setja handvirkt upp ritil fyrir Frostkúlu-borð</string>
   <string name="menu_bluetooth_device">Blátannartæki</string>
   <string name="menu_new_game">Byrja nýjan leik</string>
-  <string name="menu_colorblind_on">Litblinduhamur virkur</string>
-  <string name="menu_colorblind_off">Ekki litblinduham</string>
-  <string name="menu_fullscreen_on">Fylla skjá</string>
-  <string name="menu_fullscreen_off">Ekki fylla skjá</string>
-  <string name="menu_sound_options">Hljóð-valkostir</string>
-  <string name="menu_about">Um Frostkúlur</string>
-  <string name="menu_target_mode">Skothamur</string>
-  <string name="menu_dont_rush_me">Ekki ýta á eftir mér</string>
-  <string name="menu_rush_me">Ýta á eftir mér</string>
-  <string name="menu_editor">Borð-ritill</string>
-  <string name="menu_settings">Stillingar</string>
   <string name="cancel">Hætta við</string>
   <string name="ok">Í lagi</string>
-  <string name="play_level_music">Spila tónlist borðs</string>
-  <string name="play_sound_effects">Spila leikhljóð</string>
-  <string name="save_and_exit">Vista og hætta</string>
-  <string name="title_activity_frozen_bubble">Frostkúlur HD</string>
   <string name="title_activity_home_screen">Frostkúlur HD</string>
   <string name="scrolling_credits">"Upprunaleg hönnun\n"
     "------------------------\n"
@@ -92,19 +75,12 @@
     <item>Benda</item>
     <item>Snúa</item>
   </string-array>
-  <string-array name="targeting_values_array">
-    <item>0</item>
-    <item>1</item>
-    <item>2</item>
-   </string-array>
-  <string name="game_options">Leikstillingar</string>
   <string name="options">Stillingar</string>
   <string name="back">Til baka</string>
   <string name="cpu_easy">Auðvelt</string>
   <string name="cpu_normal">Venjulegt</string>
   <string name="cpu_hard">Erfitt</string>
   <string name="cpu_expert">Sérfræðingur</string>
-  <string name="about">Um</string>
   <string name="credits">Höfundar</string>
   <string name="opt_music_sound">Hljóð</string>
   <string name="opt_display">Skjár</string>
@@ -190,10 +166,6 @@
   <string name="folder_chosen">Valin mappa</string>
   <string name="opt_language">Tungumál</string>
   <string name="lang_system">Tungumál kerfis</string>
-  <string-array name="sound_options_array">
-    <item>@string/play_sound_effects</item>
-    <item>@string/play_level_music</item>
-  </string-array>
   <string name="setup_welcome">Velkomin(n) í Frozen Bubble HD!</string>
   <string name="setup_choose_language">Veldu tungumál</string>
   <string name="setup_name_question">Hvað heitir þú?</string>

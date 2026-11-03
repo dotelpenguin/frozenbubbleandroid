@@ -111,6 +111,7 @@ public class HomeScreen extends Activity {
   private final static int BTN13_ID  = 114;
   private final static int BTN14_ID  = 115;  // Exit / Back
   private final static int BTN15_ID  = 116;  // High Scores
+  private final static int BTN16_ID  = 117;  // Help
 
   private static int buttonSelPage1 = BTN1_ID;
   private static int buttonSelPage2 = BTN5_ID;
@@ -481,7 +482,35 @@ public class HomeScreen extends Activity {
      * Add view to layout.
      */
     myLayout.addView(gameExtrasButton, myParams);
-    addExitOrBackButton(gameExtrasButton.getId());
+    /*
+     * Help: how to play, the modes, scoring, the options, and About
+     * (with the Credits).
+     */
+    Button helpButton = new Button(this);
+    helpButton.setText(R.string.help);
+    MenuButtons.style(helpButton);
+    helpButton.setId(BTN16_ID);
+    helpButton.setFocusable(true);
+    helpButton.setFocusableInTouchMode(true);
+    helpButton.setOnClickListener(v -> {
+      buttonSelPage1 = BTN16_ID;
+      mSoundManager.playSound("stick", R.raw.stick);
+      startActivity(new Intent(this, HelpActivity.class));
+    });
+    helpButton.setOnTouchListener((v, event) -> {
+      // Take focus on touch so the first tap also clicks.
+      if (event.getAction() == MotionEvent.ACTION_DOWN)
+        v.requestFocus();
+      return false;
+    });
+    myParams = new LayoutParams(LayoutParams.WRAP_CONTENT,
+                                LayoutParams.WRAP_CONTENT);
+    myParams.addRule(RelativeLayout.CENTER_IN_PARENT);
+    myParams.addRule(RelativeLayout.BELOW, BTN4_ID);
+    myParams.topMargin = 15;
+    myParams.bottomMargin = 15;
+    myLayout.addView(helpButton, myParams);
+    addExitOrBackButton(helpButton.getId());
     /*
      * With a saved game, offer to continue it at the top of the menu.
      */
@@ -1352,6 +1381,7 @@ public class HomeScreen extends Activity {
     removeViewByID(BTN13_ID);
     removeViewByID(BTN14_ID);
     removeViewByID(BTN15_ID);
+    removeViewByID(BTN16_ID);
   }
 
   @Override
