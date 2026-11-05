@@ -16,7 +16,7 @@ Android Studio downloaded):
 
 **Count on 2026-11-01: 130 warnings, all `[deprecation]`, none
 `[unchecked]`.  On 2026-11-02: none** (sections 1 and 2 are done; the
-Wi-Fi network changes still need a two-phone test).  Android Studio's Analyze > Inspect Code (or the
+Wi-Fi and Bluetooth changes are tested on two phones).  Android Studio's Analyze > Inspect Code (or the
 `lintDebug` task) adds Android lint's view.
 
 Legend: **[B]** changes behaviour soon (do first), **[D]** deprecated but
