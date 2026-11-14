@@ -25,19 +25,22 @@ and check a Run configuration for `app` is selected.
 
 ## From a terminal
 
-The repository has no `gradlew` script yet, so use the Gradle that
-Android Studio downloaded.  On a Mac:
+The repository includes the Gradle wrapper, which downloads Gradle 9.6
+the first time it runs.  It needs Java 17 or newer; Android Studio's own
+will do.  On a Mac:
 
     export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
-    GRADLE=$(ls -d ~/.gradle/wrapper/dists/gradle-9.6.0-bin/*/gradle-9.6.0/bin/gradle | head -1)
-    "$GRADLE" :app:assembleDebug
+    ./gradlew :app:assembleDebug
+
+On Windows, use `gradlew.bat` instead.  The Android SDK is found from
+`local.properties` (Android Studio writes it) or `ANDROID_HOME`.
 
 The APK is written to `app/build/outputs/apk/debug/`.
 
 To see every compiler warning (the build lists deprecated API use; see
 [DEPRECATIONS.md](DEPRECATIONS.md)), force Java to recompile:
 
-    "$GRADLE" :app:compileDebugJavaWithJavac --rerun --no-build-cache
+    ./gradlew :app:compileDebugJavaWithJavac --rerun --no-build-cache
 
 Without `--rerun` only the files that changed are recompiled, so only
 their warnings show.

@@ -7,12 +7,9 @@ SDK 37 (Android 17) for new apps and updates from August 2027.
 The build prints every deprecated call (`-Xlint:deprecation`, up to
 1000 warnings, in `app/build.gradle.kts`): in Android Studio, Build >
 Rebuild Project, then the Build window lists them with file and line.
-From a terminal (the project has no `gradlew` yet; use the Gradle that
-Android Studio downloaded):
+From a terminal (see [BUILDING.md](BUILDING.md)):
 
-    export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
-    GRADLE=$(ls -d ~/.gradle/wrapper/dists/gradle-9.6.0-bin/*/gradle-9.6.0/bin/gradle | head -1)
-    "$GRADLE" :app:compileDebugJavaWithJavac --rerun --no-build-cache
+    ./gradlew :app:compileDebugJavaWithJavac --rerun --no-build-cache
 
 **Count on 2026-11-01: 130 warnings, all `[deprecation]`, none
 `[unchecked]`.  On 2026-11-02: none** (sections 1 and 2 are done; the

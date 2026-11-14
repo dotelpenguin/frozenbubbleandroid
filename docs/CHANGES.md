@@ -22,8 +22,9 @@ Java packages keep their original names (the Gradle `namespace`).
 
 - **Android Studio and Gradle** in place of Eclipse/Ant: Gradle Kotlin
   DSL, a version catalog (`gradle/libs.versions.toml`), Android Gradle
-  Plugin 9.4, Gradle 9.6, Java 17.  The standard `app/src/main` layout;
-  the Eclipse project files are gone.
+  Plugin 9.4, Gradle 9.6, Java 17, and the Gradle wrapper (`gradlew`).
+  The standard `app/src/main` layout; the Eclipse project files are
+  gone.
 - **libmodplug** (the music player) is built with CMake
   (`app/src/main/cpp/CMakeLists.txt`) instead of `ndk-build`, with a
   C++17 fix.

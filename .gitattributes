@@ -1,0 +1,4 @@
+# Keep the wrapper scripts runnable wherever the repository is checked out.
+/gradlew        text eol=lf
+*.bat           text eol=crlf
+*.jar           binary
