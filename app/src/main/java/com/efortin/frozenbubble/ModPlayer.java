@@ -78,6 +78,15 @@ public class ModPlayer {
   private static ModPlayer sOwner = null;
   private int songId  = 0;
   private Uri songUri = null;
+  /*
+   * Audio focus (see MusicFocus): the music plays only while it holds
+   * focus.  wantPlay is whether the game or menu wants the music
+   * playing now; a phone call pauses it without changing that, so it
+   * carries on afterwards.
+   */
+  private MusicFocus        focus    = null;
+  private volatile boolean  wantPlay = false;
+  private volatile Runnable onNoisy  = null;
 
   public ModPlayer(Context context,
                    int songId,
@@ -91,6 +100,10 @@ public class ModPlayer {
    * Stop the music player, close the thread, and free the instance.
    */
   public void destroyMusicPlayer() {
+    wantPlay = false;
+    if (focus != null) {
+      focus.abandon();
+    }
     synchronized(this) {
       if (resPlayer != null) {
         resPlayer.stopAndClose();
@@ -145,7 +158,9 @@ public class ModPlayer {
       this.songUri = null;
       takeOwnership();
       if (startPlaying && musicOn)
-        resPlayer.unPausePlay();
+        play();
+      else
+        wantPlay = false;
     }
   }
 
@@ -165,7 +180,9 @@ public class ModPlayer {
       takeOwnership();
     }
     if (ok && startPlaying && musicOn)
-      resPlayer.unPausePlay();
+      play();
+    else
+      wantPlay = false;
     return ok;
   }
 
@@ -203,17 +220,94 @@ public class ModPlayer {
     takeOwnership();
     // Loop the song forever.
     resPlayer.setLoopCount(loopCount);
+    focus = new MusicFocus(context, focusListener);
     // Turn the music on or off.
     setMusicOn(musicOn);
-    // Start the music thread (paused when music is off).
-    resPlayer.startPaused(startPaused || !musicOn);
+    // Start the music thread (paused when music is off, or until it has
+    // audio focus).
+    boolean play = !startPaused && musicOn;
+    wantPlay = play;
+    resPlayer.startPaused(!play || !focus.request());
     resPlayer.start();
   }
 
   public void pausePlay() {
+    wantPlay = false;
     if (resPlayer != null)
       resPlayer.pausePlay(false);
+    if (focus != null)
+      focus.abandon();
   }
+
+  /**
+   * Called (on the UI thread) when headphones are unplugged or
+   * disconnected, after the music has stopped: the game pauses too.
+   */
+  public void setOnNoisy(Runnable r) {
+    onNoisy = r;
+  }
+
+  /** Play once the music has audio focus (now, or when it comes). */
+  private void play() {
+    wantPlay = true;
+    if ((focus == null) || focus.request()) {
+      reloadIfReplaced();
+      resPlayer.setVolume(255);
+      resPlayer.unPausePlay();
+    }
+  }
+
+  /** Focus changes, on the UI thread. */
+  private final MusicFocus.Listener focusListener = new MusicFocus.Listener() {
+    @Override
+    public void onFocusGain() {
+      MODResourcePlayer p = resPlayer;
+      if ((p == null) || !musicOn) {
+        return;
+      }
+      p.setVolume(255);
+      if (wantPlay) {
+        p.unPausePlay();
+      }
+    }
+
+    @Override
+    public void onFocusPause() {
+      MODResourcePlayer p = resPlayer;
+      if (p != null) {
+        p.pausePlay(false);   // wantPlay stays: it plays again after
+      }
+    }
+
+    @Override
+    public void onFocusLoss() {
+      wantPlay = false;
+      MODResourcePlayer p = resPlayer;
+      if (p != null) {
+        p.pausePlay(false);
+      }
+    }
+
+    @Override
+    public void onDuck() {
+      MODResourcePlayer p = resPlayer;
+      if ((p != null) && musicOn) {
+        p.setVolume(DUCK_VOLUME);
+      }
+    }
+
+    @Override
+    public void onNoisy() {
+      pausePlay();
+      Runnable r = onNoisy;
+      if (r != null) {
+        r.run();
+      }
+    }
+  };
+
+  /** How loud the music is while a navigation prompt speaks (0 to 255). */
+  private static final int DUCK_VOLUME = 64;
 
   /**
    * Turn music on or off.  Turning it off pauses the song; turning it
@@ -229,8 +323,11 @@ public class ModPlayer {
       resPlayer.setVolume(255);
     }
     else {
+      wantPlay = false;
       resPlayer.setVolume(0);
       resPlayer.pausePlay(true);
+      if (focus != null)
+        focus.abandon();
     }
   }
 
@@ -242,8 +339,7 @@ public class ModPlayer {
 
   public void unPausePlay() {
     if ((resPlayer != null) && musicOn) {
-      reloadIfReplaced();
-      resPlayer.unPausePlay();
+      play();
     }
   }
 }

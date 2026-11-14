@@ -1573,6 +1573,8 @@ public class FrozenBubble extends Activity
                                   getMusicOn(),
                                   useCustom || !startPlaying);
       myModPlayer.setPlayerListener(this);
+      // Headphones unplugged: the music has stopped; pause the game too.
+      myModPlayer.setOnNoisy(this::pause);
     }
     else if (!useCustom) {
       myModPlayer.loadNewSong(MODlist[modNow], startPlaying);

@@ -118,6 +118,11 @@ Java packages keep their original names (the Gradle `namespace`).
 - A **next song** button, in 1 and 2 player games.
 - Music loops correctly after the credits; volume follows the phone's
   media volume.
+- **Makes way for other sounds** (audio focus): the music pauses for
+  a phone call or alarm and carries on after it; it stops when another
+  app plays music or a video (and comes back when the game resumes);
+  it plays quietly under navigation prompts; and unplugging or
+  disconnecting headphones stops the music and pauses the game.
 - Songs are chosen and loaded on their own thread, and the music folder
   is rescanned in the background, so starting a level no longer stalls
   the game for a moment (with a big folder it could stall for a second
