@@ -148,6 +148,9 @@ Java packages keep their original names (the Gradle `namespace`).
   difficulty multiplier (x1 Easy to x3 Insane).  The speed no longer
   increases.  So all difficulties share one leaderboard.
 - **Live score** on a wooden sign above "1 UP".
+- The combo multiplier stops at ×3 (5 clearing shots in a row), but
+  the streak keeps counting: past ×3 the flash reads "COMBO 8 ×3!", and
+  the game-over summary and Stats show the longest streak.
 - The incoming row is **iced over** while it slides out of the
   compressor (it can't be hit yet) and **melts** in a quick wave when it
   joins the play field.

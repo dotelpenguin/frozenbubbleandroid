@@ -216,6 +216,7 @@
   <string name="sum_popped">消除</string>
   <string name="sum_dropped">掉落</string>
   <string name="sum_best_combo">最佳连击</string>
+  <string name="sum_streak">最长连续</string>
   <string name="sum_shots">发射</string>
   <string name="sum_time">时间</string>
   <string name="play_again">再玩一次</string>

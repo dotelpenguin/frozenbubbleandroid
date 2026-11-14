@@ -219,6 +219,7 @@
   <string name="sum_popped">Sprungnar</string>
   <string name="sum_dropped">Fallnar</string>
   <string name="sum_best_combo">Besta samsetning</string>
+  <string name="sum_streak">Lengsta röð</string>
   <string name="sum_shots">Skot</string>
   <string name="sum_time">Tími</string>
   <string name="play_again">Spila aftur</string>

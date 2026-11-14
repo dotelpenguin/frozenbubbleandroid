@@ -46,11 +46,12 @@ public final class Stats {
   /* Bests (the highest value seen). */
   public static final String BIGGEST_DROP = "biggest_drop";
   public static final String BEST_COMBO   = "best_combo"; // combo step, 1-5
+  public static final String LONGEST_STREAK = "longest_streak"; // clears in a row
 
   private static final String[] KEYS = {
     PUZZLE_WON, PUZZLE_LOST, ARCADE_GAMES, CPU_WON, CPU_LOST, LOCAL_WON,
     LOCAL_LOST, NET_WON, NET_LOST, SHOTS, CLEARS, POPPED, DROPPED, TIME_MS,
-    BIGGEST_DROP, BEST_COMBO,
+    BIGGEST_DROP, BEST_COMBO, LONGEST_STREAK,
   };
 
   private static Context           sContext = null;

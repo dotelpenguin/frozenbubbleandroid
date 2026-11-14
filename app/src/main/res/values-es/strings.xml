@@ -219,6 +219,7 @@
   <string name="sum_popped">Explotadas</string>
   <string name="sum_dropped">Caídas</string>
   <string name="sum_best_combo">Mejor combo</string>
+  <string name="sum_streak">Racha más larga</string>
   <string name="sum_shots">Disparos</string>
   <string name="sum_time">Tiempo</string>
   <string name="play_again">Jugar de nuevo</string>

@@ -700,11 +700,13 @@ public class FrozenGame extends GameScreen {
   private long shownScore = 0;   // rolls up to the score
   private int  combo      = 0;   // clearing shots in a row
   private int  comboShown = 0;   // the combo flash being shown
+  private int  streakShown = 0;  // its clearing shots in a row
   private int  comboAge   = SCORE_FX_TIME;
   /* For the end-of-game summary. */
   private int  totalPopped  = 0;
   private int  totalDropped = 0;
   private int  bestCombo    = 0;   // combo step (1 = x1 ... 5 = x3)
+  private int  longestStreak = 0; // clearing shots in a row (no cap)
   private final Vector<ScorePopup> popups = new Vector<ScorePopup>();
 
   /** Points for one clearing shot (before the combo and difficulty). */
@@ -725,8 +727,10 @@ public class FrozenGame extends GameScreen {
     totalPopped  += popped;
     totalDropped += dropped;
     bestCombo     = Math.max(bestCombo, c);
+    longestStreak = Math.max(longestStreak, combo);
     if (localPlayer) {
       com.efortin.frozenbubble.Stats.best(com.efortin.frozenbubble.Stats.BEST_COMBO, c);
+      com.efortin.frozenbubble.Stats.best(com.efortin.frozenbubble.Stats.LONGEST_STREAK, combo);
     }
     int d = Math.max(LevelManager.EASY,
                      Math.min(LevelManager.INSANE, levelManager.getLevelIndex()));
@@ -736,8 +740,9 @@ public class FrozenGame extends GameScreen {
     score += points;
     popups.addElement(new ScorePopup((float) x + 16, (float) y, points));
     if (combo >= 2) {
-      comboShown = c;
-      comboAge   = 0;
+      comboShown  = c;
+      streakShown = combo;
+      comboAge    = 0;
     }
   }
 
@@ -777,6 +782,14 @@ public class FrozenGame extends GameScreen {
     return bestCombo;
   }
 
+  /**
+   * The most clearing shots in a row this game.  The multiplier stops at
+   * x3 (5 in a row), but the streak keeps counting.
+   */
+  public int getLongestStreak() {
+    return longestStreak;
+  }
+
   public int getShots() {
     return nbBubbles;
   }
@@ -793,6 +806,11 @@ public class FrozenGame extends GameScreen {
   /** The combo flash: its multiplier step (2 = x1.5 ...), or 0. */
   public int getComboFlash() {
     return (comboAge < SCORE_FX_TIME) ? comboShown : 0;
+  }
+
+  /** The combo flash's clearing shots in a row. */
+  public int getComboFlashStreak() {
+    return streakShown;
   }
 
   public int getComboFlashAge() {
@@ -1484,6 +1502,7 @@ public class FrozenGame extends GameScreen {
     totalPopped    = map.getInt(String.format("%d-totalPopped", player), 0);
     totalDropped   = map.getInt(String.format("%d-totalDropped", player), 0);
     bestCombo      = map.getInt(String.format("%d-bestCombo", player), 0);
+    longestStreak  = map.getInt(String.format("%d-longestStreak", player), 0);
     sendToOpponent = map.getInt(String.format("%d-sendToOpponent", player));
     blinkDelay     = map.getInt(String.format("%d-blinkDelay", player));
     int hurryId    = map.getInt(String.format("%d-hurryId", player));
@@ -1626,6 +1645,7 @@ public class FrozenGame extends GameScreen {
     map.putInt(String.format("%d-totalPopped", player), totalPopped);
     map.putInt(String.format("%d-totalDropped", player), totalDropped);
     map.putInt(String.format("%d-bestCombo", player), bestCombo);
+    map.putInt(String.format("%d-longestStreak", player), longestStreak);
     map.putInt(String.format("%d-sendToOpponent", player), sendToOpponent);
     map.putInt(String.format("%d-blinkDelay", player), blinkDelay);
     hurrySprite.saveState(map, savedSprites, player);

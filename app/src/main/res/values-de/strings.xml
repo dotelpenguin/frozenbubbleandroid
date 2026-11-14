@@ -219,6 +219,7 @@
   <string name="sum_popped">Geplatzt</string>
   <string name="sum_dropped">Gefallen</string>
   <string name="sum_best_combo">Beste Kombo</string>
+  <string name="sum_streak">Längste Serie</string>
   <string name="sum_shots">Schüsse</string>
   <string name="sum_time">Zeit</string>
   <string name="play_again">Nochmal spielen</string>

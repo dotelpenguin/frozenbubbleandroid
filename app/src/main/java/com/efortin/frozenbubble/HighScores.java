@@ -435,6 +435,9 @@ public class HighScores {
     long combo = Stats.get(Stats.BEST_COMBO);
     box.addView(statRow(activity.getString(R.string.st_best_combo),
                         (combo > 1) ? "×" + half((int) combo + 1) : "–"));
+    long streak = Stats.get(Stats.LONGEST_STREAK);
+    box.addView(statRow(activity.getString(R.string.sum_streak),
+                        (streak > 1) ? count(streak) : "–"));
 
     // 2 Player.
     box.addView(heading(R.string.home_2player));

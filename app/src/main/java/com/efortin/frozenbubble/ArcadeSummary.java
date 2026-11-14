@@ -158,6 +158,9 @@ public final class ArcadeSummary {
         Integer.toString(s.getInt("shots")), R.string.sum_shots, lg));
     row2.addView(stat(activity, R.drawable.bubble_8_hd,
         HighScores.time(s.getLong("time")), R.string.sum_time, lg));
+    int streak = s.getInt("streak");
+    row2.addView(stat(activity, R.drawable.bubble_3_hd,
+        (streak > 1) ? Integer.toString(streak) : "–", R.string.sum_streak, lg));
     root.addView(row2);
 
     Button again = MenuButtons.create(activity, R.string.play_again,

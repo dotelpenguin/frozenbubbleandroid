@@ -1911,7 +1911,11 @@ public class GameView extends SurfaceView
         // The multiplier: x1.5, x2, x2.5, x3.
         String mult = ((combo % 2) == 0) ? ((combo + 1) / 2) + ".5"
                                          : Integer.toString((combo + 1) / 2);
-        drawFxText(canvas, "COMBO ×" + mult + "!", SCORE_SIGN_X, 250,
+        // Past x3 the multiplier stays, and the streak shows: "COMBO 8 ×3!"
+        int streak = mFrozenGame1.getComboFlashStreak();
+        String text = (streak > FrozenGame.COMBO_MAX)
+            ? "COMBO " + streak + " ×" + mult + "!" : "COMBO ×" + mult + "!";
+        drawFxText(canvas, text, SCORE_SIGN_X, 250,
                    22f * grow, alpha,
                    com.efortin.frozenbubble.ArcadeSummary.titleFont(mContext),
                    0xFFFFD23C, 0xFF782800);
@@ -2299,6 +2303,7 @@ public class GameView extends SurfaceView
       b.putInt ("popped",     mFrozenGame1.getTotalPopped());
       b.putInt ("dropped",    mFrozenGame1.getTotalDropped());
       b.putInt ("bestCombo",  mFrozenGame1.getBestCombo());
+      b.putInt ("streak",     mFrozenGame1.getLongestStreak());
       b.putInt ("shots",      mFrozenGame1.getShots());
       b.putInt ("difficulty", mLevelManager.getLevelIndex());
       int rank = 0;
