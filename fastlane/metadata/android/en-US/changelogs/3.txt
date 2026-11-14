@@ -1,0 +1,8 @@
+First release of Frozen Bubble HD (1.2), a modernised Frozen Bubble:
+- HD art, new menus, 7 languages, Android 16
+- Puzzle: Choose Level and 4 new level packs
+- Arcade: points, combos, difficulties, game over summary
+- 2 Player: Vs CPU; Wi-Fi and Bluetooth fixes
+- Your own music: MOD, XM, IT, S3M and AdLib ROL
+- High scores, Stats, Help & About
+- Music pauses for calls and other apps

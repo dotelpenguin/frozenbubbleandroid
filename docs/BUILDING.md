@@ -62,3 +62,4 @@ their warnings show.
 | `tools/hd-art/` | Scripts that made the HD art (Python 3 + Pillow) |
 | `tools/levels/` | Level tools: check, measure, generate and pack levels |
 | `docs/` | These notes |
+| `fastlane/metadata/android/` | The store listing (title, descriptions, changelog per versionCode, icon, feature graphic, screenshots), read by F-Droid; the same text can go on Google Play |

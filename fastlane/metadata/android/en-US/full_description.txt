@@ -1,0 +1,38 @@
+<p>Frozen Bubble is the classic bubble shooter: aim, fire, and pop groups of three or more bubbles of the same colour before the ceiling comes down.  Frozen Bubble HD brings the much-loved Android port up to date, with HD art, new modes and menus, and nothing you didn't ask for: no ads, no in-app purchases, no tracking.</p>
+
+<p><b>Puzzle</b></p>
+<ul>
+<li>The 100 original levels, plus four new packs: Easy, Medium, Hard and Pictures (pixel-art levels).</li>
+<li>Choose any level you have reached from a grid of level previews.</li>
+<li>Best scores for every level.</li>
+</ul>
+
+<p><b>Arcade</b></p>
+<ul>
+<li>Endless play with points for every bubble cleared, more for dropped ones.</li>
+<li>Combos for clearing shots in a row, and five difficulties from Easy to Insane, all on one leaderboard.</li>
+<li>A live score and a game over summary with your best combo and longest streak.</li>
+</ul>
+
+<p><b>2 Player</b></p>
+<ul>
+<li>Play against the phone at four skill levels, or against a friend on the same phone, over Wi-Fi or over Bluetooth.</li>
+</ul>
+
+<p><b>Your own music</b></p>
+<ul>
+<li>Choose a folder of your own tracker songs (.mod, .xm, .it, .s3m) or AdLib songs (.rol with their .bnk instrument banks), and the game plays them.</li>
+<li>The music pauses for calls and other apps, and stops when headphones are unplugged.</li>
+</ul>
+
+<p><b>And more</b></p>
+<ul>
+<li>HD art at four times the original detail, or the original pixels if you prefer.</li>
+<li>Smooth on 90 and 120 Hz screens, full screen and edge to edge.</li>
+<li>High scores, a Stats page, and optional effects: sparkles, screen shake, aiming guide and more.</li>
+<li>A colour-blind mode, three ways to aim and shoot, and seven languages: English, German, Spanish, French, Icelandic, Brazilian Portuguese and Simplified Chinese.</li>
+</ul>
+
+<p>Frozen Bubble was created by Guillaume Cottenceau, Alexis Younes, Amaury Amblard-Ladurantie and Matthias Le Bidan, and brought to Java by Glenn Sanson.  The Android port is by Pawel Aleksander Fedorynski and Eric Fortin; Frozen Bubble HD is by Drew Baker.  It installs beside the original Frozen Bubble rather than replacing it.</p>
+
+<p>Free software under the GNU General Public License (version 2 or 3).  The internet and network permissions are only for 2 Player games over Wi-Fi; the game sends nothing anywhere else.</p>
