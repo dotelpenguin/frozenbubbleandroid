@@ -12,6 +12,22 @@ at its `master` branch (commit `c3ac715`, April 2020, version 4.4).
 - **Level packs and level tools:** [docs/LEVEL_PACKS.md](docs/LEVEL_PACKS.md)
 - **Deprecated Android APIs (work list):** [docs/DEPRECATIONS.md](docs/DEPRECATIONS.md)
 
+## Screenshots
+
+<table>
+<tr>
+<td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="200" alt="Home screen"><br><sub>Home screen</sub></td>
+<td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="200" alt="Arcade"><br><sub>Arcade</sub></td>
+<td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="200" alt="Arcade: hurry!"><br><sub>Arcade: hurry!</sub></td>
+<td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="200" alt="Choose Level"><br><sub>Choose Level</sub></td>
+</tr>
+<tr>
+<td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width="200" alt="Puzzle: Pictures pack"><br><sub>Puzzle: Pictures pack</sub></td>
+<td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.png" width="300" alt="2 Player"><br><sub>2 Player</sub></td>
+<td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/7.png" width="200" alt="High Scores"><br><sub>High Scores</sub></td>
+</tr>
+</table>
+
 ## Why this port
 
 I have ADHD, and Frozen Bubble has been on my phone for more than 15
