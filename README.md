@@ -55,21 +55,31 @@ with Android Gradle Plugin 9.4, Gradle 9.6, Java 17; the libmodplug music
 player is built with CMake from `app/src/main/cpp`.  See
 [docs/BUILDING.md](docs/BUILDING.md) for terminal builds.
 
+## Download
+
+Frozen Bubble HD is not in any app store yet.  Signed APKs will be on
+this repository's
+[Releases page](https://github.com/dotelpenguin/frozenbubbleandroid/releases);
+to install one, allow your browser or file manager to "Install unknown
+apps".  The [Obtainium](https://github.com/ImranR98/Obtainium) app can
+watch the Releases page and keep the game up to date.  Or build it
+yourself (see [Building](#building)).
+
+Frozen Bubble HD has its own application ID
+(`io.github.dotelpenguin.frozenbubblehd`), so it installs beside the
+original Frozen Bubble rather than replacing it.
+
 ## History
 
 Originally developed with SDK v20.1.0, using API level 4 (version 1.6
-Donut), later with SDK v25.2.5 and NDK r10e using API level 12.  The store
-links below are the original project's releases (Google Play is still
-updated by the original developer; F-Droid has version 4.4 from 2017).
-Frozen Bubble HD has its own application ID
-(`io.github.dotelpenguin.frozenbubblehd`), so it installs beside these.
+Donut), later with SDK v25.2.5 and NDK r10e using API level 12.
 
-<a href="https://f-droid.org/packages/org.jfedor.frozenbubble/" target="_blank">
-<img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80"/></a>
-<a href="https://play.google.com/store/apps/details?id=org.jfedor.frozenbubble" target="_blank">
-<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" alt="Get it on Google Play" height="80"/></a>
-<a href="https://www.amazon.com/Eric-Fortin-Frozen-Bubble/dp/B00F4ITDME" target="_blank">
-<img src="https://images-na.ssl-images-amazon.com/images/G/01/mobile-apps/devportal2/res/images/amazon-underground-app-us-black.png" alt="Available at Amazon Appstore" height="80"/></a>
+The original Frozen Bubble for Android (`org.jfedor.frozenbubble`) is a
+separate app, published by its own developer, and is still available on
+[F-Droid](https://f-droid.org/packages/org.jfedor.frozenbubble/) (version
+4.4, 2017) and
+[Google Play](https://play.google.com/store/apps/details?id=org.jfedor.frozenbubble).
+Those are not Frozen Bubble HD.
 
 ## Credits and licence
 
